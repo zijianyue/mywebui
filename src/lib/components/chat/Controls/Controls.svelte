@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { onMount, createEventDispatcher, getContext } from 'svelte';
 	const dispatch = createEventDispatcher();
 	const i18n = getContext('i18n');
 
@@ -7,12 +7,33 @@
 	import AdvancedParams from '../Settings/Advanced/AdvancedParams.svelte';
 	import Valves from '$lib/components/chat/Controls/Valves.svelte';
 	import FileItem from '$lib/components/common/FileItem.svelte';
+	import { prompts, settings } from '$lib/stores';
+	import { toast } from 'svelte-sonner';
+	import { updateUserSettings } from '$lib/apis/users';
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 
 	import { user } from '$lib/stores';
 	export let models = [];
 	export let chatFiles = [];
 	export let params = {};
+	onMount(async () => {
+		if ($settings.system) {
+			params.system = $settings.system;
+		} else if ($prompts.length >= 1) {
+			params.system = $prompts[0].content;
+		}
+	});
+
+	const saveSystemDefaultPrompt= async () => {
+		if (params.system.length === 0) {
+			toast.error($i18n.t('Choose a prompt before saving...'));
+			return;
+		}
+		settings.set({ ...$settings, system: params.system });
+		await updateUserSettings(localStorage.token, { ui: $settings });
+
+		toast.success($i18n.t('Default prompt updated'));
+	};
 </script>
 
 <div class=" dark:text-white">
@@ -54,33 +75,61 @@
 			<hr class="my-2 border-gray-100 dark:border-gray-800" />
 		{/if}
 
-		<Collapsible title={$i18n.t('Valves')}>
-			<div class="text-sm mt-1.5" slot="content">
-				<Valves />
-			</div>
-		</Collapsible>
+		{#if $user.role === 'admin'}
+			<Collapsible title={$i18n.t('Valves')}>
+				<div class="text-sm mt-1.5" slot="content">
+					<Valves />
+				</div>
+			</Collapsible>
+		{/if}
 
 		<hr class="my-2 border-gray-100 dark:border-gray-800" />
 
 		<Collapsible title={$i18n.t('System Prompt')} open={true}>
 			<div class=" mt-1.5" slot="content">
+				<select
+					class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none"
+					bind:value={params.system}
+					placeholder="Select a prompt"
+				>
+					<option value="" selected disabled>{$i18n.t('Select session role')}</option>
+					{#each $prompts as prompt}
+						<option value={prompt.content} class="bg-gray-100 dark:bg-gray-700">{prompt.title}</option>
+					{/each}
+				</select>
 				<textarea
 					bind:value={params.system}
 					class="w-full rounded-lg px-3.5 py-2.5 text-sm dark:text-gray-300 dark:bg-gray-850 border border-gray-100 dark:border-gray-800 outline-none resize-none"
 					rows="4"
 					placeholder={$i18n.t('Enter system prompt')}
 				/>
+				<button
+					class="self-center mt-0.5 ml-1 text-[0.7rem] text-gray-500 font-primary"
+					on:click={saveSystemDefaultPrompt}
+				>
+					{$i18n.t('Set as default')}
+				</button>
+				<button
+					class="self-center mt-0.5 ml-1 text-[0.7rem] text-gray-500 font-primary"
+					on:click={() => {
+						params.system = ''
+					}}
+				>
+					{$i18n.t('Clean the prompt')}
+				</button>
 			</div>
 		</Collapsible>
 
 		<hr class="my-2 border-gray-100 dark:border-gray-800" />
 
-		<Collapsible title={$i18n.t('Advanced Params')} open={true}>
-			<div class="text-sm mt-1.5" slot="content">
-				<div>
-					<AdvancedParams admin={$user?.role === 'admin'} bind:params />
+		{#if $user.role === 'admin'}
+			<Collapsible title={$i18n.t('Advanced Params')} open={true}>
+				<div class="text-sm mt-1.5" slot="content">
+					<div>
+						<AdvancedParams admin={$user?.role === 'admin'} bind:params />
+					</div>
 				</div>
-			</div>
-		</Collapsible>
+			</Collapsible>
+		{/if}
 	</div>
 </div>
