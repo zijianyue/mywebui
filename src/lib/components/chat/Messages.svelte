@@ -29,6 +29,8 @@
 	export let autoScroll;
 	export let history = {};
 	export let messages = [];
+	export let suggestQuestionsList = [];
+	export let submitPrompt: Function;
 
 	export let selectedModels;
 
@@ -336,6 +338,7 @@
 							{:else if (history.messages[message.parentId]?.models?.length ?? 1) === 1}
 								{#key message.id && history.currentId}
 									<ResponseMessage
+										{messages}
 										{message}
 										siblings={history.messages[message.parentId]?.childrenIds ?? []}
 										isLastMessage={messageIdx + 1 === messages.length}
@@ -367,6 +370,8 @@
 												history: history
 											});
 										}}
+										{submitPrompt}
+										{suggestQuestionsList}
 									/>
 								{/key}
 							{:else}

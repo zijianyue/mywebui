@@ -26,7 +26,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import StreamingResponse, Response, RedirectResponse
-
+from utils.suggested_questions_after_answer \
+    import SuggestedQuestionsAfterAnswerOutputParser
+from utils.prompt_template_parser import PromptTemplateParser
+from utils.message_entities import (ImagePromptMessageContent,
+                                    TextPromptMessageContent)
 
 from apps.socket.main import app as socket_app, get_event_emitter, get_event_call
 from apps.ollama.main import (
@@ -1389,8 +1393,122 @@ async def generate_title(form_data: dict, user=Depends(get_verified_user)):
     if "chat_id" in payload:
         del payload["chat_id"]
 
-    return await generate_chat_completions(form_data=payload, user=user)
+    title_ret = await generate_chat_completions(form_data=payload, user=user)
+    log.debug(f"title_ret: {title_ret}")
+    return title_ret
 
+
+def get_history_prompt_text(messages,
+                            human_prefix: str = "Human",
+                            ai_prefix: str = "Assistant",
+                            max_token_limit: int = 2000,
+                            message_limit: Optional[int] = 6) -> str:
+    log.debug(f"get_history_prompt_text messages: {messages}")
+
+    string_messages = []
+    cnt = 0
+    # TODO: 超过一定token数也应该break
+    for m in reversed(messages):
+        cnt += 1
+        if (cnt > message_limit):
+            break;
+        m_role = m.get("role")
+        if m_role == "user":
+            role = human_prefix
+        elif m_role == "assistant":
+            role = ai_prefix
+        else:
+            continue
+
+        content = m.get("content")
+        if isinstance(content, list):
+            inner_msg = ""
+            if isinstance(content, TextPromptMessageContent):
+                inner_msg += f"{content}\n"
+            elif isinstance(content, ImagePromptMessageContent):
+                inner_msg += "[image]\n"
+
+            string_messages.append(f"{role}: {inner_msg.strip()}")
+        else:
+            message = f"{role}: {content}"
+            string_messages.append(message)
+            # log.debug(f"message appended: {message}")
+
+
+    return "\n".join(string_messages)
+
+@app.post("/api/task/suggestQuestions/completions")
+async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_user)):
+    print("generate_suggest_questions")
+
+    model_id = form_data["model"]
+    if model_id not in app.state.MODELS:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Model not found",
+        )
+
+    model_id = get_task_model_id(model_id)
+
+    log.debug(f"model_id: {model_id}")
+
+    output_parser = SuggestedQuestionsAfterAnswerOutputParser()
+    format_instructions = output_parser.get_format_instructions()
+    prompt_template = PromptTemplateParser(
+        template="{{histories}}\n{{format_instructions}}\nquestions:\n"
+    )
+    messages = form_data["messages"]
+    histories = get_history_prompt_text(messages)
+    log.debug(f"generate_suggest_questions histories: {histories}")
+    prompt = prompt_template.format({
+        "histories": histories,
+        "format_instructions": format_instructions
+    })
+    # TODO: 用上location做推荐引流
+    # content = title_generation_template(
+    #     template,
+    #     form_data["prompt"],
+    #     {
+    #         "name": user.name,
+    #         "location": user.info.get("location") if user.info else None,
+    #     },
+    # )
+    log.debug(f"generate_suggest_questions prompt: {prompt}")
+
+    payload = {
+        "model": model_id,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False,
+        "max_tokens": 256,
+        "chat_id": form_data.get("chat_id", None),
+        "task": str(TASKS.SUGGEST_QUESTIONS),
+    }
+
+    log.debug(f"generate_suggest_questions payload: {payload}")
+
+    try:
+        payload = filter_pipeline(payload, user)
+    except Exception as e:
+        return JSONResponse(
+            status_code=e.args[0],
+            content={"detail": e.args[1]},
+        )
+
+    # log.debug(f"payload after filter pipeline: {payload}")
+
+    if "chat_id" in payload:
+        del payload["chat_id"]
+
+    questions = await generate_chat_completions(form_data=payload, user=user)
+    if 'choices' in questions and len(questions['choices']) > 0:
+        content = questions['choices'][0]['message']['content']
+        parsed_content = output_parser.parse(content)
+        log.info(f"parsed_content: {parsed_content}")
+        questions['choices'][0]['message']['content'] = json.dumps(parsed_content)
+
+    log.info(f"questions_ret: {questions}")
+
+    return questions
 
 @app.post("/api/task/query/completions")
 async def generate_search_query(form_data: dict, user=Depends(get_verified_user)):

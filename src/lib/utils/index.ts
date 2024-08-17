@@ -131,6 +131,53 @@ export const convertMessagesToHistory = (messages) => {
 	return history;
 };
 
+export const getHistoryPromptText = (
+	messages,
+	humanPrefix: string = "Human",
+	aiPrefix: string = "Assistant",
+	maxTokenLimit: number = 2000,
+	messageLimit: number | null = 6
+) => {
+    console.debug(`getHistoryPromptText messages: ${JSON.stringify(messages)}`);
+
+    const stringMessages: string[] = [];
+    
+    // We use a count variable to limit the number of messages processed
+    let count = 0;
+
+    // Iterate in reverse order to get the most recent messages
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const message = messages[i];
+
+        // Break if message limit is reached
+        if (messageLimit !== null && count >= messageLimit) {
+            break;
+        }
+
+        const role = message.role === 'user' ? humanPrefix : message.role === 'assistant' ? aiPrefix : null;
+        if (!role) {
+            continue;
+        }
+
+        const content = message.content;
+        if (Array.isArray(content)) {
+            // If content is an array, you can handle it as per your logic here
+            continue; // Skipping this message for now
+        } else {
+            const formattedMessage = `${role}: ${content}`;
+            stringMessages.push(formattedMessage);
+            // If needed, you can add logic to check against maxTokenLimit here
+        }
+
+        count++;
+    }
+
+    let ret = stringMessages.join("\\n");
+    console.debug(`getHistoryPromptText ret: ${ret}`);
+
+    return ret;
+}
+
 export const getGravatarURL = (email) => {
 	// Trim leading and trailing whitespace from
 	// an email address and force all characters
@@ -361,10 +408,15 @@ export const getImportOrigin = (_chats) => {
 	return 'webui';
 };
 
-export const getUserPosition = async (raw = false) => {
+export const getUserPosition = async (raw = false, reverse = false) => {
+	const options = {
+		timeout: 5000,  // 20 seconds for firefox(chrome can't)
+		// maximumAge: 0,  // 每次都获取最新的位置
+		// enableHighAccuracy: true // 更耗时 耗电
+	};
 	// Get the user's location using the Geolocation API
 	const position = await new Promise((resolve, reject) => {
-		navigator.geolocation.getCurrentPosition(resolve, reject);
+		navigator.geolocation.getCurrentPosition(resolve, reject, options);
 	}).catch((error) => {
 		console.error('Error getting user location:', error);
 		throw error;
@@ -378,8 +430,14 @@ export const getUserPosition = async (raw = false) => {
 	const { latitude, longitude } = position.coords;
 
 	if (raw) {
+		if (reverse) {
+			return { longitude, latitude };
+		}
 		return { latitude, longitude };
 	} else {
+		if (reverse) {
+			return `${longitude.toFixed(6)}, ${latitude.toFixed(6)}`;
+		}
 		return `${latitude.toFixed(3)}, ${longitude.toFixed(3)} (lat, long)`;
 	}
 };
