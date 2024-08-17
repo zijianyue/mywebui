@@ -224,18 +224,16 @@ def get_task_model_id(default_model_id):
     # Set the task model
     task_model_id = default_model_id
     # Check if the user has a custom task model and use that model
-    if app.state.MODELS[task_model_id]["owned_by"] == "ollama":
-        if (
-            app.state.config.TASK_MODEL
-            and app.state.config.TASK_MODEL in app.state.MODELS
-        ):
-            task_model_id = app.state.config.TASK_MODEL
-    else:
-        if (
-            app.state.config.TASK_MODEL_EXTERNAL
-            and app.state.config.TASK_MODEL_EXTERNAL in app.state.MODELS
-        ):
-            task_model_id = app.state.config.TASK_MODEL_EXTERNAL
+    if (
+        app.state.config.TASK_MODEL
+        and app.state.config.TASK_MODEL in app.state.MODELS
+    ):
+        task_model_id = app.state.config.TASK_MODEL
+    elif (
+        app.state.config.TASK_MODEL_EXTERNAL
+        and app.state.config.TASK_MODEL_EXTERNAL in app.state.MODELS
+    ):
+        task_model_id = app.state.config.TASK_MODEL_EXTERNAL
 
     return task_model_id
 
