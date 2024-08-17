@@ -34,6 +34,10 @@
 
 	export let bottomPadding = false;
 	export let autoScroll;
+	export let history = {};
+	export let messages = [];
+	export let suggestQuestionsList = [];
+	export let submitPrompt: Function;
 
 	let messagesCount = 20;
 	let messagesLoading = false;
