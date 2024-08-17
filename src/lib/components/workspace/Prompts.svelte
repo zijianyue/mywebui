@@ -21,6 +21,29 @@
 	let showDeleteConfirm = false;
 	let deletePrompt = null;
 
+	// TODO: 待完善,应在系统启动时默认加载
+	// import promptsData from '../../../../prompt-export/prompts-export.json';
+	// $: InitPrompts(promptsData);
+
+	// const InitPrompts = async (data) => {
+	// 	console.log(data);
+	// 	console.log('load prompts');
+
+	// 	for (const prompt of data) {
+	// 		await createNewPrompt(
+	// 			localStorage.token,
+	// 			prompt.command.charAt(0) === '/' ? prompt.command.slice(1) : prompt.command,
+	// 			prompt.title,
+	// 			prompt.content
+	// 		).catch((error) => {
+	// 			// toast.error(error);
+	// 			return null;
+	// 		});
+	// 	}
+
+	// 	await prompts.set(await getPrompts(localStorage.token));
+	// };
+
 	const shareHandler = async (prompt) => {
 		toast.success($i18n.t('Redirecting you to OpenWebUI Community'));
 
