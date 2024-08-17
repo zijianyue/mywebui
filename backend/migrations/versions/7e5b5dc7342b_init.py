@@ -28,6 +28,7 @@ def upgrade() -> None:
         op.create_table(
             "auth",
             sa.Column("id", sa.String(), nullable=False),
+            sa.Column("cell_phone", sa.String(), nullable=True),
             sa.Column("email", sa.String(), nullable=True),
             sa.Column("password", sa.Text(), nullable=True),
             sa.Column("active", sa.Boolean(), nullable=True),
@@ -168,6 +169,7 @@ def upgrade() -> None:
             "user",
             sa.Column("id", sa.String(), nullable=False),
             sa.Column("name", sa.String(), nullable=True),
+            sa.Column("cell_phone", sa.String(), nullable=True),
             sa.Column("email", sa.String(), nullable=True),
             sa.Column("role", sa.String(), nullable=True),
             sa.Column("profile_image_url", sa.Text(), nullable=True),

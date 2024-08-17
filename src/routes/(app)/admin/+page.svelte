@@ -186,6 +186,18 @@
 					<th
 						scope="col"
 						class="px-3 py-2 cursor-pointer select-none"
+						on:click={() => setSortKey('cell_phone')}
+					>
+						{$i18n.t('Cell-phone number')}
+						{#if sortKey === 'cell_phone'}
+							{sortOrder === 'asc' ? '▲' : '▼'}
+						{:else}
+							<span class="invisible">▲</span>
+						{/if}
+					</th>
+					<th
+						scope="col"
+						class="px-3 py-2 cursor-pointer select-none"
 						on:click={() => setSortKey('email')}
 					>
 						{$i18n.t('Email')}
@@ -293,6 +305,9 @@
 								<div class=" font-medium self-center">{user.name}</div>
 							</div>
 						</td>
+
+						<td class=" px-3 py-2"> {user.cell_phone} </td>
+
 						<td class=" px-3 py-2"> {user.email} </td>
 
 						<td class=" px-3 py-2"> {user.oauth_sub ?? ''} </td>
