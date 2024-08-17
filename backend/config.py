@@ -90,8 +90,8 @@ logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
 
 WEBUI_NAME = os.environ.get("WEBUI_NAME", "Open WebUI")
-if WEBUI_NAME != "Open WebUI":
-    WEBUI_NAME += " (Open WebUI)"
+# if WEBUI_NAME != "Open WebUI":
+#     WEBUI_NAME += " (Open WebUI)"
 
 WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:3000")
 
@@ -246,9 +246,10 @@ class PersistentConfig(Generic[T]):
         self.env_value = env_value
         self.config_value = get_config_value(config_path)
         if self.config_value is not None:
-            log.info(f"'{env_name}' loaded from config.json")
+            log.info(f"'{env_name}' loaded from config.json, '{self.config_value}'")
             self.value = self.config_value
         else:
+            log.info(f"init '{env_name}' by env '{env_value}'")
             self.value = env_value
 
     def __str__(self):

@@ -416,7 +416,7 @@ def transcribe(
                 return data
             except Exception as e:
                 log.exception(e)
-                error_detail = "Open WebUI: Server Connection Error"
+                error_detail = "Wei Kang AI: Server Connection Error"
                 if r is not None:
                     try:
                         res = r.json()
