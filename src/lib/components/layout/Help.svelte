@@ -6,8 +6,10 @@
 	import ShortcutsModal from '../chat/ShortcutsModal.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
 	import HelpMenu from './Help/HelpMenu.svelte';
+	import HelpInfoModal from '../chat/HelpInfoModal.svelte';
 
 	let showShortcuts = false;
+	let showHelpInfo = false;
 </script>
 
 <div class=" hidden lg:flex fixed bottom-0 right-0 px-2 py-2 z-20">
@@ -21,7 +23,7 @@
 
 	<HelpMenu
 		showDocsHandler={() => {
-			showShortcuts = !showShortcuts;
+			showHelpInfo = !showHelpInfo;
 		}}
 		showShortcutsHandler={() => {
 			showShortcuts = !showShortcuts;
@@ -38,3 +40,4 @@
 </div>
 
 <ShortcutsModal bind:show={showShortcuts} />
+<HelpInfoModal bind:show={showHelpInfo} />
