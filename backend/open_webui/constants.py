@@ -20,12 +20,13 @@ class ERROR_MESSAGES(str, Enum):
     def __str__(self) -> str:
         return super().__str__()
 
-    DEFAULT = lambda err="": f"Something went wrong :/\n{err if err else ''}"
+    DEFAULT = lambda err="": f"出了点问题 :/\n{err if err else ''}"
     ENV_VAR_NOT_FOUND = "Required environment variable not found. Terminating now."
-    CREATE_USER_ERROR = "Oops! Something went wrong while creating your account. Please try again later. If the issue persists, contact support for assistance."
+    CREATE_USER_ERROR = "哎呀！创建帐户时出错。请稍后再试。如果问题仍然存在，请联系支持人员寻求帮助。"
     DELETE_USER_ERROR = "Oops! Something went wrong. We encountered an issue while trying to delete the user. Please give it another shot."
     EMAIL_MISMATCH = "Uh-oh! This email does not match the email your provider is registered with. Please check your email and try again."
     EMAIL_TAKEN = "Uh-oh! This email is already registered. Sign in with your existing account or choose another email to start anew."
+    CELL_PHONE_TAKEN = "噢！此手机号码已注册。使用您现有的帐户登录，或选择其他手机号码重新开始。"
     USERNAME_TAKEN = (
         "Uh-oh! This username is already registered. Please choose another username."
     )
@@ -40,6 +41,7 @@ class ERROR_MESSAGES(str, Enum):
         "Your session has expired or the token is invalid. Please sign in again."
     )
     INVALID_CRED = "The email or password provided is incorrect. Please check for typos and try logging in again."
+    INVALID_CRED_CELL_PHONE = "提供的手机号码或密码不正确。请检查输入，然后尝试重新登录。"
     INVALID_EMAIL_FORMAT = "The email format you entered is invalid. Please double-check and make sure you're using a valid email address (e.g., yourname@example.com)."
     INVALID_PASSWORD = (
         "The password provided is incorrect. Please check for typos and try again."

@@ -422,9 +422,8 @@ async def generate_chat_completion(
             del payload["max_tokens"]
 
     # Convert the modified body back to JSON
-    payload = json.dumps(payload)
-
     log.debug(payload)
+    payload = json.dumps(payload)
 
     headers = {}
     headers["Authorization"] = f"Bearer {key}"

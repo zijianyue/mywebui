@@ -170,17 +170,13 @@ class SPAStaticFiles(StaticFiles):
 
 print(
     rf"""
-  ___                    __        __   _     _   _ ___ 
- / _ \ _ __   ___ _ __   \ \      / /__| |__ | | | |_ _|
-| | | | '_ \ / _ \ '_ \   \ \ /\ / / _ \ '_ \| | | || | 
-| |_| | |_) |  __/ | | |   \ V  V /  __/ |_) | |_| || | 
- \___/| .__/ \___|_| |_|    \_/\_/ \___|_.__/ \___/|___|
-      |_|                                               
-
-      
-v{VERSION} - building the best open-source AI user interface.
-{f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
-https://github.com/open-webui/open-webui
+__        __   _    _  __                       _    ___ 
+\ \      / /__(_)  | |/ /__ _ _ __   __ _      / \  |_ _|
+ \ \ /\ / / _ \ |  | ' // _` | '_ \ / _` |    / _ \  | | 
+  \ V  V /  __/ |  | . \ (_| | | | | (_| |   / ___ \ | | 
+   \_/\_/ \___|_|  |_|\_\__,_|_| |_|\__, |  /_/   \_\___|
+                                    |___/                      
+v{VERSION} - building the best Medical AI.
 """
 )
 
@@ -1062,6 +1058,7 @@ async def generate_chat_completions(form_data: dict, user=Depends(get_verified_u
 
     model = app.state.MODELS[model_id]
     if model.get("pipe"):
+        print("generate_function_chat_completion")
         return await generate_function_chat_completion(form_data, user=user)
     if model["owned_by"] == "ollama":
         # Using /ollama/api/chat endpoint
@@ -1077,6 +1074,7 @@ async def generate_chat_completions(form_data: dict, user=Depends(get_verified_u
         else:
             return convert_response_ollama_to_openai(response)
     else:
+        print("generate_openai_chat_completion")
         return await generate_openai_chat_completion(form_data, user=user)
 
 
@@ -1415,6 +1413,7 @@ async def update_task_config(form_data: TaskConfigForm, user=Depends(get_admin_u
 @app.post("/api/task/title/completions")
 async def generate_title(form_data: dict, user=Depends(get_verified_user)):
     print("generate_title")
+    # log.debug(f"form_data:{form_data}")
 
     model_id = form_data["model"]
     if model_id not in app.state.MODELS:
@@ -1453,6 +1452,7 @@ Prompt: {{prompt:middletruncate:8000}}"""
             "location": user.info.get("location") if user.info else None,
         },
     )
+    # log.debug(f"content: {content}")
 
     payload = {
         "model": task_model_id,
@@ -1468,7 +1468,8 @@ Prompt: {{prompt:middletruncate:8000}}"""
         "chat_id": form_data.get("chat_id", None),
         "metadata": {"task": str(TASKS.TITLE_GENERATION)},
     }
-    log.debug(payload)
+
+    log.debug(f"payload: {payload}")
 
     # Handle pipeline filters
     try:
