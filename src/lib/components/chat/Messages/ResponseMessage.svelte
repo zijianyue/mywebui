@@ -13,6 +13,8 @@
 	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
 	import { imageGenerations } from '$lib/apis/images';
 	import {
+		getHistoryPromptText,
+		getUserPosition,
 		approximateToHumanReadable,
 		extractParagraphsForAudio,
 		extractSentencesForAudio,
@@ -77,6 +79,7 @@
 	}
 
 	export let message: MessageType;
+	export let messages;
 	export let siblings;
 
 	export let isLastMessage = true;
@@ -92,6 +95,12 @@
 	export let copyToClipboard: Function;
 	export let continueGeneration: Function;
 	export let regenerateResponse: Function;
+	export let submitPrompt: Function;
+	export let suggestQuestionsList = [];
+	let lastSuggestQuestionsList = [];
+	let suggestUpdated = false;
+	let hospitals = [];
+	let recentMessages :string;
 
 	let model = null;
 	$: model = $models.find((m) => m.id === message.model);
@@ -108,6 +117,54 @@
 	let generatingImage = false;
 
 	let showRateComment = false;
+
+	function handleClick(hospital) {
+		const phone = hospital.phone ? hospital.phone : '无电话信息';
+		const distance = hospital.distance ? hospital.distance : '未知距离';
+		const lineNames = hospital.stationData && Array.isArray(hospital.stationData)
+			  ? hospital.stationData.map(station => station.lineName).filter(lineName => lineName).join(', ')
+			  : '无线路信息';
+		alert(`电话: ${phone}, 距离: ${distance}, 线路: ${lineNames}`);
+	}
+
+	// TODO: 获取不到精确位置，使用智能硬件定位，需要获取wifi或者蓝牙信息，都获取不到的情况下就让用户选择设置位置(需要保存)，或者使用IP定位所在城市中心位置, 搜索结果在静态地图中展示，跳转到系统导航程序
+	async function fetchNearbyPlaces(keyword) {
+		let pointLonlat = await getUserPosition(false ,true).catch((error) => {
+			console.log('get pointLonlat fail:', error.message);
+			toast.error("当前设备无法获取位置信息,建议使用手机或者平板");
+			return;
+		});
+		// let pointLonlat = "114.267150,30.715988" // mock position
+		console.log('pointLonlat:', pointLonlat);
+		let collection = [];
+		hospitals = [];
+		const apiKey = 'ba3509a3a414b4e66d14f7168efe8798';
+		let startNum = 0;
+		const countPerPage = 10; // 每页的结果数量
+
+		try {
+			while (true) {
+				const url = `https://api.tianditu.gov.cn/v2/search?postStr={"keyWord":"${keyword}","level":12,"queryRadius":5000,"pointLonlat":"${pointLonlat}","queryType":3,"start":${startNum},"count":${countPerPage}}&type=query&tk=${apiKey}`;
+				const response = await fetch(url);
+				const data = await response.json();
+				console.log('fetch url ret:', data);
+				if (data.status.infocode === 1000 && data.count > 0) {
+					// let ret = data.pois.map(poi => poi.name);
+					// hospitals = [...data.pois];
+					collection.push(...data.pois);
+				} else {
+					break; // 停止循环，没有更多结果
+				}
+				startNum += countPerPage;
+			}
+		}
+		catch (error) {
+			console.error('获取数据时出错:', error);
+			collection.push('获取数据时出错');
+		}
+		hospitals = [...collection];
+		console.log('所有医院数据:', hospitals);
+	}
 
 	const playAudio = (idx: number) => {
 		return new Promise<void>((res) => {
@@ -297,6 +354,24 @@
 			await tick();
 		})();
 	}
+
+	$: (async () => {
+		suggestUpdated = false;
+		if (JSON.stringify(lastSuggestQuestionsList) !== JSON.stringify(suggestQuestionsList)) {
+			lastSuggestQuestionsList = [...suggestQuestionsList];
+			if (isLastMessage && message.done) {
+				suggestUpdated = true;
+			}
+		} 
+	})();
+
+	$: (async () => {
+		recentMessages = '';
+		if (isLastMessage && message.done) {
+			recentMessages = getHistoryPromptText(messages);
+			console.debug('recentMessages:', recentMessages);
+		}
+	})();
 
 	onMount(async () => {
 		await tick();
@@ -993,7 +1068,118 @@
 							{/if}
 						</div>
 					{/if}
+					<div class='flex flex-wrap justify-start'>
+						{#if suggestUpdated}
+							{#each suggestQuestionsList as suggestQuestion}
+								<button
+									class="visible p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-blue-800 dark:text-cyan-300"
+									style="flex: 0 1 auto; min-width: 50px; margin: 5px; text-align: left"
+									on:click={() => {
+										submitPrompt(suggestQuestion);
+									}}
+								>
+									{suggestQuestion}
+								</button>
+							{/each}
+							{#if suggestQuestionsList.some(question => ["感统", "感觉统合", "发育迟缓"]
+								.some(keyword => question.includes(keyword))) || ["感统", "感觉统合", "发育迟缓"]
+								.some(keyword => recentMessages.includes(keyword))}
+								<button
+									class="visible p-1.5 hover:bg-purple-600 dark:hover:bg-purple-800 rounded-lg dark:hover:text-white hover:text-white transition regenerate-response-button border border-purple-300 dark:border-purple-600 bg-purple-200 dark:bg-purple-700 text-purple-900 dark:text-purple-300"
+									style="flex: 0 1 auto; min-width: 50px; margin: 5px;"
+									on:click={() => {
+										if ($mobile) {
+											window.location.href = "/recommend";
+										} else {
+											window.open("/recommend", "_blank");
+										}
+									}}
+								>
+									推荐感统治疗机构
+								</button>
+							{/if}
+							{#if suggestQuestionsList.some(question => ["医", "治", "疗", "疼", "痛", "诊"].some(keyword => question.includes(keyword)))}
+								<button
+									class="visible p-1.5 hover:bg-purple-600 dark:hover:bg-purple-800 rounded-lg dark:hover:text-white hover:text-white transition regenerate-response-button border border-purple-300 dark:border-purple-600 bg-purple-200 dark:bg-purple-700 text-purple-900 dark:text-purple-300"
+									style="flex: 0 1 auto; min-width: 50px; margin: 5px;"
+									on:click={() => {
+										fetchNearbyPlaces("医院");
+									}}
+								>
+									搜索周边医院
+								</button>
+							{/if}
+						{/if}
+					</div>
+					<style>
+						:root {
+							--bg-color-light: #f2f2f2;
+							--text-color-light: #333;
+							--bg-color-dark: #333;
+							--text-color-dark: #fff;
+						}
 
+						/* 默认浅色主题 */
+						.table-container {
+							width: 100%;
+							max-height: 200px; /* 控制容器的最大高度为5行 */
+							overflow-y: auto; /* 启用垂直滚动条 */
+							border: 1px solid #ddd;
+							border-radius: 5px;
+							display: block;
+						}
+
+						table {
+							width: 100%;
+							border-collapse: collapse; /* 合并表格边框 */
+						}
+
+						th, td {
+							border: 1px solid #ddd;
+							padding: 8px; /* 控制内边距 */
+							text-align: left; /* 左对齐文本 */
+						}
+
+						tr:hover {
+							background-color: #f5f5f5; /* 鼠标悬停时的背景色 */
+						}
+
+						th {
+							background-color: var(--bg-color-light); /* 使用变量 */
+							color: var(--text-color-light); /* 使用变量 */
+							position: sticky; /* 固定表头 */
+							top: 0; /* 表头固定在顶部 */
+							z-index: 1; /* 确保表头在其他内容上方 */
+						}
+
+						/* 深色主题 */
+						@media (prefers-color-scheme: dark) {
+							th {
+								background-color: var(--bg-color-dark); /* 使用变量 */
+								color: var(--text-color-dark); /* 使用变量 */
+							}
+						}
+					</style>
+					{#if hospitals.length > 0}
+						<div class="table-container">
+							<table>
+								<thead>
+									<tr>
+										<th>医院名称</th>
+										<th>地址</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each hospitals as hospital}
+										<tr on:click={() => handleClick(hospital)}>
+											<td>{hospital.name}</td>
+											<td>{hospital.address}</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					{/if}
 					{#if message.done && showRateComment}
 						<RateComment
 							messageId={message.id}

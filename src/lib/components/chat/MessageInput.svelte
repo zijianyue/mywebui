@@ -387,7 +387,7 @@
 							await tick();
 							document.getElementById('chat-textarea')?.focus();
 
-							if ($settings?.speechAutoSend ?? false) {
+							if ($settings?.speechAutoSend ?? true) {
 								submitPrompt(prompt);
 							}
 						}}
