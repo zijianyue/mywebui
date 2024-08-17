@@ -504,6 +504,9 @@
 											chatTextAreaElement?.focus();
 										}}
 										{submitPrompt}
+										on:mrStatusChanged={(e) => {
+											dispatch('mrStatusChanged', 'wait model response');
+										}}
 									>
 										<button
 											class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-2 outline-none focus:outline-none"
