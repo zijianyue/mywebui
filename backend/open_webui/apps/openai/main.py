@@ -382,9 +382,8 @@ async def generate_chat_completion(
         }
 
     # Convert the modified body back to JSON
-    payload = json.dumps(payload)
-
     log.debug(payload)
+    payload = json.dumps(payload)
 
     url = app.state.config.OPENAI_API_BASE_URLS[idx]
     key = app.state.config.OPENAI_API_KEYS[idx]
