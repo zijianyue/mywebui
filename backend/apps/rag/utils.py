@@ -114,7 +114,7 @@ def merge_and_sort_query_results(query_results, k, reverse=False):
     # Create a list of tuples (distance, document, metadata)
     combined = list(zip(combined_distances, combined_documents, combined_metadatas))
 
-    # Sort the list based on distances
+    # Sort the list based on distances, reverse=true means descending order
     combined.sort(key=lambda x: x[0], reverse=reverse)
 
     # We don't have anything :-(
@@ -188,7 +188,9 @@ def query_collection_with_hybrid_search(
             results.append(result)
         except Exception:
             pass
-    return merge_and_sort_query_results(results, k=k, reverse=True)
+    sorted_res = merge_and_sort_query_results(results, k=k, reverse=True)
+    log.debug(f"sorted rag context segments: {sorted_res}")
+    return sorted_res
 
 
 def rag_template(template: str, context: str, query: str):
@@ -249,7 +251,7 @@ def get_rag_context(
     r,
     hybrid_search,
 ):
-    log.debug(f"files: {files} {messages} {embedding_function} {reranking_function}")
+    log.debug(f"get_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}")
     query = get_last_user_message(messages)
 
     extracted_collections = []
