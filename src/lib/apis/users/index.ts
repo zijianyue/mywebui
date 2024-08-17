@@ -297,9 +297,14 @@ export const deleteUserById = async (token: string, userId: string) => {
 
 type UserUpdateForm = {
 	profile_image_url: string;
+	cell_phone: string;
 	email: string;
 	name: string;
 	password: string;
+};
+
+export const isValidPhoneNumber = async (phoneNumber: string) => {
+    return /^1\d{10}$/.test(phoneNumber);
 };
 
 export const updateUserById = async (token: string, userId: string, user: UserUpdateForm) => {
@@ -314,6 +319,7 @@ export const updateUserById = async (token: string, userId: string, user: UserUp
 		body: JSON.stringify({
 			profile_image_url: user.profile_image_url,
 			email: user.email,
+			cell_phone: user.cell_phone,
 			name: user.name,
 			password: user.password !== '' ? user.password : undefined
 		})
