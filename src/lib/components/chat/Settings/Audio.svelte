@@ -57,7 +57,7 @@
 
 	onMount(async () => {
 		conversationMode = $settings.conversationMode ?? false;
-		speechAutoSend = $settings.speechAutoSend ?? false;
+		speechAutoSend = $settings.speechAutoSend ?? true;
 		responseAutoPlayback = $settings.responseAutoPlayback ?? false;
 
 		STTEngine = $settings?.audio?.stt?.engine ?? '';
