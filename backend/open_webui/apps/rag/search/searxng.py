@@ -40,7 +40,7 @@ def search_searxng(
     """
 
     # Default values for optional parameters are provided as empty strings or None when not specified.
-    language = kwargs.get("language", "en-US")
+    language = kwargs.get("language", "zh-CN")
     safesearch = kwargs.get("safesearch", "1")
     time_range = kwargs.get("time_range", "")
     categories = "".join(kwargs.get("categories", []))
@@ -79,6 +79,7 @@ def search_searxng(
     response.raise_for_status()  # Raise an exception for HTTP errors.
 
     json_response = response.json()
+    log.debug(f"searching response: {json_response}")
     results = json_response.get("results", [])
     sorted_results = sorted(results, key=lambda x: x.get("score", 0), reverse=True)
     if filter_list:

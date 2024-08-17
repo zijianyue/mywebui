@@ -24,6 +24,7 @@
 	export let files;
 	export let chatId;
 	export let modelId;
+	export let callRecordStream :MediaStream | null;
 
 	let wakeLock = null;
 
@@ -180,7 +181,7 @@
 			const _audioChunks = audioChunks.slice(0);
 
 			audioChunks = [];
-			mediaRecorder = false;
+			// mediaRecorder = null;
 
 			if (_continue) {
 				startRecording();
@@ -320,7 +321,7 @@
 
 				// Start silence detection only after initial speech/noise has been detected
 				if (hasStartedSpeaking) {
-					if (Date.now() - lastSoundTime > 2000) {
+					if (Date.now() - lastSoundTime > 1000) {
 						confirmed = true;
 
 						if (mediaRecorder) {
@@ -580,6 +581,26 @@
 		finishedMessages[id] = true;
 
 		chatStreaming = false;
+	};
+	const cleanupResources = async () => {
+		eventTarget.removeEventListener('chat:start', chatStartHandler);
+		eventTarget.removeEventListener('chat', chatEventHandler);
+		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
+		audioAbortController.abort();
+		await tick();
+		// 停止所有媒体流
+		if (mediaRecorder) {
+			// console.log(`cleanupResources`);
+			await stopAllAudio();
+			await stopRecordingCallback(false);
+			if (mediaRecorder.stream) {
+				mediaRecorder.stream.getTracks().forEach(track => track.stop());
+			}
+			mediaRecorder = null;
+			callRecordStream = null;
+		}
+		await stopCamera();
+
 	};
 
 	onMount(async () => {

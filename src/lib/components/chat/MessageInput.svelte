@@ -37,6 +37,7 @@
 	import XMark from '../icons/XMark.svelte';
 
 	const i18n = getContext('i18n');
+	const dispatch = createEventDispatcher();
 
 	export let transparentBackground = false;
 
@@ -375,6 +376,7 @@
 				{#if recording}
 					<VoiceRecording
 						bind:recording
+						{voiceRecordingStream}
 						on:cancel={async () => {
 							recording = false;
 
@@ -503,6 +505,7 @@
 											await tick();
 											chatTextAreaElement?.focus();
 										}}
+										{submitPrompt}
 									>
 										<button
 											class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-2 outline-none focus:outline-none"

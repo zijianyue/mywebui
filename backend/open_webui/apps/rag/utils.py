@@ -151,7 +151,7 @@ def merge_and_sort_query_results(
     # Create a list of tuples (distance, document, metadata)
     combined = list(zip(combined_distances, combined_documents, combined_metadatas))
 
-    # Sort the list based on distances
+    # Sort the list based on distances, reverse=true means descending order
     combined.sort(key=lambda x: x[0], reverse=reverse)
 
     # We don't have anything :-(
@@ -312,7 +312,7 @@ def get_rag_context(
     r,
     hybrid_search,
 ):
-    log.debug(f"files: {files} {messages} {embedding_function} {reranking_function}")
+    log.debug(f"get_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}")
     query = get_last_user_message(messages)
 
     extracted_collections = []

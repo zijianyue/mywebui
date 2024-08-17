@@ -61,7 +61,8 @@
 		generateTitle,
 		generateSearchQuery,
 		chatAction,
-		generateMoACompletion
+		generateMoACompletion,
+		generateSuggestQuestions
 	} from '$lib/apis';
 
 	import Banner from '../common/Banner.svelte';
@@ -114,6 +115,7 @@
 	let files = [];
 	let params = {};
 	let suggestQuestionsList;
+	let callRecordStream :MediaStream;
 
 	$: if (chatIdProp) {
 		(async () => {
