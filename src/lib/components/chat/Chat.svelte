@@ -110,6 +110,7 @@
 	};
 
 	let params = {};
+	let suggestQuestionsList;
 
 	let chatIdUnsubscriber: Unsubscriber | undefined;
 
@@ -909,7 +910,7 @@
 
 					for (const line of lines) {
 						if (line !== '') {
-							console.log(line);
+							// console.log(line);
 							let data = JSON.parse(line);
 
 							if ('citations' in data) {
@@ -1098,6 +1099,10 @@
 			await setChatTitle(_chatId, _title);
 		}
 
+		if (messages.length >= 2 && messages.at(-1).done == true) {
+			suggestQuestionsList = await generateChatSuggestQuestions(messages)
+			console.log('suggestQuestionsList:', suggestQuestionsList);
+		}
 		return _response;
 	};
 
@@ -1383,6 +1388,10 @@
 			await setChatTitle(_chatId, _title);
 		}
 
+		if (messages.length >= 2 && messages.at(-1).done == true) {
+			suggestQuestionsList = await generateChatSuggestQuestions(messages)
+			console.log('suggestQuestionsList for openai:', suggestQuestionsList);
+		}
 		return _response;
 	};
 
@@ -1504,6 +1513,24 @@
 			return title;
 		} else {
 			return `${userPrompt}`;
+		}
+	};
+
+	const generateChatSuggestQuestions = async (messages) => {
+		const suggestQuestions = await generateSuggestQuestions(
+			localStorage.token,
+			selectedModels[0],
+			messages,
+			$chatId
+		).catch((error) => {
+			console.error(error);
+			return '';
+		});
+		try {
+			return JSON.parse(suggestQuestions);
+		} catch (parseError) {
+			console.error('Error parsing suggestQuestions:', parseError);
+			return [];
 		}
 	};
 
