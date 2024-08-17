@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { onMount, tick, getContext } from 'svelte';
+	import { createEventDispatcher, onMount, tick, getContext } from 'svelte';
 	import {
 		type Model,
 		mobile,
@@ -44,6 +44,7 @@
 	import FilesOverlay from './MessageInput/FilesOverlay.svelte';
 
 	const i18n = getContext('i18n');
+	const dispatch = createEventDispatcher();
 
 	export let transparentBackground = false;
 
@@ -69,7 +70,7 @@
 
 	let user = null;
 	let chatInputPlaceholder = '';
-
+	let voiceRecordingStream = null;
 	export let files = [];
 
 	export let availableToolIds = [];
@@ -78,6 +79,7 @@
 
 	export let prompt = '';
 	export let messages = [];
+	export let callRecordStream :MediaStream;
 
 	let visionCapableModels = [];
 	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
@@ -461,6 +463,7 @@
 				{#if recording}
 					<VoiceRecording
 						bind:recording
+						{voiceRecordingStream}
 						on:cancel={async () => {
 							recording = false;
 
@@ -589,6 +592,7 @@
 											await tick();
 											chatTextAreaElement?.focus();
 										}}
+										{submitPrompt}
 									>
 										<button
 											class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-2 outline-none focus:outline-none"
@@ -786,7 +790,7 @@
 												type="button"
 												on:click={async () => {
 													try {
-														const res = await navigator.mediaDevices
+														voiceRecordingStream = await navigator.mediaDevices
 															.getUserMedia({ audio: true })
 															.catch(function (err) {
 																toast.error(
@@ -800,7 +804,7 @@
 																return null;
 															});
 
-														if (res) {
+														if (voiceRecordingStream) {
 															recording = true;
 														}
 													} catch {
@@ -849,9 +853,8 @@
 													}
 													// check if user has access to getUserMedia
 													try {
-														await navigator.mediaDevices.getUserMedia({ audio: true });
+														callRecordStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 														// If the user grants the permission, proceed to show the call overlay
-
 														showCallOverlay.set(true);
 													} catch (err) {
 														// If the user denies the permission or an error occurs, show an error message

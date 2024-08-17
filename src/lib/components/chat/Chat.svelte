@@ -59,7 +59,8 @@
 		generateTitle,
 		generateSearchQuery,
 		chatAction,
-		generateMoACompletion
+		generateMoACompletion,
+		generateSuggestQuestions
 	} from '$lib/apis';
 
 	import Banner from '../common/Banner.svelte';
@@ -118,6 +119,7 @@
 
 	let params = {};
 	let suggestQuestionsList;
+	let callRecordStream :MediaStream;
 
 	$: if (history.currentId !== null) {
 		let _messages = [];
@@ -1631,6 +1633,7 @@
 	<CallOverlay
 		{submitPrompt}
 		{stopResponse}
+		{callRecordStream}
 		bind:files
 		modelId={selectedModelIds?.at(0) ?? null}
 		chatId={$chatId}
@@ -1724,6 +1727,8 @@
 						{regenerateResponse}
 						{mergeResponses}
 						{chatActionHandler}
+						{submitPrompt}
+						{suggestQuestionsList}
 					/>
 				</div>
 			</div>
@@ -1736,6 +1741,7 @@
 					bind:selectedToolIds
 					bind:webSearchEnabled
 					bind:atSelectedModel
+					bind:callRecordStream
 					availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
 						const model = $models.find((m) => m.id === e);
 						if (model?.info?.meta?.toolIds ?? false) {
