@@ -17,6 +17,7 @@ class User(Base):
 
     id = Column(String, primary_key=True)
     name = Column(String)
+    cell_phone = Column(String)
     email = Column(String)
     role = Column(String)
     profile_image_url = Column(Text)
@@ -41,6 +42,7 @@ class UserSettings(BaseModel):
 class UserModel(BaseModel):
     id: str
     name: str
+    cell_phone: str
     email: str
     role: str = "pending"
     profile_image_url: str
@@ -70,6 +72,7 @@ class UserRoleUpdateForm(BaseModel):
 
 class UserUpdateForm(BaseModel):
     name: str
+    cell_phone: str
     email: str
     profile_image_url: str
     password: Optional[str] = None
@@ -80,6 +83,7 @@ class UsersTable:
         self,
         id: str,
         name: str,
+        cell_phone: str,
         email: str,
         profile_image_url: str = "/user.png",
         role: str = "pending",
@@ -90,6 +94,7 @@ class UsersTable:
                 **{
                     "id": id,
                     "name": name,
+                    "cell_phone": cell_phone,
                     "email": email,
                     "role": role,
                     "profile_image_url": profile_image_url,
@@ -130,6 +135,15 @@ class UsersTable:
                 user = db.query(User).filter_by(email=email).first()
                 return UserModel.model_validate(user)
         except Exception:
+            return None
+
+    def get_user_by_cell_phone(self, cell_phone: str) -> Optional[UserModel]:
+        try:
+            with get_db() as db:
+
+                user = db.query(User).filter_by(cell_phone=cell_phone).first()
+                return UserModel.model_validate(user)
+        except:
             return None
 
     def get_user_by_oauth_sub(self, sub: str) -> Optional[UserModel]:

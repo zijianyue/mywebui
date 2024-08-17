@@ -16,8 +16,9 @@
 
 	let _user = {
 		profile_image_url: '',
-		name: '',
+		cell_phone: '',
 		email: '',
+		name: '',
 		password: ''
 	};
 
@@ -26,10 +27,10 @@
 			toast.error(error);
 		});
 
-		if (res) {
+		// if (res) {
 			dispatch('save');
 			show = false;
-		}
+		// }
 	};
 
 	onMount(() => {
@@ -93,31 +94,30 @@
 
 					<hr class=" dark:border-gray-800 my-3 w-full" />
 
+					<div class="flex flex-col w-full">
+						<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
+
+						<div class="flex-1">
+							<input
+								class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+								type="text"
+								bind:value={_user.name}
+								autocomplete="off"
+								required
+							/>
+						</div>
+					</div>
+
 					<div class=" flex flex-col space-y-1.5">
 						<div class="flex flex-col w-full">
-							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
-
-							<div class="flex-1">
-								<input
-									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
-									type="email"
-									bind:value={_user.email}
-									autocomplete="off"
-									required
-									disabled={_user.id == sessionUser.id}
-								/>
-							</div>
-						</div>
-
-						<div class="flex flex-col w-full">
-							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Cell-phone number')}</div>
 
 							<div class="flex-1">
 								<input
 									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
 									type="text"
-									bind:value={_user.name}
-									autocomplete="off"
+									bind:value={_user.cell_phone}
+									autocomplete="on"
 									required
 								/>
 							</div>
@@ -132,6 +132,20 @@
 									type="password"
 									bind:value={_user.password}
 									autocomplete="new-password"
+									required
+								/>
+							</div>
+						</div>
+
+						<div class="flex flex-col w-full">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+
+							<div class="flex-1">
+								<input
+									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
+									type="email"
+									bind:value={_user.email}
+									autocomplete="off"
 								/>
 							</div>
 						</div>

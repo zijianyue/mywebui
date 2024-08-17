@@ -64,6 +64,7 @@ async def get_session_user(
 
     return {
         "id": user.id,
+        "cell_phone": user.cell_phone,
         "email": user.email,
         "name": user.name,
         "role": user.role,
@@ -138,7 +139,7 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
                 request,
                 response,
                 SignupForm(
-                    email=trusted_email, password=str(uuid.uuid4()), name=trusted_name
+                    cell_phone=form_data.cell_phone, email=trusted_email, password=str(uuid.uuid4()), name=trusted_name
                 ),
             )
         user = Auths.authenticate_user_by_trusted_header(trusted_email)
@@ -155,12 +156,12 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             await signup(
                 request,
                 response,
-                SignupForm(email=admin_email, password=admin_password, name="User"),
+                SignupForm(cell_phone=form_data.cell_phone, email=admin_email, password=admin_password, name="User"),
             )
 
             user = Auths.authenticate_user(admin_email.lower(), admin_password)
     else:
-        user = Auths.authenticate_user(form_data.email.lower(), form_data.password)
+        user = Auths.authenticate_user_by_cell_phone(form_data.cell_phone, form_data.password)
 
     if user:
         token = create_token(
@@ -179,13 +180,14 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
             "token": token,
             "token_type": "Bearer",
             "id": user.id,
+            "cell_phone": user.cell_phone,
             "email": user.email,
             "name": user.name,
             "role": user.role,
             "profile_image_url": user.profile_image_url,
         }
     else:
-        raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+        raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED_CELL_PHONE)
 
 
 ############################
@@ -209,8 +211,8 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
             status.HTTP_400_BAD_REQUEST, detail=ERROR_MESSAGES.INVALID_EMAIL_FORMAT
         )
 
-    if Users.get_user_by_email(form_data.email.lower()):
-        raise HTTPException(400, detail=ERROR_MESSAGES.EMAIL_TAKEN)
+    if Users.get_user_by_cell_phone(form_data.cell_phone):
+        raise HTTPException(400, detail=ERROR_MESSAGES.CELL_PHONE_TAKEN)
 
     try:
         role = (
@@ -225,6 +227,7 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
             form_data.name,
             form_data.profile_image_url,
             role,
+            cell_phone = form_data.cell_phone,
         )
 
         if user:
@@ -255,6 +258,7 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
                 "token": token,
                 "token_type": "Bearer",
                 "id": user.id,
+                "cell_phone": user.cell_phone,
                 "email": user.email,
                 "name": user.name,
                 "role": user.role,
@@ -279,8 +283,8 @@ async def add_user(form_data: AddUserForm, user=Depends(get_admin_user)):
             status.HTTP_400_BAD_REQUEST, detail=ERROR_MESSAGES.INVALID_EMAIL_FORMAT
         )
 
-    if Users.get_user_by_email(form_data.email.lower()):
-        raise HTTPException(400, detail=ERROR_MESSAGES.EMAIL_TAKEN)
+    if Users.get_user_by_cell_phone(form_data.cell_phone):
+        raise HTTPException(400, detail=ERROR_MESSAGES.CELL_PHONE_TAKEN)
 
     try:
 
@@ -292,6 +296,7 @@ async def add_user(form_data: AddUserForm, user=Depends(get_admin_user)):
             form_data.name,
             form_data.profile_image_url,
             form_data.role,
+            cell_phone = form_data.cell_phone,
         )
 
         if user:
@@ -300,6 +305,7 @@ async def add_user(form_data: AddUserForm, user=Depends(get_admin_user)):
                 "token": token,
                 "token_type": "Bearer",
                 "id": user.id,
+                "cell_phone": user.cell_phone,
                 "email": user.email,
                 "name": user.name,
                 "role": user.role,
