@@ -52,6 +52,7 @@ def migrate_sqlite(migrator: Migrator, database: pw.Database, *, fake=False):
     @migrator.create_model
     class Auth(pw.Model):
         id = pw.CharField(max_length=255, unique=True)
+        cell_phone = pw.CharField(max_length=255)
         email = pw.CharField(max_length=255)
         password = pw.CharField(max_length=255)
         active = pw.BooleanField()
@@ -132,6 +133,7 @@ def migrate_sqlite(migrator: Migrator, database: pw.Database, *, fake=False):
     class User(pw.Model):
         id = pw.CharField(max_length=255, unique=True)
         name = pw.CharField(max_length=255)
+        cell_phone = pw.CharField(max_length=255)
         email = pw.CharField(max_length=255)
         role = pw.CharField(max_length=255)
         profile_image_url = pw.CharField(max_length=255)
@@ -145,6 +147,7 @@ def migrate_external(migrator: Migrator, database: pw.Database, *, fake=False):
     @migrator.create_model
     class Auth(pw.Model):
         id = pw.CharField(max_length=255, unique=True)
+        cell_phone = pw.CharField(max_length=255)
         email = pw.CharField(max_length=255)
         password = pw.TextField()
         active = pw.BooleanField()
@@ -225,6 +228,7 @@ def migrate_external(migrator: Migrator, database: pw.Database, *, fake=False):
     class User(pw.Model):
         id = pw.CharField(max_length=255, unique=True)
         name = pw.CharField(max_length=255)
+        cell_phone = pw.CharField(max_length=255)
         email = pw.CharField(max_length=255)
         role = pw.CharField(max_length=255)
         profile_image_url = pw.TextField()

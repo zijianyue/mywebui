@@ -110,7 +110,20 @@ export const getSessionUser = async (token: string) => {
 	return res;
 };
 
-export const userSignIn = async (email: string, password: string) => {
+export const isValidPhoneNumber = async (phoneNumber: string) => {
+    return /^1\d{10}$/.test(phoneNumber);
+};
+
+export const userSignIn = async (cellPhone: string, email: string, password: string) => {
+
+	let ret = await isValidPhoneNumber(cellPhone)
+		.then(async (valid) => {
+			return valid;
+		});
+	if (!ret) {
+		throw '无效手机号';
+	}
+
 	let error = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signin`, {
@@ -120,6 +133,7 @@ export const userSignIn = async (email: string, password: string) => {
 		},
 		credentials: 'include',
 		body: JSON.stringify({
+			cell_phone: cellPhone,
 			email: email,
 			password: password
 		})
@@ -144,10 +158,20 @@ export const userSignIn = async (email: string, password: string) => {
 
 export const userSignUp = async (
 	name: string,
+	cellPhone: string,
 	email: string,
 	password: string,
 	profile_image_url: string
 ) => {
+
+	let ret = await isValidPhoneNumber(cellPhone)
+		.then(async (valid) => {
+			return valid;
+		});
+	if (!ret) {
+		throw '无效手机号';
+	}
+
 	let error = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup`, {
@@ -158,6 +182,7 @@ export const userSignUp = async (
 		credentials: 'include',
 		body: JSON.stringify({
 			name: name,
+			cell_phone: cellPhone,
 			email: email,
 			password: password,
 			profile_image_url: profile_image_url
@@ -183,10 +208,19 @@ export const userSignUp = async (
 export const addUser = async (
 	token: string,
 	name: string,
+	cellPhone: string,
 	email: string,
 	password: string,
 	role: string = 'pending'
 ) => {
+	let ret = await isValidPhoneNumber(cellPhone)
+		.then(async (valid) => {
+			return valid;
+		});
+	if (!ret) {
+		throw '无效手机号码';
+	}
+
 	let error = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/add`, {
@@ -197,6 +231,7 @@ export const addUser = async (
 		},
 		body: JSON.stringify({
 			name: name,
+			cell_phone: cellPhone,
 			email: email,
 			password: password,
 			role: role

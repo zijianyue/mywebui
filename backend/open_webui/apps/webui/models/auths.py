@@ -21,6 +21,7 @@ class Auth(Base):
     __tablename__ = "auth"
 
     id = Column(String, primary_key=True)
+    cell_phone = Column(String)
     email = Column(String)
     password = Column(Text)
     active = Column(Boolean)
@@ -28,6 +29,7 @@ class Auth(Base):
 
 class AuthModel(BaseModel):
     id: str
+    cell_phone: str
     email: str
     password: str
     active: bool = True
@@ -49,6 +51,7 @@ class ApiKey(BaseModel):
 
 class UserResponse(BaseModel):
     id: str
+    cell_phone: str
     email: str
     name: str
     role: str
@@ -60,6 +63,7 @@ class SigninResponse(Token, UserResponse):
 
 
 class SigninForm(BaseModel):
+    cell_phone: str
     email: str
     password: str
 
@@ -80,6 +84,7 @@ class UpdatePasswordForm(BaseModel):
 
 class SignupForm(BaseModel):
     name: str
+    cell_phone: str
     email: str
     password: str
     profile_image_url: Optional[str] = "/user.png"
@@ -98,6 +103,7 @@ class AuthsTable:
         profile_image_url: str = "/user.png",
         role: str = "pending",
         oauth_sub: Optional[str] = None,
+        cell_phone: str = '',
     ) -> Optional[UserModel]:
         with get_db() as db:
             log.info("insert_new_auth")
@@ -105,13 +111,13 @@ class AuthsTable:
             id = str(uuid.uuid4())
 
             auth = AuthModel(
-                **{"id": id, "email": email, "password": password, "active": True}
+                **{"id": id, "cell_phone": cell_phone, "email": email, "password": password, "active": True}
             )
             result = Auth(**auth.model_dump())
             db.add(result)
 
             user = Users.insert_new_user(
-                id, name, email, profile_image_url, role, oauth_sub
+                id, name, cell_phone, email, profile_image_url, role, oauth_sub
             )
 
             db.commit()
@@ -136,6 +142,23 @@ class AuthsTable:
                 else:
                     return None
         except Exception:
+            return None
+
+    def authenticate_user_by_cell_phone(self, cell_phone: str, password: str) -> Optional[UserModel]:
+        log.info(f"authenticate_user_by_cell_phone")
+        try:
+            with get_db() as db:
+
+                auth = db.query(Auth).filter_by(cell_phone=cell_phone, active=True).first()
+                if auth:
+                    if verify_password(password, auth.password):
+                        user = Users.get_user_by_id(auth.id)
+                        return user
+                    else:
+                        return None
+                else:
+                    return None
+        except:
             return None
 
     def authenticate_user_by_api_key(self, api_key: str) -> Optional[UserModel]:
@@ -179,6 +202,15 @@ class AuthsTable:
                 db.commit()
                 return True if result == 1 else False
         except Exception:
+            return False
+
+    def update_cell_phone_by_id(self, id: str, cell_phone: str) -> bool:
+        try:
+            with get_db() as db:
+                result = db.query(Auth).filter_by(id=id).update({"cell_phone": cell_phone})
+                db.commit()
+                return True if result == 1 else False
+        except:
             return False
 
     def delete_auth_by_id(self, id: str) -> bool:

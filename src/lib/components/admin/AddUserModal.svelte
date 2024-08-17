@@ -18,6 +18,7 @@
 
 	let _user = {
 		name: '',
+		cellPhone: '',
 		email: '',
 		password: '',
 		role: 'user'
@@ -26,6 +27,7 @@
 	$: if (show) {
 		_user = {
 			name: '',
+			cellPhone: '',
 			email: '',
 			password: '',
 			role: 'user'
@@ -40,21 +42,25 @@
 
 		if (tab === '') {
 			loading = true;
-
+			let ckEmail = _user.email;
+			if (ckEmail == '') {
+				ckEmail = 'default@163.com';
+			}
 			const res = await addUser(
 				localStorage.token,
 				_user.name,
-				_user.email,
+				_user.cellPhone,
+				ckEmail,
 				_user.password,
 				_user.role
 			).catch((error) => {
 				toast.error(error);
 			});
 
-			if (res) {
+			// if (res) { // avoid hung up when exception happend
 				stopLoading();
 				show = false;
-			}
+			// }
 		} else {
 			if (inputFiles) {
 				loading = true;
@@ -82,7 +88,8 @@
 									columns[0],
 									columns[1],
 									columns[2],
-									columns[3].toLowerCase()
+									columns[3],
+									columns[4].toLowerCase()
 								).catch((error) => {
 									toast.error(`Row ${idx + 1}: ${error}`);
 									return null;
@@ -201,14 +208,14 @@
 							<hr class=" dark:border-gray-800 my-3 w-full" />
 
 							<div class="flex flex-col w-full">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Cell-phone number')}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
-										type="email"
-										bind:value={_user.email}
-										placeholder={$i18n.t('Enter Your Email')}
+										type="text"
+										bind:value={_user.cellPhone}
+										placeholder={$i18n.t('Enter Your Cell-phone number')}
 										autocomplete="off"
 										required
 									/>
@@ -224,6 +231,21 @@
 										type="password"
 										bind:value={_user.password}
 										placeholder={$i18n.t('Enter Your Password')}
+										autocomplete="off"
+										required
+									/>
+								</div>
+							</div>
+
+							<div class="flex flex-col w-full">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+
+								<div class="flex-1">
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
+										type="email"
+										bind:value={_user.email}
+										placeholder={$i18n.t('Enter Your Email')}
 										autocomplete="off"
 									/>
 								</div>
