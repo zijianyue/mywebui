@@ -10,7 +10,7 @@
 	import type { Unsubscriber, Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
 	import { WEBUI_BASE_URL } from '$lib/constants';
-
+	import PullToRefresh from '$lib/components/common/PullToRefresh.svelte';
 	import {
 		chatId,
 		chats,
@@ -1728,93 +1728,119 @@
 />
 
 {#if !chatIdProp || (loaded && chatIdProp)}
-	<div
-		class="h-screen max-h-[100dvh] {$showSidebar
-			? 'md:max-w-[calc(100%-260px)]'
-			: ''} w-full max-w-full flex flex-col"
-	>
-		{#if $settings?.backgroundImageUrl ?? null}
-			<div
-				class="absolute {$showSidebar
-					? 'md:max-w-[calc(100%-260px)] md:translate-x-[260px]'
-					: ''} top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
-				style="background-image: url({$settings.backgroundImageUrl})  "
+	<PullToRefresh>
+		<div
+			class="h-screen max-h-[100dvh] {$showSidebar
+				? 'md:max-w-[calc(100%-260px)]'
+				: ''} w-full max-w-full flex flex-col"
+		>
+			{#if $settings?.backgroundImageUrl ?? null}
+				<div
+					class="absolute {$showSidebar
+						? 'md:max-w-[calc(100%-260px)] md:translate-x-[260px]'
+						: ''} top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
+					style="background-image: url({$settings.backgroundImageUrl})  "
+				/>
+
+				<div
+					class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-white to-white/85 dark:from-gray-900 dark:to-[#171717]/90 z-0"
+				/>
+			{/if}
+
+			<Navbar
+				{title}
+				bind:selectedModels
+				bind:showModelSelector
+				bind:showControls
+				shareEnabled={messages.length > 0}
+				{chat}
+				{initNewChat}
 			/>
 
-			<div
-				class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-white to-white/85 dark:from-gray-900 dark:to-[#171717]/90 z-0"
-			/>
-		{/if}
+			{#if $banners.length > 0 && messages.length === 0 && !$chatId && selectedModels.length <= 1}
+				<div
+					class="absolute top-[4.25rem] w-full {$showSidebar
+						? 'md:max-w-[calc(100%-260px)]'
+						: ''} {showControls ? 'lg:pr-[24rem]' : ''} z-20"
+				>
+					<div class=" flex flex-col gap-1 w-full">
+						{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
+							<Banner
+								{banner}
+								on:dismiss={(e) => {
+									const bannerId = e.detail;
 
-		<Navbar
-			{title}
-			bind:selectedModels
-			bind:showModelSelector
-			bind:showControls
-			shareEnabled={messages.length > 0}
-			{chat}
-			{initNewChat}
-		/>
-
-		{#if $banners.length > 0 && messages.length === 0 && !$chatId && selectedModels.length <= 1}
-			<div
-				class="absolute top-[4.25rem] w-full {$showSidebar
-					? 'md:max-w-[calc(100%-260px)]'
-					: ''} {showControls ? 'lg:pr-[24rem]' : ''} z-20"
-			>
-				<div class=" flex flex-col gap-1 w-full">
-					{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
-						<Banner
-							{banner}
-							on:dismiss={(e) => {
-								const bannerId = e.detail;
-
-								localStorage.setItem(
-									'dismissedBannerIds',
-									JSON.stringify(
-										[
-											bannerId,
-											...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
-										].filter((id) => $banners.find((b) => b.id === id))
-									)
-								);
-							}}
-						/>
-					{/each}
+									localStorage.setItem(
+										'dismissedBannerIds',
+										JSON.stringify(
+											[
+												bannerId,
+												...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
+											].filter((id) => $banners.find((b) => b.id === id))
+										)
+									);
+								}}
+							/>
+						{/each}
+					</div>
 				</div>
-			</div>
-		{/if}
+			{/if}
 
-		<div class="flex flex-col flex-auto z-10">
-			<div
-				class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden {showControls
-					? 'lg:pr-[24rem]'
-					: ''}"
-				id="messages-container"
-				bind:this={messagesContainerElement}
-				on:scroll={(e) => {
-					autoScroll =
-						messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-						messagesContainerElement.clientHeight + 5;
-				}}
-			>
-				<div class=" h-full w-full flex flex-col {chatIdProp ? 'py-4' : 'pt-2 pb-4'}">
-					<Messages
-						chatId={$chatId}
-						{selectedModels}
-						{processing}
-						bind:history
-						bind:messages
-						bind:autoScroll
+			<div class="flex flex-col flex-auto z-10">
+				<div
+					class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden {showControls
+						? 'lg:pr-[24rem]'
+						: ''}"
+					id="messages-container"
+					bind:this={messagesContainerElement}
+					on:scroll={(e) => {
+						autoScroll =
+							messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+							messagesContainerElement.clientHeight + 5;
+					}}
+				>
+					<div class=" h-full w-full flex flex-col {chatIdProp ? 'py-4' : 'pt-2 pb-4'}">
+						<Messages
+							chatId={$chatId}
+							{selectedModels}
+							{processing}
+							bind:history
+							bind:messages
+							bind:autoScroll
+							bind:prompt
+							bottomPadding={files.length > 0}
+							{sendPrompt}
+							{continueGeneration}
+							{regenerateResponse}
+							{mergeResponses}
+							{chatActionHandler}
+							{submitPrompt}
+							{suggestQuestionsList}
+						/>
+					</div>
+				</div>
+
+				<div class={showControls ? 'lg:pr-[24rem]' : ''}>
+					<MessageInput
+						bind:files
 						bind:prompt
-						bottomPadding={files.length > 0}
-						{sendPrompt}
-						{continueGeneration}
-						{regenerateResponse}
-						{mergeResponses}
-						{chatActionHandler}
+						bind:autoScroll
+						bind:selectedToolIds
+						bind:webSearchEnabled
+						bind:atSelectedModel
+						bind:callRecordStream
+						availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
+							const model = $models.find((m) => m.id === e);
+							if (model?.info?.meta?.toolIds ?? false) {
+								return [...new Set([...a, ...model.info.meta.toolIds])];
+							}
+							return a;
+						}, [])}
+						transparentBackground={$settings?.backgroundImageUrl ?? false}
+						{selectedModels}
+						{messages}
 						{submitPrompt}
-						{suggestQuestionsList}
+						{stopResponse}
 					/>
 				</div>
 			</div>
@@ -1847,6 +1873,7 @@
 			</div>
 		</div>
 	</div>
+</PullToRefresh>
 {/if}
 
 <ChatControls
