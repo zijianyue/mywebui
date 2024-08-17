@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { DropdownMenu } from 'bits-ui';
 	import { flyAndScale } from '$lib/utils/transitions';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
+	import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import DocumentArrowUpSolid from '$lib/components/icons/DocumentArrowUpSolid.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import GlobeAltSolid from '$lib/components/icons/GlobeAltSolid.svelte';
-	import { config } from '$lib/stores';
+	import { config, user } from '$lib/stores';
 	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
 
 	const i18n = getContext('i18n');
@@ -21,6 +22,8 @@
 	export let tools = {};
 	export let onClose: Function;
 
+	export let submitPrompt: Function;
+
 	$: tools = Object.fromEntries(
 		Object.keys(tools).map((toolId) => [
 			toolId,
@@ -32,6 +35,7 @@
 	);
 
 	let show = false;
+	const dispatch = createEventDispatcher();
 </script>
 
 <Dropdown
@@ -106,6 +110,20 @@
 			>
 				<DocumentArrowUpSolid />
 				<div class=" line-clamp-1">{$i18n.t('Upload Files')}</div>
+			</DropdownMenu.Item>
+
+			<DropdownMenu.Item
+				class="flex gap-2 items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-xl"
+				on:click={() => {
+					let data = new Date();
+					let medicalRecordsPrompt = "病人姓名：" + $user.name + "，日期：" + data.getFullYear() + "年" + (data.getMonth() + 1) + "月" + data.getDate() + "日。";
+					medicalRecordsPrompt += "对上面内容生成300字的电子病历，包含具体问诊信息、用药记录、建议治疗措施、医生签字。 注意：不要捏造不存在的信息，对话中没有出现的信息用“待补充”代替";
+					submitPrompt(medicalRecordsPrompt);
+					dispatch('mrStatusChanged', 'wait model response');
+				}}
+			>
+				<ArchiveBox className="size-4" strokeWidth="1.5" />
+				<div class=" line-clamp-1">{$i18n.t('Generate Medical Records')}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

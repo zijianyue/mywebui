@@ -65,6 +65,8 @@
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 
+	import { addNewMemory } from '$lib/apis/memories';
+
 	const i18n: Writable<i18nType> = getContext('i18n');
 
 	export let chatIdProp = '';
@@ -111,6 +113,7 @@
 	};
 
 	let params = {};
+	let mrToMemory = false;
 	let suggestQuestionsList;
 	let callRecordStream :MediaStream;
 
@@ -742,6 +745,17 @@
 						_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
 					}
 					_responses.push(_response);
+
+					if (mrToMemory) {	// 针对生成电子病历的对话请求
+
+						const res = await addNewMemory(localStorage.token, _response).catch((error) => {
+							toast.error(error);
+						});
+						if (res) {
+							toast.success($i18n.t('Memory added successfully'));
+						}
+						mrToMemory = false;
+					}
 
 					if (chatEventEmitter) clearInterval(chatEventEmitter);
 				} else {
@@ -1841,6 +1855,9 @@
 						{messages}
 						{submitPrompt}
 						{stopResponse}
+						on:mrStatusChanged = {(e) => {
+							mrToMemory = (e.detail == 'wait model response');
+						}}
 					/>
 				</div>
 			</div>
