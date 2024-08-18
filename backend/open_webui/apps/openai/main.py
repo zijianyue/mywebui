@@ -388,6 +388,8 @@ async def generate_chat_completion(
     url = app.state.config.OPENAI_API_BASE_URLS[idx]
     key = app.state.config.OPENAI_API_KEYS[idx]
 
+    log.debug(f"generate_chat_completion url: {url}")
+
     headers = {}
     headers["Authorization"] = f"Bearer {key}"
     headers["Content-Type"] = "application/json"
@@ -425,6 +427,8 @@ async def generate_chat_completion(
             )
         else:
             response_data = await r.json()
+            log.debug(f"generate_chat_completion response_data: {response_data}")
+
             return response_data
     except Exception as e:
         log.exception(e)

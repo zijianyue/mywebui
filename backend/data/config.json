@@ -142,8 +142,8 @@
 			"base_url": "http://localhost:7860",
 			"api_auth": ""
 		},
-		"size": "1024x1024",
-		"steps": 35,
+		"size": "512x512",
+		"steps": 20,
 		"comfyui": {
 			"base_url": "http://127.0.0.1:8188"
 		},
