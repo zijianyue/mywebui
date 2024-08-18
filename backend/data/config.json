@@ -136,14 +136,18 @@
 		}
 	},
 	"image_generation": {
-		"engine": "",
-		"enable": false,
+		"engine": "comfyui",
+		"enable": true,
 		"automatic1111": {
 			"base_url": "http://localhost:7860",
 			"api_auth": ""
 		},
-		"size": "512x512",
-		"steps": 50
+		"size": "1024x1024",
+		"steps": 35,
+		"comfyui": {
+			"base_url": "http://127.0.0.1:8188"
+		},
+		"model": "flux1-dev-fp8.safetensors"
 	},
 	"webhook_url": "",
 	"auth": {
