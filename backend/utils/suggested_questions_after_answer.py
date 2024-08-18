@@ -28,10 +28,15 @@ class SuggestedQuestionsAfterAnswerOutputParser:
             try:
                 # 直接尝试解析整个文本为 JSON 对象
                 json_obj = json.loads(text.strip())
-            
+
                 # 如果成功解析，将对象转换为列表格式
-                questions = [value for key, value in json_obj.items() if key.startswith("question")]
-            
+                # questions = [value for key, value in json_obj.items() if key.startswith("question")]
+                questions = []
+                for key, value in json_obj.items():
+                    if key.startswith("question"):
+                        questions.append(value)
+                        if len(questions) >= 3:  # 当收集到三个问题后跳出循环
+                            break
                 return questions
             except json.JSONDecodeError:
                 print(f"Could not parse LLM output again: {text}")
