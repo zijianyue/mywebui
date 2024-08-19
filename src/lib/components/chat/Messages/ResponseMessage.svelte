@@ -35,7 +35,7 @@
 	import Markdown from './Markdown.svelte';
 	import Error from './Error.svelte';
 	import Citations from './Citations.svelte';
-	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import {translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
 
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -337,64 +337,7 @@
 
 	const generateImage = async (message: MessageType) => {
 		generatingImage = true;
-		let retries = 3;
-		let promptUsed = '';
-		let pure = isPureEnglish(message.content);
-		if (pure) {
-			retries = 0;
-			promptUsed = message.content;
-		} else {
-			promptUsed = `将后面的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符：${message.content}`;
-		}
-		while (retries > 0) {
-			const [ret, controller] = await generateOpenAIChatCompletion(
-				localStorage.token,
-				{
-					stream: false,
-					model: 'gemma2:2b',
-					temperature: 0,
-					messages: [
-						{
-							role: 'user',
-							content: promptUsed
-						}
-					]
-				},
-				`${WEBUI_BASE_URL}/api`
-			).catch((error) => {
-				console.log('translate fail:', error);
-				return [null, null];
-			});
-
-			if (!ret) {
-				generatingImage = false;
-				return;
-			}
-			const data = await ret.json().catch((error) => {
-				console.log('Error parsing JSON:', error);
-				return null;
-			});
-			if (!data) {
-				generatingImage = false;
-				return;
-			}
-			console.log('translate result json:', data);
-
-			promptUsed = data.choices[0].message.content;
-			console.log('promptUsed:', promptUsed);
-			if (isPureEnglish(promptUsed)) {
-				break;
-			} else {
-				console.log('not pure english');
-				retries--;
-			}
-		}
-
-		if (!pure && !isPureEnglish(promptUsed)) {
-			console.log('translate fail at last');
-			generatingImage = false;
-			return;
-		}
+		let promptUsed = await translatePrompt(message.content);
 		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
 			toast.error(error);
 		});
