@@ -122,6 +122,10 @@
 	let mrToMemory = false;
 	let suggestQuestionsList;
 	let callRecordStream :MediaStream;
+	const genImageKeywords = [
+		/生成.*图片/,
+		/generate.*image.*/i // 使用正则表达式匹配 "generate a .... image 忽略大小写"
+	];
 
 	$: if (chatIdProp) {
 		(async () => {
@@ -735,6 +739,10 @@
 	}
 
 	const generateImage = async (responseMessage, userPrompt: string) => {
+		console.log('start generate image by send prompt:', userPrompt);
+		let _response = null;
+		const _chatId = JSON.parse(JSON.stringify($chatId));
+
 		let promptUsed = await translatePrompt(userPrompt);
 		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
 			toast.error(error);
@@ -746,10 +754,12 @@
 				type: 'image',
 				url: `${image.url}`
 			}));
+			responseMessage.content = null;
+			responseMessage.done = true;
+			_response = responseMessage.content;
 
 			// dispatch('save', message);
 			console.log('add image to responseMessage:', responseMessage);
-			const _chatId = JSON.parse(JSON.stringify($chatId));
 
 			history.messages[responseMessage.id] = responseMessage;
 			await updateChatById(localStorage.token, _chatId, {
@@ -757,6 +767,17 @@
 				history: history
 			});
 		}
+
+		if (autoScroll) {
+			scrollToBottom();
+		}
+		if (messages.length == 2) {
+			window.history.replaceState(history.state, '', `/c/${_chatId}`);
+
+			const _title = await generateChatTitle(userPrompt);
+			await setChatTitle(_chatId, _title);
+		}
+		return _response;
 	};
 
 	const sendPrompt = async (
@@ -875,13 +896,28 @@
 					}
 
 					let _response = null;
-					if (model?.owned_by === 'openai') {
-						_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
-					} else if (model) {
-						_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+					let trimedPrompt = prompt;
+					const containsKeyword = genImageKeywords.some(keyword => {
+						if (keyword instanceof RegExp) {
+							if (keyword.test(prompt)) {
+								trimedPrompt = trimedPrompt.replace('生成', '').trim();
+								trimedPrompt = trimedPrompt.replace('的图片', '').trim();
+								trimedPrompt = trimedPrompt.replace('图片', '').trim();
+								return true;
+							}
+						}
+						return false;
+					});
+					if (containsKeyword) {
+						_response = await generateImage(responseMessage, trimedPrompt);
+					} else {
+						if (model?.owned_by === 'openai') {
+							_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
+						} else if (model) {
+							_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+						}
 					}
 					_responses.push(_response);
-					await generateImage(responseMessage, prompt);
 
 					if (mrToMemory) {	// 针对生成电子病历的对话请求
 
