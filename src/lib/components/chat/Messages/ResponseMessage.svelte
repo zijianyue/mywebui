@@ -288,10 +288,6 @@
 		await tick();
 	};
 
-	function isPureEnglish(str) {
-		return /^[\x00-\x7F]*$/.test(str);
-	}
-
 	const generateImage = async (message) => {
 		generatingImage = true;
 		let promptUsed = await translatePrompt(message.content);
