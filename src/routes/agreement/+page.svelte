@@ -464,5 +464,27 @@
         padding-right: 22%;
         padding-top: 3%;
     }
+    @media (max-width: 1200px) {
+        .line-border {
+            padding-left: 11%;
+            padding-right: 11%;
+            padding-top: 2%;
+        }
+    }
+    @media (max-width: 800px) {
+        .line-border {
+            padding-left: 5%;
+            padding-right: 5%;
+            padding-top: 1%;
+        }
+    }
+    /* 屏幕宽度小于600px时（适用于大多数手机） */
+    @media (max-width: 600px) {
+        .line-border {
+            padding-left: 2%;
+            padding-right: 2%;
+            padding-top: 1%;
+        }
+    }
 
 </style>
