@@ -1,4 +1,4 @@
-import { OPENAI_API_BASE_URL } from '$lib/constants';
+import { OPENAI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 
 export const getOpenAIConfig = async (token: string = '') => {
 	let error = null;
@@ -266,6 +266,71 @@ export const getOpenAIModelsDirect = async (
 		.sort((a, b) => {
 			return a.name.localeCompare(b.name);
 		});
+};
+
+function isPureEnglish(str) {
+	return /^[\x00-\x7F]*$/.test(str);
+}
+
+export const translatePrompt = async (
+	userPrompt: string
+) => {
+	let retries = 3;
+	let promptUsed = '';
+	let pure = isPureEnglish(userPrompt);
+	if (pure) {
+		retries = 0;
+		promptUsed = userPrompt;
+	} else {
+		promptUsed = `将后面的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符：${userPrompt}`;
+	}
+	while (retries > 0) {
+		const [ret, controller] = await generateOpenAIChatCompletion(
+			localStorage.token,
+			{
+				stream: false,
+				model: 'gemma2:2b',
+				temperature: 0,
+				messages: [
+					{
+						role: 'user',
+						content: promptUsed
+					}
+				]
+			},
+			`${WEBUI_BASE_URL}/api`
+		).catch((error) => {
+			console.log('translate fail:', error);
+			return [null, null];
+		});
+
+		if (!ret) {
+			return userPrompt;
+		}
+		const data = await ret.json().catch((error) => {
+			console.log('Error parsing JSON:', error);
+			return null;
+		});
+		if (!data) {
+			return userPrompt;
+		}
+		console.log('translate result json:', data);
+
+		promptUsed = data.choices[0].message.content;
+		console.log('promptUsed:', promptUsed);
+		if (isPureEnglish(promptUsed)) {
+			break;
+		} else {
+			console.log('not pure english');
+			retries--;
+		}
+	}
+
+	if (!pure && !isPureEnglish(promptUsed)) {
+		console.log('translate fail at last');
+		return userPrompt;
+	}
+	return promptUsed;
 };
 
 export const generateOpenAIChatCompletion = async (
