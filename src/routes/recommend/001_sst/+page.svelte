@@ -10,7 +10,7 @@
         <p>&nbsp;</p>
         <p>&nbsp;</p>
 
-        <div class="left-top">
+        <div class="para1">
             <p class="tile-text" style="font-size: 1.2em; text-align: center;">儿童发育成长中的疑难杂症</p>
 
             <p>&nbsp;</p>
@@ -32,7 +32,10 @@
             <p>&nbsp;</p>
         </div>
 
-        <div class="right-top">
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        
+        <div class="para2">
             <p class="tile-text" style="font-size: 1.2em; text-align: center;">综合性感觉统合解决方案</p>
 
             <p>&nbsp;</p>
@@ -52,7 +55,7 @@
         <p>&nbsp;</p>
         <p>&nbsp;</p>
 
-        <div class="left-bottom">
+        <div class="para3">
             <p class="tile-text" style="font-size: 1.2em; text-align: center;">解决痛点，弥补空缺</p>
 
             <p>&nbsp;</p>
@@ -66,7 +69,7 @@
             <p>&nbsp;</p>
             <p>独特性在哪里？</p>
             <p style="text-indent: 2em;">早教机构解决不了这类问题。</p>
-            <p style="text-indent: 2em;">医院对这类病症，诊断为孤独症，目前没有很好的治疗方法，推荐感统，但不保证效果。</p>
+            <p style="text-indent: 2em;">医疗机构也解决不了。比如自闭，医院对这类病症，诊断为孤独症，目前没有很好的治疗方法，推荐感统，但不保证效果。</p>
             <p style="text-indent: 2em;">市面上的感统机构，会出现花了时间和金钱，孩子没有多大变化，这是因为每个孩子具体情况都不同，需要从细节上把握到关键点，才能有效。</p>
 
             <p>&nbsp;</p>
@@ -75,32 +78,23 @@
 
             <p>&nbsp;</p>
         </div>
+
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
     
-        <div class="right-bottom">
-            <p class="tile-text" style="font-size: 1.5em; text-align: center;"><a href="" target="_blank"><span class=" underline">案例集展示</span></a></p>
+        <div class="para4">
+            <p class="tile-text" style="font-size: 1.5em; text-align: center;"><a href="/recommend/001_sst/case" target="_blank"><span class=" underline">案例集展示</span></a></p>
 
             <p>&nbsp;</p>
-            <p class="tile-text" style="text-indent: 2em;">展示的案例已进行匿名化处理，如有意见，请及时通过邮箱：taopi2001@163.com与我们联系。您也可拨打以下电话：18217300459。</p>
+            <p class="tile-text" style="text-indent: 2em; text-align: center;">展示的案例已进行匿名化处理，如有意见，请及时通过邮箱：taopi2001@163.com与我们联系。您也可拨打以下电话：18217300459。</p>
 
             <p>&nbsp;</p>
             <p>&nbsp;</p>
 
-            <p class="tile-text" style="font-size: 1.2em; text-align: center;">相关概念与方法介绍</p>
+            <p class="tile-text" style="font-size: 1.2em; text-align: center;">相关概念与方法介绍、典型问题分析</p>
 
             <p>&nbsp;</p>
-            <p class="tile-text" style="text-indent: 2em;">请对AI提问，AI会给予解答。</p>
-
-            <p>&nbsp;</p>
-            <p class="tile-text" style="font-size: 1.2em; text-align: center;">典型问题分析</p>
-
-            <p>&nbsp;</p>
-            <p class="tile-text" style="text-indent: 2em;">请对AI提问，AI会给予解答。</p>
-
-            <p>&nbsp;</p>
-            <p class="tile-text" style="font-size: 1.2em; text-align: center;">课后反馈</p>
-
-            <p>&nbsp;</p>
-            <p class="tile-text" style="text-indent: 2em;">如果您已经参加了课程，请向AI反馈下您的意见。</p>
+            <p class="tile-text" style="text-indent: 2em; text-align: center;">请对AI提问，AI会给予回答。</p>
 
             <p>&nbsp;</p>
         </div>
@@ -130,36 +124,22 @@
         text-decoration: underline;
     }
 
-    .left-top {
-        width: 50%;
-        height: 60vh;
-        overflow-y: scroll;
+    .para1 {
         /* border: 1px solid black; */
         color: rebeccapurple;
         /* background: rebeccapurple; */
-        float: left;
     }
-    .right-top {
-        height: 60vh;
-        margin-left: 50%;
-        overflow-y: scroll;
+    .para2 {
         /* border: 1px solid black; */
         color: orangered;
         /* background: pink; */
     }
-    .left-bottom {
-        width: 50%;
-        height: 60vh;
-        overflow-y: scroll;
+    .para3 {
         /* border: 1px solid black; */
         color: green;
         /* background: rebeccapurple; */
-        float: left;
     }
-    .right-bottom {
-        height: 60vh;
-        margin-left: 50%;
-        overflow-y: scroll;
+    .para4 {
         /* border: 1px solid black ; */
         color: #41a0c0;
         /* background: pink; */
@@ -178,9 +158,32 @@
         position: relative;
         line-height: 1.6; /* 根据需要设置行高 */
         color: #333; /* 根据需要设置文本颜色 */
-        padding-left: 10%;
-        padding-right: 10%;
+        padding-left: 22%;
+        padding-right: 22%;
         padding-top: 3%;
+    }
+
+    @media (max-width: 1200px) {
+        .line-border {
+            padding-left: 11%;
+            padding-right: 11%;
+            padding-top: 2%;
+        }
+    }
+    @media (max-width: 800px) {
+        .line-border {
+            padding-left: 5%;
+            padding-right: 5%;
+            padding-top: 1%;
+        }
+    }
+    /* 屏幕宽度小于600px时（适用于大多数手机） */
+    @media (max-width: 600px) {
+        .line-border {
+            padding-left: 2%;
+            padding-right: 2%;
+            padding-top: 1%;
+        }
     }
 
 </style>
