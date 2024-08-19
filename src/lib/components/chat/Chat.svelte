@@ -66,6 +66,7 @@
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 
 	import { addNewMemory } from '$lib/apis/memories';
+	import { imageGenerations } from '$lib/apis/images';
 
 	const i18n: Writable<i18nType> = getContext('i18n');
 
@@ -609,6 +610,89 @@
 		return _responses;
 	};
 
+	function isPureEnglish(str) {
+		return /^[\x00-\x7F]*$/.test(str);
+	}
+
+	const generateImage = async (responseMessage, userPrompt: string) => {
+		let retries = 3;
+		let promptUsed = '';
+		let pure = isPureEnglish(userPrompt);
+		if (pure) {
+			retries = 0;
+			promptUsed = userPrompt;
+		} else {
+			promptUsed = `将后面的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符：${userPrompt}`;
+		}
+		while (retries > 0) {
+			const [ret, controller] = await generateOpenAIChatCompletion(
+				localStorage.token,
+				{
+					stream: false,
+					model: 'gemma2:2b',
+					temperature: 0,
+					messages: [
+						{
+							role: 'user',
+							content: promptUsed
+						}
+					]
+				},
+				`${WEBUI_BASE_URL}/api`
+			).catch((error) => {
+				console.log('translate fail:', error);
+				return [null, null];
+			});
+
+			if (!ret) {
+				return;
+			}
+			const data = await ret.json().catch((error) => {
+				console.log('Error parsing JSON:', error);
+				return null;
+			});
+			if (!data) {
+				return;
+			}
+			console.log('translate result json:', data);
+
+			promptUsed = data.choices[0].message.content;
+			console.log('promptUsed:', promptUsed);
+			if (isPureEnglish(promptUsed)) {
+				break;
+			} else {
+				console.log('not pure english');
+				retries--;
+			}
+		}
+
+		if (!pure && !isPureEnglish(promptUsed)) {
+			console.log('translate fail at last');
+			return;
+		}
+		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
+			toast.error(error);
+		});
+		console.log(res);
+
+		if (res) {
+			responseMessage.files = res.map((image) => ({
+				type: 'image',
+				url: `${image.url}`
+			}));
+
+			// dispatch('save', message);
+			console.log('add image to responseMessage:', responseMessage);
+			const _chatId = JSON.parse(JSON.stringify($chatId));
+
+			history.messages[responseMessage.id] = responseMessage;
+			await updateChatById(localStorage.token, _chatId, {
+				messages: messages,
+				history: history
+			});
+		}
+	};
+
 	const sendPrompt = async (
 		prompt: string,
 		parentId: string,
@@ -745,6 +829,7 @@
 						_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
 					}
 					_responses.push(_response);
+					await generateImage(responseMessage, prompt);
 
 					if (mrToMemory) {	// 针对生成电子病历的对话请求
 
@@ -1127,6 +1212,7 @@
 
 		const responseMessage = history.messages[responseMessageId];
 		const userMessage = history.messages[responseMessage.parentId];
+		console.log('userMessage:', userMessage);
 
 		let files = JSON.parse(JSON.stringify(chatFiles));
 		if (model?.info?.meta?.knowledge ?? false) {
