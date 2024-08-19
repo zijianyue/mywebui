@@ -1089,9 +1089,9 @@
 									style="flex: 0 1 auto; min-width: 50px; margin: 5px;"
 									on:click={() => {
 										if ($mobile) {
-											window.location.href = "/recommend";
+											window.location.href = "/recommend/001_sst";
 										} else {
-											window.open("/recommend", "_blank");
+											window.open("/recommend/001_sst", "_blank");
 										}
 									}}
 								>
