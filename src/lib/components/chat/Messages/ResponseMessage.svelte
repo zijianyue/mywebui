@@ -360,7 +360,7 @@
 
 	const generateImage = async (message: MessageType) => {
 		generatingImage = true;
-		let promptUsed = await translatePrompt(message.content);
+		let promptUsed = await translatePrompt(message.content, message.model);
 		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
 			toast.error(error);
 		});

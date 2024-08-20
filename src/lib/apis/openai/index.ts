@@ -273,28 +273,28 @@ function isPureEnglish(str) {
 }
 
 export const translatePrompt = async (
-	userPrompt: string
+	userPrompt: string,
+	modelId: string
 ) => {
 	let retries = 3;
-	let promptUsed = '';
+	let promptUsed = userPrompt;
 	let pure = isPureEnglish(userPrompt);
+	const transPrompt = `将后面引号中的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符："${userPrompt}"`;
 	if (pure) {
 		retries = 0;
-		promptUsed = userPrompt;
-	} else {
-		promptUsed = `将后面的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符：${userPrompt}`;
 	}
 	while (retries > 0) {
 		const [ret, controller] = await generateOpenAIChatCompletion(
 			localStorage.token,
 			{
 				stream: false,
-				model: 'gemma2:2b',
-				temperature: 0,
+				model: modelId,
+				useCustomModel: true,
+				temperature: 0.1,
 				messages: [
 					{
 						role: 'user',
-						content: promptUsed
+						content: transPrompt
 					}
 				]
 			},
