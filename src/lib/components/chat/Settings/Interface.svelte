@@ -19,6 +19,7 @@
 
 	// Addons
 	let titleAutoGenerate = true;
+	let autoJudgeGenerateImage = true;
 	let responseAutoCopy = false;
 	let widescreenMode = false;
 	let splitLargeChunks = false;
@@ -106,6 +107,11 @@
 		});
 	};
 
+	const toggleAutoJudgeGenerateImage = async () => {
+		autoJudgeGenerateImage = !autoJudgeGenerateImage;
+		saveSettings({ autoJudgeGenerateImage: autoJudgeGenerateImage });
+	};
+
 	const toggleResponseAutoCopy = async () => {
 		const permission = await navigator.clipboard
 			.readText()
@@ -143,6 +149,7 @@
 
 	onMount(async () => {
 		titleAutoGenerate = $settings?.title?.auto ?? true;
+		autoJudgeGenerateImage = $settings.autoJudgeGenerateImage ?? true;
 
 		responseAutoCopy = $settings.responseAutoCopy ?? false;
 		showUsername = $settings.showUsername ?? false;
@@ -396,6 +403,27 @@
 						type="button"
 					>
 						{#if titleAutoGenerate === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
+			<div>
+				<div class=" py-0.5 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Auto Judge Generate Image Intention')}
+					</div>
+
+					<button
+						class="p-1 px-3 text-xs flex rounded transition"
+						on:click={() => {
+							toggleAutoJudgeGenerateImage();
+						}}
+						type="button"
+					>
+						{#if autoJudgeGenerateImage === true}
 							<span class="ml-2 self-center">{$i18n.t('On')}</span>
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Off')}</span>

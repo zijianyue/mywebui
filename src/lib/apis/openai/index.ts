@@ -268,14 +268,94 @@ export const getOpenAIModelsDirect = async (
 		});
 };
 
+const chatCompletionSimple = async (userPrompt: string, modelId: string) => {
+	const requestBody = {
+		stream: false,
+		model: modelId,
+		useCustomModel: true,
+		temperature: 0.1,
+		messages: [
+			{
+				role: 'user',
+				content: userPrompt
+			}
+		]
+	};
+	const [ret, controller] = await generateOpenAIChatCompletion(
+		localStorage.token,
+		requestBody,
+		`${WEBUI_BASE_URL}/api`
+	).catch((error) => {
+		console.log('chat completion fail:', error);
+		return [null, null];
+	});
+
+	if (!ret) {
+		return null;
+	}
+	const data = await ret.json().catch((error) => {
+		console.log('Error parsing JSON:', error);
+		return null;
+	});
+	if (!data) {
+		return null;
+	}
+	console.log('answer json:', data);
+	console.log('answer content:', data.choices[0].message.content);
+
+	return data.choices[0].message.content;
+};
+
+export const judgeGenerateImageIntention = async (userPrompt: string, modelId: string) => {
+	console.log('judgeGenerateImageIntention start:', userPrompt);
+	const transPrompt = `判断用户的输入是否想要绘制图像。请回答“是”或“否”，并给出你对回答“是”的信心指数，用0到1之间的数字表示。只有在信心指数达到0.95或以上时，才可回答“是”。请仔细确认，回答要保守。
+
+需要回答“是”的示例：
+- 画一条龙
+- 画只狗
+- 画条鱼
+- 生成一只穿衣服的老虎
+- 漂亮的自行车
+
+需要回答“否”的示例：
+- 商场
+- 老虎
+- 为什么要上班
+- 早上好
+- 画画
+- 画饼
+- 画龙点睛
+- 画蛇添足（这类固定词汇或成语也要回答“否”）
+
+### 用户的输入: ${userPrompt}`;
+
+	let intention = await chatCompletionSimple(transPrompt, modelId);
+	if (!intention) {
+		return false;
+	}
+	intention = intention.trim().replace(/\s+/g, '');
+	console.log('intention:', intention);
+	const matchYes = intention.match(/^是.*(\d+\.\d+).*$/);
+	const matchNo = intention.startsWith('否');
+	if (matchYes) {
+		const confidence = parseFloat(matchYes[1]);
+		if (confidence >= 0.95) {
+			return true;
+		}
+	} else if (matchNo) {
+		return false;
+	} else {
+		console.error('Invalid response format:', intention);
+		return false;
+	}
+	return false;
+};
+
 function isPureEnglish(str) {
 	return /^[\x00-\x7F]*$/.test(str);
 }
 
-export const translatePrompt = async (
-	userPrompt: string,
-	modelId: string
-) => {
+export const translatePrompt = async (userPrompt: string, modelId: string) => {
 	let retries = 3;
 	let promptUsed = userPrompt;
 	let pure = isPureEnglish(userPrompt);
@@ -284,39 +364,10 @@ export const translatePrompt = async (
 		retries = 0;
 	}
 	while (retries > 0) {
-		const [ret, controller] = await generateOpenAIChatCompletion(
-			localStorage.token,
-			{
-				stream: false,
-				model: modelId,
-				useCustomModel: true,
-				temperature: 0.1,
-				messages: [
-					{
-						role: 'user',
-						content: transPrompt
-					}
-				]
-			},
-			`${WEBUI_BASE_URL}/api`
-		).catch((error) => {
-			console.log('translate fail:', error);
-			return [null, null];
-		});
-
-		if (!ret) {
+		promptUsed = await chatCompletionSimple(transPrompt, modelId);
+		if (!promptUsed) {
 			return userPrompt;
 		}
-		const data = await ret.json().catch((error) => {
-			console.log('Error parsing JSON:', error);
-			return null;
-		});
-		if (!data) {
-			return userPrompt;
-		}
-		console.log('translate result json:', data);
-
-		promptUsed = data.choices[0].message.content;
 		console.log('promptUsed:', promptUsed);
 		if (isPureEnglish(promptUsed)) {
 			break;
