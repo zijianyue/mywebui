@@ -100,6 +100,7 @@ type Settings = {
 	models?: string[];
 	conversationMode?: boolean;
 	speechAutoSend?: boolean;
+	autoJudgeGenerateImage?: boolean;
 	responseAutoPlayback?: boolean;
 	audio?: AudioSettings;
 	showUsername?: boolean;
