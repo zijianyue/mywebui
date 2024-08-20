@@ -44,7 +44,7 @@
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
-	import { translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { judgeGenerateImageIntention, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
 	import { runWebSearch } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -99,7 +99,7 @@
 	let selectedToolIds = [];
 	let webSearchEnabled = false;
 	let generateImageEnabled = false;
-
+$config?.features.enable_image_generation
 	let chat = null;
 	let tags = [];
 
@@ -118,11 +118,12 @@
 	let mrToMemory = false;
 	let suggestQuestionsList;
 	let callRecordStream :MediaStream;
+	// TODO: 识别用户的意图来决定是否生成图片,还有混合意图的处理,比如既生成图片,又回答问题,需要模型有视觉能力
 	const genImageKeywords = [
-		/^生成.*/,
-		/^画.*/,
-		/^generate.*/i, // 使用正则表达式匹配 "generate a .... image 忽略大小写"
-		/^draw.*/i
+		/^生成.*图片.*/,
+		/^生成.*图像.*/,
+		/^生成.*照片.*/,
+		/^generate.*image.*/i, // 使用正则表达式匹配 "generate a .... image 忽略大小写"
 	];
 
 	let chatIdUnsubscriber: Unsubscriber | undefined;
@@ -662,6 +663,27 @@
 		return _response;
 	};
 
+	const wantGenerateImage = async (prompt, modelId) => {
+		let intention = false;
+		let containsKeyword = false;
+		if ($config?.features.enable_image_generation && !generateImageEnabled && ($settings?.autoJudgeGenerateImage ?? true)) {
+			intention = await judgeGenerateImageIntention(prompt, modelId);
+			console.log('judgeIntention ret:', intention);
+			if (!intention) {
+				containsKeyword = genImageKeywords.some(keyword => {
+					if (keyword instanceof RegExp) {
+						if (keyword.test(prompt)) {
+							return true;
+						}
+					}
+					return false;
+				});
+				console.log('containsKeyword:', containsKeyword);
+			}
+		}
+		return intention || containsKeyword;
+	};
+
 	const sendPrompt = async (
 		prompt: string,
 		parentId: string,
@@ -792,15 +814,8 @@
 					}
 
 					let _response = null;
-					const containsKeyword = genImageKeywords.some(keyword => {
-						if (keyword instanceof RegExp) {
-							if (keyword.test(prompt)) {
-								return true;
-							}
-						}
-						return false;
-					});
-					if (generateImageEnabled || containsKeyword) {
+
+					if (generateImageEnabled || await wantGenerateImage(prompt, responseMessage.model)) {
 						_response = await generateImage(responseMessage, prompt);
 					} else {
 						if (model?.owned_by === 'openai') {
