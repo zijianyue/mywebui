@@ -1605,15 +1605,18 @@ async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_
         del payload["chat_id"]
 
     questions = await generate_chat_completions(form_data=payload, user=user)
+    log.info(f"org questions: {questions}")
+
     try:
         if 'choices' in questions and len(questions['choices']) > 0:
             content = questions['choices'][0]['message']['content']
             parsed_content = output_parser.parse(content)
             log.info(f"parsed_content: {parsed_content}")
             questions['choices'][0]['message']['content'] = json.dumps(parsed_content)
-    except Exception:
+    except Exception as e:
+        log.error(f"Exception occurred: {e}")
         generate_suggest_questions.depth += 1
-        return generate_suggest_questions(dict, user)
+        return await generate_suggest_questions(form_data, user)
 
     log.info(f"questions_ret: {questions}")
     generate_suggest_questions.depth = 0
