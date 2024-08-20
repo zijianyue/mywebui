@@ -88,16 +88,19 @@
 
 				<hr class="border-gray-100 dark:border-gray-800 my-1" />
 			{/if}
-			<div
-				class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
-				>
-				<div class="flex-1 flex items-center gap-2">
-					<Image />
-					<div class=" line-clamp-1">{$i18n.t('Generate Image')}</div>
-				</div>
+			{#if $config?.features?.enable_image_generation}
+				<div
+					class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
+					>
+					<div class="flex-1 flex items-center gap-2">
+						<Image />
+						<div class=" line-clamp-1">{$i18n.t('Generate Image')}</div>
+					</div>
 
-				<Switch bind:state={generateImageEnabled} />
-			</div>
+					<Switch bind:state={generateImageEnabled} />
+				</div>
+			{/if}
+
 			{#if $config?.features?.enable_web_search}
 				<div
 					class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
