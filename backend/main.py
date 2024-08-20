@@ -987,11 +987,15 @@ async def get_models(user=Depends(get_verified_user)):
 @app.post("/api/chat/completions")
 async def generate_chat_completions(form_data: dict, user=Depends(get_verified_user)):
     model_id = form_data["model"]
+    use_custom_model = form_data.get("useCustomModel", False)
     if model_id not in app.state.MODELS:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Model not found",
         )
+    if use_custom_model:
+        model_id = get_task_model_id(model_id)
+        form_data["model"] = model_id
     model = app.state.MODELS[model_id]
     if model.get("pipe"):
         print("generate_function_chat_completion")
@@ -1438,6 +1442,13 @@ def get_history_prompt_text(messages,
 @app.post("/api/task/suggestQuestions/completions")
 async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_user)):
     print("generate_suggest_questions")
+    if not hasattr(generate_suggest_questions, "depth"):
+        generate_suggest_questions.depth = 0
+
+    if generate_suggest_questions.depth >= 3:
+        print("Reached recursion limit")
+        generate_suggest_questions.depth = 0
+        return {}
 
     model_id = form_data["model"]
     if model_id not in app.state.MODELS:
@@ -1457,7 +1468,6 @@ async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_
     )
     messages = form_data["messages"]
     histories = get_history_prompt_text(messages)
-    log.debug(f"generate_suggest_questions histories: {histories}")
     prompt = prompt_template.format({
         "histories": histories,
         "format_instructions": format_instructions
@@ -1482,8 +1492,6 @@ async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_
         "task": str(TASKS.SUGGEST_QUESTIONS),
     }
 
-    log.debug(f"generate_suggest_questions payload: {payload}")
-
     try:
         payload = filter_pipeline(payload, user)
     except Exception as e:
@@ -1498,13 +1506,18 @@ async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_
         del payload["chat_id"]
 
     questions = await generate_chat_completions(form_data=payload, user=user)
-    if 'choices' in questions and len(questions['choices']) > 0:
-        content = questions['choices'][0]['message']['content']
-        parsed_content = output_parser.parse(content)
-        log.info(f"parsed_content: {parsed_content}")
-        questions['choices'][0]['message']['content'] = json.dumps(parsed_content)
+    try:
+        if 'choices' in questions and len(questions['choices']) > 0:
+            content = questions['choices'][0]['message']['content']
+            parsed_content = output_parser.parse(content)
+            log.info(f"parsed_content: {parsed_content}")
+            questions['choices'][0]['message']['content'] = json.dumps(parsed_content)
+    except Exception:
+        generate_suggest_questions.depth += 1
+        return generate_suggest_questions(dict, user)
 
     log.info(f"questions_ret: {questions}")
+    generate_suggest_questions.depth = 0
 
     return questions
 

@@ -105,6 +105,7 @@
 
 	let selectedToolIds = [];
 	let webSearchEnabled = false;
+	let generateImageEnabled = false;
 
 	let chat = null;
 	let tags = [];
@@ -125,8 +126,10 @@
 	let suggestQuestionsList;
 	let callRecordStream :MediaStream;
 	const genImageKeywords = [
-		/生成.*图片/,
-		/generate.*image.*/i // 使用正则表达式匹配 "generate a .... image 忽略大小写"
+		/^生成.*/,
+		/^画.*/,
+		/^generate.*/i, // 使用正则表达式匹配 "generate a .... image 忽略大小写"
+		/^draw.*/i
 	];
 
 	$: if (history.currentId !== null) {
@@ -609,8 +612,9 @@
 		console.log('start generate image by send prompt:', userPrompt);
 		let _response = null;
 		const _chatId = JSON.parse(JSON.stringify($chatId));
+		scrollToBottom();
 
-		let promptUsed = await translatePrompt(userPrompt);
+		let promptUsed = await translatePrompt(userPrompt, responseMessage.model);
 		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
 			toast.error(error);
 		});
@@ -635,9 +639,7 @@
 			});
 		}
 
-		if (autoScroll) {
-			scrollToBottom();
-		}
+		scrollToBottom();
 		if (messages.length == 2) {
 			window.history.replaceState(history.state, '', `/c/${_chatId}`);
 
@@ -777,20 +779,16 @@
 					}
 
 					let _response = null;
-					let trimedPrompt = prompt;
 					const containsKeyword = genImageKeywords.some(keyword => {
 						if (keyword instanceof RegExp) {
 							if (keyword.test(prompt)) {
-								trimedPrompt = trimedPrompt.replace('生成', '').trim();
-								trimedPrompt = trimedPrompt.replace('的图片', '').trim();
-								trimedPrompt = trimedPrompt.replace('图片', '').trim();
 								return true;
 							}
 						}
 						return false;
 					});
-					if (containsKeyword) {
-						_response = await generateImage(responseMessage, trimedPrompt);
+					if (generateImageEnabled || containsKeyword) {
+						_response = await generateImage(responseMessage, prompt);
 					} else {
 						if (model?.owned_by === 'openai') {
 							_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
@@ -1822,6 +1820,7 @@
 						bind:autoScroll
 						bind:selectedToolIds
 						bind:webSearchEnabled
+						bind:generateImageEnabled
 						bind:atSelectedModel
 						bind:callRecordStream
 						availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {

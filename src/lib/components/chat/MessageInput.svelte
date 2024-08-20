@@ -76,6 +76,7 @@
 	export let availableToolIds = [];
 	export let selectedToolIds = [];
 	export let webSearchEnabled = false;
+	export let generateImageEnabled = false;
 
 	export let prompt = '';
 	export let messages = [];
@@ -574,6 +575,7 @@
 								<div class=" ml-0.5 self-end mb-1.5 flex space-x-1">
 									<InputMenu
 										bind:webSearchEnabled
+										bind:generateImageEnabled
 										bind:selectedToolIds
 										tools={$tools.reduce((a, e, i, arr) => {
 											if (availableToolIds.includes(e.id) || ($_user?.role ?? 'user') === 'admin') {
