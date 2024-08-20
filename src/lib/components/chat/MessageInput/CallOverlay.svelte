@@ -485,6 +485,7 @@
 							);
 
 							const audio = audioCache.get(content);
+							assistantSpeaking = true;
 							await playAudio(audio); // Here ensure that playAudio is indeed correct method to execute
 							console.log(`Played audio for content: ${content}`);
 							await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
@@ -526,7 +527,6 @@
 			}
 			audioAbortController = new AbortController();
 
-			assistantSpeaking = true;
 			// Start monitoring and playing audio for the message ID
 			monitorAndPlayAudio(id, audioAbortController.signal);
 		}
@@ -573,7 +573,6 @@
 		await tick();
 		// 停止所有媒体流
 		if (mediaRecorder) {
-			// console.log(`cleanupResources`);
 			await stopAllAudio();
 			await stopRecordingCallback(false);
 			if (mediaRecorder.stream) {
@@ -593,20 +592,6 @@
 		eventTarget.addEventListener('chat:start', chatStartHandler);
 		eventTarget.addEventListener('chat', chatEventHandler);
 		eventTarget.addEventListener('chat:finish', chatFinishHandler);
-
-		return async () => {
-			eventTarget.removeEventListener('chat:start', chatStartHandler);
-			eventTarget.removeEventListener('chat', chatEventHandler);
-			eventTarget.removeEventListener('chat:finish', chatFinishHandler);
-
-			audioAbortController.abort();
-			await tick();
-
-			await stopAllAudio();
-
-			await stopRecordingCallback(false);
-			await stopCamera();
-		};
 	});
 </script>
 
@@ -885,10 +870,10 @@
 							}}
 						>
 							<div class=" line-clamp-1 text-sm font-medium">
-								{#if loading}
-									{$i18n.t('Thinking...')}
-								{:else if assistantSpeaking}
+								{#if assistantSpeaking}
 									{$i18n.t('Tap to interrupt')}
+								{:else if loading}
+									{$i18n.t('Thinking...')}
 								{:else}
 									{$i18n.t('Listening...')}
 								{/if}
