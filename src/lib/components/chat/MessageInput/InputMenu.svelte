@@ -3,6 +3,7 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { createEventDispatcher, getContext } from 'svelte';
 	import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
+	import Image from '$lib/components/icons/Image.svelte';
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -18,6 +19,7 @@
 
 	export let selectedToolIds: string[] = [];
 	export let webSearchEnabled: boolean;
+	export let generateImageEnabled: boolean;
 
 	export let tools = {};
 	export let onClose: Function;
@@ -86,7 +88,16 @@
 
 				<hr class="border-gray-100 dark:border-gray-800 my-1" />
 			{/if}
+			<div
+				class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
+				>
+				<div class="flex-1 flex items-center gap-2">
+					<Image />
+					<div class=" line-clamp-1">{$i18n.t('Generate Image')}</div>
+				</div>
 
+				<Switch bind:state={generateImageEnabled} />
+			</div>
 			{#if $config?.features?.enable_web_search}
 				<div
 					class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
