@@ -21,7 +21,10 @@ class SuggestedQuestionsAfterAnswerOutputParser:
     def parse(self, text: str) -> Any:
         action_match = re.search(r"\[.*?\]", text.strip(), re.DOTALL)
         if action_match is not None:
-            json_obj = json.loads(action_match.group(0).strip())
+            try:
+                json_obj = json.loads(action_match.group(0).strip())
+            except Exception as e:
+                raise e
         else:
             json_obj= []
             print(f"Could not parse LLM output: {text}")
