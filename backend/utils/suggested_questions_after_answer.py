@@ -13,6 +13,7 @@ SUGGESTED_QUESTIONS_AFTER_ANSWER_INSTRUCTION_PROMPT = (
     "{\"question1\":\"训练方案具体是怎样的？\",\"question2\":\"改善效果如何评估？\",\"question3\":\"长时间训练会影响孩子吗？\"}\n"
 )
 
+
 class SuggestedQuestionsAfterAnswerOutputParser:
 
     def get_format_instructions(self) -> str:
@@ -23,26 +24,26 @@ class SuggestedQuestionsAfterAnswerOutputParser:
         if action_match is not None:
             try:
                 json_obj = json.loads(action_match.group(0).strip())
-            except Exception as e:
-                raise e
+                # 检查解析出来的对象是否是列表
+                if not isinstance(json_obj, list):
+                    raise ValueError("Parsed JSON is not a list")
+                # 检查列表中是否包含至少三个元素
+                if len(json_obj) < 3:
+                    raise ValueError("Parsed JSON list does not contain at least three elements")
+                # 检查列表中的元素是否都是字符串
+                if not all(isinstance(item, str) for item in json_obj):
+                    raise ValueError("Not all elements in the parsed JSON list are strings")
+                # 如果通过所有检查，返回前三个元素
+                return json_obj[:3]
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Failed to parse JSON from action match: {e}")
         else:
-            json_obj= []
+            json_obj = []
             print(f"Could not parse LLM output: {text}")
             try:
                 # 直接尝试解析整个文本为 JSON 对象
                 json_obj = json.loads(text.strip())
-
-                # 如果成功解析，将对象转换为列表格式
-                # questions = [value for key, value in json_obj.items() if key.startswith("question")]
-                questions = []
-                for key, value in json_obj.items():
-                    if key.startswith("question"):
-                        questions.append(value)
-                        if len(questions) >= 3:  # 当收集到三个问题后跳出循环
-                            break
-                return questions
-            except json.JSONDecodeError:
-                print(f"Could not parse LLM output again: {text}")
-                return []
-
-        return json_obj
+                return [value for key, value in json_obj.items() if key.startswith("question")][:3]
+            except json.JSONDecodeError as e:
+                print("Could not parse LLM output at last")
+                raise ValueError(f"Failed to parse JSON at last: {e}")

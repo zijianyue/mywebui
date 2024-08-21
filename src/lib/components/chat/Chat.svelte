@@ -667,8 +667,10 @@ $config?.features.enable_image_generation
 		let intention = false;
 		let containsKeyword = false;
 		if ($config?.features.enable_image_generation && !generateImageEnabled && ($settings?.autoJudgeGenerateImage ?? true)) {
-			intention = await judgeGenerateImageIntention(prompt, modelId);
-			console.log('judgeIntention ret:', intention);
+			if (prompt.length < 20) {
+				intention = await judgeGenerateImageIntention(prompt, modelId);
+				console.log('judgeIntention ret:', intention);
+			}
 			if (!intention) {
 				containsKeyword = genImageKeywords.some(keyword => {
 					if (keyword instanceof RegExp) {

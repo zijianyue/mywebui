@@ -638,7 +638,7 @@ def generate_ollama_embeddings(
 
         data = r.json()
 
-        log.info(f"generate_ollama_embeddings {data}")
+        # log.info(f"generate_ollama_embeddings {data}")
 
         if "embedding" in data:
             return data["embedding"]

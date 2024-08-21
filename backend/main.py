@@ -468,7 +468,7 @@ async def chat_completion_files_handler(body) -> tuple[dict, dict[str, list]]:
             hybrid_search=rag_app.state.config.ENABLE_RAG_HYBRID_SEARCH,
         )
 
-        log.debug(f"rag_contexts: {contexts}, citations: {citations}")
+        log.debug(f"\nrag_contexts: {contexts}, citations: {citations}\n")
 
     return body, {"contexts": contexts, "citations": citations}
 
@@ -512,7 +512,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": str(e)},
             )
-
+        log.debug(f"\nChatCompletionMiddleware request.url.path: {request.url.path}, body: {body}")
         metadata = {
             "chat_id": body.pop("chat_id", None),
             "message_id": body.pop("id", None),
@@ -978,6 +978,7 @@ async def get_models(user=Depends(get_verified_user)):
 
 @app.post("/api/chat/completions")
 async def generate_chat_completions(form_data: dict, user=Depends(get_verified_user)):
+    print(f"\n/api/chat/completions form_data: {form_data}")
     model_id = form_data["model"]
     use_custom_model = form_data.get("useCustomModel", False)
     if model_id not in app.state.MODELS:
@@ -1343,7 +1344,7 @@ async def update_task_config(form_data: TaskConfigForm, user=Depends(get_admin_u
 
 @app.post("/api/task/title/completions")
 async def generate_title(form_data: dict, user=Depends(get_verified_user)):
-    print("generate_title")
+    print("\ngenerate_title")
     # log.debug(f"form_data:{form_data}")
 
     model_id = form_data["model"]
@@ -1405,15 +1406,13 @@ def get_history_prompt_text(messages,
                             ai_prefix: str = "Assistant",
                             max_token_limit: int = 2000,
                             message_limit: Optional[int] = 6) -> str:
-    log.debug(f"get_history_prompt_text messages: {messages}")
-
     string_messages = []
     cnt = 0
     # TODO: 超过一定token数也应该break
     for m in reversed(messages):
         cnt += 1
         if (cnt > message_limit):
-            break;
+            break
         m_role = m.get("role")
         if m_role == "user":
             role = human_prefix
@@ -1436,8 +1435,8 @@ def get_history_prompt_text(messages,
             string_messages.append(message)
             # log.debug(f"message appended: {message}")
 
-
     return "\n".join(string_messages)
+
 
 @app.post("/api/task/suggestQuestions/completions")
 async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_user)):
