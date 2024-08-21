@@ -410,11 +410,10 @@
 					</button>
 				</div>
 			</div>
+
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">
-						{$i18n.t('Auto Judge Generate Image Intention')}
-					</div>
+					<div class=" self-center text-xs">{$i18n.t('Auto Judge Generate Image Intention')}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded transition"
