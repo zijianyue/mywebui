@@ -312,7 +312,7 @@ def get_rag_context(
     r,
     hybrid_search,
 ):
-    log.debug(f"get_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}")
+    log.debug(f"\nget_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}\n")
     query = get_last_user_message(messages)
 
     extracted_collections = []
