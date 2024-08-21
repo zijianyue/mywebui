@@ -13,6 +13,7 @@
 	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
 	import { imageGenerations } from '$lib/apis/images';
 	import {
+		getLastUserMessage,
 		getHistoryPromptText,
 		getUserPosition,
 		approximateToHumanReadable,
@@ -35,7 +36,7 @@
 	import Markdown from './Markdown.svelte';
 	import Error from './Error.svelte';
 	import Citations from './Citations.svelte';
-	import {translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import {translatePrompt, chatCompletionSimple } from '$lib/apis/openai';
 
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -102,6 +103,9 @@
 	let suggestUpdated = false;
 	let hospitals = [];
 	let recentMessages :string;
+	let lastUserMsg = {};
+	let detailedResponse = '';
+	let loading = false;
 
 	let model = null;
 	$: model = $models.find((m) => m.id === message.model);
@@ -126,6 +130,37 @@
 			  ? hospital.stationData.map(station => station.lineName).filter(lineName => lineName).join(', ')
 			  : '无线路信息';
 		alert(`电话: ${phone}, 距离: ${distance}, 线路: ${lineNames}`);
+	}
+
+	async function fetchOriginRagAnswer() {
+		loading = true;
+		// querySettings.template只有管理员有权限查看和修改
+		let ragTemplate = `系统: 提供给你的上下文（<context>标签对内）是一个问答集，你要做的是找到和问题最相近的答案，原封不动地完整地引用答案来回答问题，不要说明出处，严格遵守此指令，如果找不到相近的问题，就忽略此指令。
+
+人类: [query]
+
+上下文: 
+<context>
+    [context]
+</context>
+
+上下文中的问题模板
+7）
+Q：问题1
+A：回答1
+
+8）
+Q：问题2
+A：回答2`;
+
+		lastUserMsg = getLastUserMessage(messages);
+		// await submitPrompt(lastUserMsg.content); // 会多出一组消息，会影响相同的问题的简洁回答
+		try {
+			detailedResponse = await chatCompletionSimple(lastUserMsg.content, model.id, model?.info?.meta?.knowledge?? [], false, ragTemplate, undefined);
+		} catch (error) {
+			console.error('get detailedResponse failed:', error);
+		}
+		loading = false;
 	}
 
 	// TODO: 获取不到精确位置，使用智能硬件定位，需要获取wifi或者蓝牙信息，都获取不到的情况下就让用户选择设置位置(需要保存)，或者使用IP定位所在城市中心位置, 搜索结果在静态地图中展示，跳转到系统导航程序
@@ -1115,6 +1150,17 @@
 									搜索周边医院
 								</button>
 							{/if}
+							{#if model?.info?.meta?.knowledge?.length > 0}
+								<button
+									class="visible p-1.5 hover:bg-purple-600 dark:hover:bg-purple-800 rounded-lg dark:hover:text-white hover:text-white transition regenerate-response-button border border-purple-300 dark:border-purple-600 bg-purple-200 dark:bg-purple-700 text-purple-900 dark:text-purple-300"
+									style="flex: 0 1 auto; min-width: 50px; margin: 5px;"
+									on:click={() => {
+										fetchOriginRagAnswer();
+									}}
+								>
+									详细解答
+								</button>
+							{/if}
 						{/if}
 					</div>
 					<style>
@@ -1185,6 +1231,11 @@
 								</tbody>
 							</table>
 						</div>
+					{/if}
+					{#if detailedResponse.length > 0}
+						<div>{detailedResponse}</div>
+					{:else if loading}
+						<div>正在查询...</div>
 					{/if}
 					{#if message.done && showRateComment}
 						<RateComment

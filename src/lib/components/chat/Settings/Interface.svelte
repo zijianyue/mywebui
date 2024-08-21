@@ -19,7 +19,7 @@
 
 	// Addons
 	let titleAutoGenerate = true;
-	let autoJudgeGenerateImage = true;
+	let autoJudgeGenerateImage = false;
 	let responseAutoCopy = false;
 	let widescreenMode = false;
 	let splitLargeChunks = false;
@@ -149,7 +149,7 @@
 
 	onMount(async () => {
 		titleAutoGenerate = $settings?.title?.auto ?? true;
-		autoJudgeGenerateImage = $settings.autoJudgeGenerateImage ?? true;
+		autoJudgeGenerateImage = $settings.autoJudgeGenerateImage ?? false;
 
 		responseAutoCopy = $settings.responseAutoCopy ?? false;
 		showUsername = $settings.showUsername ?? false;
