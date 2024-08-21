@@ -542,6 +542,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
                 content={"detail": str(e)},
             )
         log.debug(f"\nChatCompletionMiddleware request.url.path: {request.url.path}, body: {body}")
+        ragTemplate = body.pop("ragTemplate", None)
         metadata = {
             "chat_id": body.pop("chat_id", None),
             "message_id": body.pop("id", None),
@@ -616,17 +617,18 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
 
             # Workaround for Ollama 2.0+ system prompt issue
             # TODO: replace with add_or_update_system_message
+            rag_template_param = ragTemplate if ragTemplate is not None else rag_app.state.config.RAG_TEMPLATE
             if model["owned_by"] == "ollama":
                 body["messages"] = prepend_to_first_user_message_content(
                     rag_template(
-                        rag_app.state.config.RAG_TEMPLATE, context_string, prompt
+                        rag_template_param, context_string, prompt
                     ),
                     body["messages"],
                 )
             else:
                 body["messages"] = add_or_update_system_message(
                     rag_template(
-                        rag_app.state.config.RAG_TEMPLATE, context_string, prompt
+                        rag_template_param, context_string, prompt
                     ),
                     body["messages"],
                 )
