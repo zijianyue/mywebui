@@ -181,7 +181,7 @@ def query_collection_with_hybrid_search(
         except Exception:
             pass
     sorted_res = merge_and_sort_query_results(results, k=k, reverse=True)
-    log.debug(f"sorted rag context segments: {sorted_res}")
+    log.debug(f"\nsorted rag context segments: {sorted_res}\n")
     return sorted_res
 
 
@@ -243,7 +243,7 @@ def get_rag_context(
     r,
     hybrid_search,
 ):
-    log.debug(f"get_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}")
+    log.debug(f"\nget_rag_context: {files} {messages} {embedding_function}, top k:{k} {reranking_function}, RELEVANCE_THRESHOLD:{r}\n")
     query = get_last_user_message(messages)
 
     extracted_collections = []

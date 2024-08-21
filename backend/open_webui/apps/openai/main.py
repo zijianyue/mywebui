@@ -382,7 +382,7 @@ async def generate_chat_completion(
         }
 
     # Convert the modified body back to JSON
-    log.debug(payload)
+    log.debug(f"openai chat completion payload: {payload}")
     payload = json.dumps(payload)
 
     url = app.state.config.OPENAI_API_BASE_URLS[idx]
