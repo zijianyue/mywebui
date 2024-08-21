@@ -133,6 +133,17 @@ export const convertMessagesToHistory = (messages) => {
 	return history;
 };
 
+export const getLastUserMessage = (
+	messages
+) => {
+	for (let i = messages.length - 1; i >= 0; i--) {
+		const message = messages[i];
+		if (message.role === 'user') {
+			return message;
+		}
+	}
+};
+
 export const getHistoryPromptText = (
 	messages,
 	humanPrefix: string = "Human",

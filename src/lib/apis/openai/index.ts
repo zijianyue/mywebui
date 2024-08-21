@@ -268,12 +268,14 @@ export const getOpenAIModelsDirect = async (
 		});
 };
 
-const chatCompletionSimple = async (userPrompt: string, modelId: string) => {
+export const chatCompletionSimple = async (userPrompt: string, modelId: string, files = [], useCustomModel = true, ragTemplate = '', temp = 0.1) => {
 	const requestBody = {
 		stream: false,
 		model: modelId,
-		useCustomModel: true,
-		temperature: 0.1,
+		useCustomModel: useCustomModel,
+		temperature: temp,
+		files: files.length > 0 ? files : undefined,
+		ragTemplate: ragTemplate,
 		messages: [
 			{
 				role: 'user',
@@ -392,6 +394,7 @@ export const generateOpenAIChatCompletion = async (
 	const controller = new AbortController();
 	let error = null;
 
+	console.log("generateOpenAIChatCompletion body:", body);
 	const res = await fetch(`${url}/chat/completions`, {
 		signal: controller.signal,
 		method: 'POST',

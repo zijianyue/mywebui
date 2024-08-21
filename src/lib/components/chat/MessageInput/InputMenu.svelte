@@ -91,7 +91,7 @@
 			{#if $config?.features?.enable_image_generation}
 				<div
 					class="flex gap-2 items-center px-3 py-2 text-sm font-medium cursor-pointer rounded-xl"
-					>
+				>
 					<div class="flex-1 flex items-center gap-2">
 						<Image />
 						<div class=" line-clamp-1">{$i18n.t('Generate Image')}</div>

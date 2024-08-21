@@ -666,7 +666,7 @@ $config?.features.enable_image_generation
 	const wantGenerateImage = async (prompt, modelId) => {
 		let intention = false;
 		let containsKeyword = false;
-		if ($config?.features.enable_image_generation && !generateImageEnabled && ($settings?.autoJudgeGenerateImage ?? true)) {
+		if (!$showCallOverlay && $config?.features.enable_image_generation && !generateImageEnabled && ($settings?.autoJudgeGenerateImage ?? false)) {
 			if (prompt.length < 20) {
 				intention = await judgeGenerateImageIntention(prompt, modelId);
 				console.log('judgeIntention ret:', intention);
