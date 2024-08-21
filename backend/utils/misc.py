@@ -80,9 +80,9 @@ def add_or_update_system_message(content: str, messages: list[dict]):
     :param messages: The list of message dictionaries.
     :return: The updated list of message dictionaries.
     """
-
     if messages and messages[0].get("role") == "system":
-        messages[0]["content"] += f"{content}\n{messages[0]['content']}"
+        if content not in messages[0]['content']:
+            messages[0]["content"] = f"{content}\n{messages[0]['content']}"
     else:
         # Insert at the beginning
         messages.insert(0, {"role": "system", "content": content})
