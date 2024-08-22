@@ -175,9 +175,9 @@
 				}
 			});
 
-			if ($user.role === 'admin') {
-				showChangelog.set(localStorage.version !== $config.version);
-			}
+			// if ($user.role === 'admin') {
+			showChangelog.set(localStorage.version !== $config.version);
+			// }
 
 			if ($page.url.searchParams.get('temporary-chat') === 'true') {
 				temporaryChatEnabled.set(true);
