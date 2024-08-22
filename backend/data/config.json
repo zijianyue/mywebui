@@ -60,13 +60,12 @@
 	},
 	"ollama": {
 		"base_urls": [
-			"http://localhost:11434",
-			"http://localhost:11435"
+			"http://localhost:11434"
 		]
 	},
 	"rag": {
-		"template": "\u7cfb\u7edf: \u63d0\u4f9b\u7ed9\u4f60\u7684\u4e0a\u4e0b\u6587\uff08<context>\u6807\u7b7e\u5bf9\u5185\uff09\u662f\u4e00\u4e2a\u95ee\u7b54\u96c6\uff0c\u4f60\u8981\u505a\u7684\u662f\u627e\u5230\u548c\u95ee\u9898\u6700\u76f8\u8fd1\u7684\u7b54\u6848\uff0c\u7b54\u6848\u4e2d\u6709\u54ea\u4e9b\u5173\u952e\u70b9\uff0c\u5217\u51fa\u5173\u952e\u70b9\u6807\u9898\u5373\u53ef\uff0c\u4e0d\u8981\u8bf4\u660e\u51fa\u5904\uff0c\u4e25\u683c\u9075\u5b88\u6b64\u6307\u4ee4\uff0c\u5982\u679c\u627e\u4e0d\u5230\u76f8\u8fd1\u7684\u95ee\u9898\uff0c\u5c31\u5ffd\u7565\u6b64\u6307\u4ee4\u3002\n\n\u6a21\u677f\uff1a\n- 1: [\u5173\u952e\u70b9\u6807\u9898]\n- 2: [\u5173\u952e\u70b9\u6807\u9898]\n- 3: [\u5173\u952e\u70b9\u6807\u9898]\n- 4: [\u5173\u952e\u70b9\u6807\u9898]\n- 5: [\u5173\u952e\u70b9\u6807\u9898]\n- 6: [\u5173\u952e\u70b9\u6807\u9898]\n- 7: [\u5173\u952e\u70b9\u6807\u9898]\n- 8: [\u5173\u952e\u70b9\u6807\u9898]\n- 9: [\u5173\u952e\u70b9\u6807\u9898]\n- ...\n\n\u4eba\u7c7b: [query]\n\n\u4e0a\u4e0b\u6587: \n<context>\n    [context]\n</context>\n\n\u4e0a\u4e0b\u6587\u4e2d\u7684\u95ee\u9898\u6a21\u677f\n7\uff09\nQ\uff1a\u95ee\u98981\nA\uff1a\u56de\u7b541\n\n8\uff09\nQ\uff1a\u95ee\u98982\nA\uff1a\u56de\u7b542",
-		"top_k": 3,
+		"template": "\u7cfb\u7edf: \u63d0\u4f9b\u7ed9\u4f60\u7684\u4e0a\u4e0b\u6587\uff08<context>\u6807\u7b7e\u5bf9\u5185\uff09\u662f\u4e00\u4e2a\u95ee\u7b54\u96c6\uff0c\u4f60\u8981\u505a\u7684\u662f\u627e\u5230\u548c\u95ee\u9898\u6700\u76f8\u8fd1\u7684\u7b54\u6848\uff0c\u5982\u679c\u627e\u5230\u4e86\uff0c\u5206\u6790\u7b54\u6848\u4e2d\u6709\u54ea\u4e9b\u5173\u952e\u70b9\uff0c\u5217\u51fa\u5173\u952e\u70b9\u6807\u9898\u5373\u53ef\uff0c\n\u4e0d\u8981\u63d0\u4ece\u54ea\u91cc\u627e\u5230\u7684\u7b54\u6848\uff0c\u4e25\u683c\u9075\u5b88\u6b64\u6307\u4ee4\uff1b\u5982\u679c\u4e0a\u4e0b\u6587\u4e2d\u627e\u4e0d\u5230\u76f8\u8fd1\u7684\u95ee\u9898\uff0c\u5c31\u5ffd\u7565\u4e0a\u4e0b\u6587\u5185\u5bb9\u6b63\u5e38\u4f5c\u7b54\uff0c\u4e0d\u7528\u63d0\u53d6\u5173\u952e\u70b9\uff0c\u4e0d\u8981\u4f7f\u7528\u6a21\u677f\u3002\n\u6a21\u677f\uff1a\n- 1: [\u5173\u952e\u70b9\u6807\u9898]\n- 2: [\u5173\u952e\u70b9\u6807\u9898]\n- 3: [\u5173\u952e\u70b9\u6807\u9898]\n- 4: [\u5173\u952e\u70b9\u6807\u9898]\n- 5: [\u5173\u952e\u70b9\u6807\u9898]\n- 6: [\u5173\u952e\u70b9\u6807\u9898]\n- 7: [\u5173\u952e\u70b9\u6807\u9898]\n- 8: [\u5173\u952e\u70b9\u6807\u9898]\n- 9: [\u5173\u952e\u70b9\u6807\u9898]\n- ...\n\n\u4eba\u7c7b: [query]\n\n\u4e0a\u4e0b\u6587: \n<context>\n    [context]\n</context>\n\n\u4e0a\u4e0b\u6587\u4e2d\u7684\u95ee\u9898\u6a21\u677f\n7\uff09\nQ\uff1a\u95ee\u98981\nA\uff1a\u56de\u7b541\n\n8\uff09\nQ\uff1a\u95ee\u98982\nA\uff1a\u56de\u7b542",
+		"top_k": 5,
 		"relevance_threshold": 0.01,
 		"enable_hybrid_search": true,
 		"reranking_model": "BAAI/bge-reranker-v2-m3",
@@ -145,9 +144,58 @@
 		"size": "512x512",
 		"steps": 20,
 		"comfyui": {
-			"base_url": "http://127.0.0.1:8188"
+			"base_url": "http://127.0.0.1:8188",
+			"workflow": "{\n  \"6\": {\n    \"inputs\": {\n      \"text\": \"\",\n      \"clip\": [\n        \"11\",\n        0\n      ]\n    },\n    \"class_type\": \"CLIPTextEncode\",\n    \"_meta\": {\n      \"title\": \"CLIP Text Encode (Positive Prompt)\"\n    }\n  },\n  \"8\": {\n    \"inputs\": {\n      \"samples\": [\n        \"13\",\n        0\n      ],\n      \"vae\": [\n        \"10\",\n        0\n      ]\n    },\n    \"class_type\": \"VAEDecode\",\n    \"_meta\": {\n      \"title\": \"VAE Decode\"\n    }\n  },\n  \"9\": {\n    \"inputs\": {\n      \"filename_prefix\": \"ComfyUI\",\n      \"images\": [\n        \"8\",\n        0\n      ]\n    },\n    \"class_type\": \"SaveImage\",\n    \"_meta\": {\n      \"title\": \"Save Image\"\n    }\n  },\n  \"10\": {\n    \"inputs\": {\n      \"vae_name\": \"ae.safetensors\"\n    },\n    \"class_type\": \"VAELoader\",\n    \"_meta\": {\n      \"title\": \"Load VAE\"\n    }\n  },\n  \"11\": {\n    \"inputs\": {\n      \"clip_name1\": \"t5xxl_fp8_e4m3fn.safetensors\",\n      \"clip_name2\": \"clip_l.safetensors\",\n      \"type\": \"flux\"\n    },\n    \"class_type\": \"DualCLIPLoader\",\n    \"_meta\": {\n      \"title\": \"DualCLIPLoader\"\n    }\n  },\n  \"12\": {\n    \"inputs\": {\n      \"unet_name\": \"flux1-dev-fp8.safetensors\",\n      \"weight_dtype\": \"fp8_e4m3fn\"\n    },\n    \"class_type\": \"UNETLoader\",\n    \"_meta\": {\n      \"title\": \"Load Diffusion Model\"\n    }\n  },\n  \"13\": {\n    \"inputs\": {\n      \"noise\": [\n        \"25\",\n        0\n      ],\n      \"guider\": [\n        \"22\",\n        0\n      ],\n      \"sampler\": [\n        \"16\",\n        0\n      ],\n      \"sigmas\": [\n        \"17\",\n        0\n      ],\n      \"latent_image\": [\n        \"27\",\n        0\n      ]\n    },\n    \"class_type\": \"SamplerCustomAdvanced\",\n    \"_meta\": {\n      \"title\": \"SamplerCustomAdvanced\"\n    }\n  },\n  \"16\": {\n    \"inputs\": {\n      \"sampler_name\": \"euler\"\n    },\n    \"class_type\": \"KSamplerSelect\",\n    \"_meta\": {\n      \"title\": \"KSamplerSelect\"\n    }\n  },\n  \"17\": {\n    \"inputs\": {\n      \"scheduler\": \"simple\",\n      \"steps\": 20,\n      \"denoise\": 1,\n      \"model\": [\n        \"30\",\n        0\n      ]\n    },\n    \"class_type\": \"BasicScheduler\",\n    \"_meta\": {\n      \"title\": \"BasicScheduler\"\n    }\n  },\n  \"22\": {\n    \"inputs\": {\n      \"model\": [\n        \"30\",\n        0\n      ],\n      \"conditioning\": [\n        \"26\",\n        0\n      ]\n    },\n    \"class_type\": \"BasicGuider\",\n    \"_meta\": {\n      \"title\": \"BasicGuider\"\n    }\n  },\n  \"25\": {\n    \"inputs\": {\n      \"noise_seed\": 1075599787851934\n    },\n    \"class_type\": \"RandomNoise\",\n    \"_meta\": {\n      \"title\": \"RandomNoise\"\n    }\n  },\n  \"26\": {\n    \"inputs\": {\n      \"guidance\": 3.5,\n      \"conditioning\": [\n        \"6\",\n        0\n      ]\n    },\n    \"class_type\": \"FluxGuidance\",\n    \"_meta\": {\n      \"title\": \"FluxGuidance\"\n    }\n  },\n  \"27\": {\n    \"inputs\": {\n      \"width\": 512,\n      \"height\": 512,\n      \"batch_size\": 1\n    },\n    \"class_type\": \"EmptySD3LatentImage\",\n    \"_meta\": {\n      \"title\": \"EmptySD3LatentImage\"\n    }\n  },\n  \"30\": {\n    \"inputs\": {\n      \"max_shift\": 1.15,\n      \"base_shift\": 0.5,\n      \"width\": 1024,\n      \"height\": 1024,\n      \"model\": [\n        \"12\",\n        0\n      ]\n    },\n    \"class_type\": \"ModelSamplingFlux\",\n    \"_meta\": {\n      \"title\": \"ModelSamplingFlux\"\n    }\n  }\n}",
+			"nodes": [
+				{
+					"type": "prompt",
+					"key": "text",
+					"node_ids": [
+						"6"
+					]
+				},
+				{
+					"type": "model",
+					"key": "ckpt_name",
+					"node_ids": [
+						"12"
+					]
+				},
+				{
+					"type": "width",
+					"key": "width",
+					"node_ids": [
+						"27"
+					]
+				},
+				{
+					"type": "height",
+					"key": "height",
+					"node_ids": [
+						"27"
+					]
+				},
+				{
+					"type": "steps",
+					"key": "steps",
+					"node_ids": [
+						"17"
+					]
+				},
+				{
+					"type": "seed",
+					"key": "seed",
+					"node_ids": [
+						"25"
+					]
+				}
+			]
 		},
-		"model": "flux1-dev-fp8.safetensors"
+		"model": "flux1-dev-fp8.safetensors",
+		"openai": {
+			"api_base_url": "https://api.openai.com/v1",
+			"api_key": ""
+		}
 	},
 	"webhook_url": "",
 	"auth": {
