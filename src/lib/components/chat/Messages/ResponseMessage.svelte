@@ -396,7 +396,7 @@ A：回答2`;
 	const generateImage = async (message: MessageType) => {
 		generatingImage = true;
 		let promptUsed = await translatePrompt(message.content, message.model);
-		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
+		const res = await imageGenerations(localStorage.token, promptUsed, true).catch((error) => {
 			toast.error(error);
 		});
 		console.log(res);
@@ -796,7 +796,7 @@ A：回答2`;
 								</Tooltip>
 
 								{#if $config?.features.enable_image_generation && !readOnly}
-									<Tooltip content={$i18n.t('Generate Image')} placement="bottom">
+									<Tooltip content={$i18n.t('Generate Image(fine-tuning)')} placement="bottom">
 										<button
 											class="{isLastMessage
 												? 'visible'
