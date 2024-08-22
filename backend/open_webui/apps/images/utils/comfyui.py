@@ -149,6 +149,8 @@ async def comfyui_generate_image(
                 )
                 for node_id in node.node_ids:
                     workflow[node_id]["inputs"][node.key] = seed
+                    workflow[node_id]["inputs"]["noise_seed"] = seed
+
         else:
             for node_id in node.node_ids:
                 workflow[node_id]["inputs"][node.key] = node.value
