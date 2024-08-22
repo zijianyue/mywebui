@@ -196,7 +196,8 @@ export const getImageGenerationModels = async (token: string = '') => {
 	return res;
 };
 
-export const imageGenerations = async (token: string = '', prompt: string) => {
+// lockSeed 用来微调图片，通过改变Noise Seed改变图像的细节和纹理，但不改变图像的整体结构
+export const imageGenerations = async (token: string = '', prompt: string, lockSeed = false) => {
 	let error = null;
 
 	const res = await fetch(`${IMAGES_API_BASE_URL}/generations`, {
@@ -207,7 +208,8 @@ export const imageGenerations = async (token: string = '', prompt: string) => {
 			...(token && { authorization: `Bearer ${token}` })
 		},
 		body: JSON.stringify({
-			prompt: prompt
+			prompt: prompt,
+			lockSeed: lockSeed
 		})
 	})
 		.then(async (res) => {

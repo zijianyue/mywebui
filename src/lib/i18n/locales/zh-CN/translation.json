@@ -720,6 +720,7 @@
 	"Web Search": "网络搜索",
 	"Web Search Engine": "网络搜索引擎",
 	"Generate Image": "生成图片",
+	"Generate Image(fine-tuning)": "生成图片(微调)",
 	"Webhook URL": "Webhook URL",
 	"WebUI Settings": "WebUI 设置",
 	"WebUI will make requests to": "WebUI 将请求",
