@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from typing import Optional
 
+lastSeed = 1075599787851934
 
 def queue_prompt(prompt, client_id, base_url):
     log.info("queue_prompt")
@@ -92,6 +93,7 @@ class ComfyUIGenerateImageForm(BaseModel):
     width: int
     height: int
     n: int = 1
+    lockSeed: bool = False
 
     steps: Optional[int] = None
     seed: Optional[int] = None
@@ -100,6 +102,7 @@ class ComfyUIGenerateImageForm(BaseModel):
 async def comfyui_generate_image(
     model: str, payload: ComfyUIGenerateImageForm, client_id, base_url
 ):
+    global lastSeed
     ws_url = base_url.replace("http://", "ws://").replace("https://", "wss://")
     workflow = json.loads(payload.workflow.workflow)
 
@@ -133,7 +136,14 @@ async def comfyui_generate_image(
                     else random.randint(0, 18446744073709551614)
                 )
                 for node_id in node.node_ids:
-                    workflow[node_id]["inputs"][node.key] = seed
+                    # node_id 是UI是配置的编号，比如seed对应的25
+                    print(f"payload.lockSeed: {payload.lockSeed}")
+
+                    if payload.lockSeed and node.key == "seed":
+                        workflow[node_id]["inputs"][node.key] = lastSeed
+                    else:
+                        workflow[node_id]["inputs"][node.key] = seed
+                        lastSeed = seed
                     workflow[node_id]["inputs"]["noise_seed"] = seed
 
         else:
