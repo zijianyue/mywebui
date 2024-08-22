@@ -349,6 +349,7 @@ class GenerateImageForm(BaseModel):
     size: Optional[str] = None
     n: int = 1
     negative_prompt: Optional[str] = None
+    lockSeed: bool = False
 
 
 def save_b64_image(b64_str):
@@ -466,6 +467,7 @@ async def image_generations(
                 "width": width,
                 "height": height,
                 "n": form_data.n,
+                "lockSeed": form_data.lockSeed
             }
 
             if app.state.config.IMAGE_STEPS is not None:
