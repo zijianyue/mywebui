@@ -61,7 +61,9 @@
 		<div class=" overflow-y-scroll max-h-80 scrollbar-hidden">
 			<div class="mb-3">
 				<div class="text-sm dark:text-gray-200">将网站安装到桌面,像手机APP一样使用</div>
-				<div class="text-sm dark:text-gray-200">使用协议</div>
+				<div class="text-sm dark:text-gray-200">
+					<a href="/agreement" target="_blank"><span class=" underline">{$i18n.t('User Agreement')}</span></a>
+				</div>
 				{#if changelog}
 					{#each Object.keys(changelog) as version}
 						<div class=" mb-3 pr-2">
