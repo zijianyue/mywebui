@@ -95,7 +95,7 @@
 	async function fetchOriginRagAnswer() {
 		loading = true;
 		// querySettings.template只有管理员有权限查看和修改
-		let ragTemplate = `系统: 提供给你的上下文（<context>标签对内）是一个问答集，你要做的是找到和问题最相近的答案，原封不动地完整地引用答案来回答问题，不要说明出处，严格遵守此指令，如果找不到相近的问题，就忽略此指令。
+		let ragTemplate = `系统: 提供给你的上下文（<context>标签对内）是一个问答集，你要做的是找到和问题最相近的答案，原封不动地完整地引用答案来回答问题，不要说明出处，严格遵守此指令，如果找不到相近的问题，就忽略上下文内容正常作答。
 
 人类: [query]
 
