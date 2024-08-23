@@ -23,7 +23,7 @@
 		cleanText,
 		getMessageContentParts
 	} from '$lib/utils';
-	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL, modelPrices, PRICE_COE } from '$lib/constants';
 
 	import Name from './Name.svelte';
 	import ProfileImage from './ProfileImage.svelte';
@@ -38,6 +38,7 @@
 	import Error from './Error.svelte';
 	import Citations from './Citations.svelte';
 	import {translatePrompt, chatCompletionSimple } from '$lib/apis/openai';
+	import { updateUserSettings, getUserSettings } from '$lib/apis/users';
 
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -109,9 +110,9 @@
 	let suggestUpdated = false;
 	let hospitals = [];
 	let recentMessages :string;
-	let lastUserMsg = {};
 	let detailedResponse = '';
 	let loading = false;
+	let lastMessageId: string | null = localStorage.getItem('lastMessageId');
 
 	export let isLastMessage = true;
 	export let readOnly = false;
@@ -147,6 +148,49 @@
 		alert(`电话: ${phone}, 距离: ${distance}, 线路: ${lineNames}`);
 	}
 
+	async function settleTheBill(input_tokens, output_tokens) {
+		let userSettings;
+		console.log(`settings: ${JSON.stringify($settings)}`);
+		// settings这里是空的
+		try {
+			userSettings = await getUserSettings(localStorage.token);
+		} catch (error) {
+			console.error("Failed to get user settings:", error);
+			toast.error('获取账户余额失败，请联系管理员');
+			return;
+		}
+		let setting = userSettings?.ui;
+		if (!setting?.balance?.amount) {
+			console.error("Failed to get user balance:");
+			toast.error('获取账户余额失败，请联系管理员');
+			return;
+		}
+		let pricePair = modelPrices[model.id];
+		if (!pricePair) {
+			toast.error(`Model ${model.id}, ${model.name} not found in price table`);
+			return;
+		}
+		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${setting?.balance?.amount}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
+
+		let inputCost = (input_tokens / 1000) * (pricePair.input * PRICE_COE);
+		let outputCost = (output_tokens / 1000) * (pricePair.output * PRICE_COE);
+		let totalCost = inputCost + outputCost;
+		let remaining = setting.balance.amount;
+		if (remaining < totalCost) {
+			toast.error(`Insufficient balance. Current balance: ${remaining}, Required: ${totalCost}`);
+			return;
+		}
+		console.log('totalCost:', totalCost);
+
+		setting.balance.amount -= totalCost;
+		console.log(`Consumed total tokens: ${input_tokens + output_tokens}, Total cost: ${totalCost}, Remaining balance: ${setting.balance.amount}`);
+		try {
+			await updateUserSettings(localStorage.token, { ui: setting });
+		} catch (error) {
+			console.error("Failed to update user settings:", error);
+			toast.error('更新账户余额失败，请联系管理员');
+		}
+	}
 	async function fetchOriginRagAnswer() {
 		loading = true;
 		// querySettings.template只有管理员有权限查看和修改
@@ -168,7 +212,7 @@ A：回答1
 Q：问题2
 A：回答2`;
 
-		lastUserMsg = getLastUserMessage(messages);
+		let lastUserMsg = getLastUserMessage(messages);
 		// await submitPrompt(lastUserMsg.content); // 会多出一组消息，会影响相同的问题的简洁回答
 		try {
 			detailedResponse = await chatCompletionSimple(lastUserMsg.content, model.id, model?.info?.meta?.knowledge?? [], false, ragTemplate, undefined);
@@ -424,6 +468,7 @@ A：回答2`;
 		if (JSON.stringify(lastSuggestQuestionsList) !== JSON.stringify(suggestQuestionsList)) {
 			lastSuggestQuestionsList = [...suggestQuestionsList];
 			if (isLastMessage && message.done) {
+				console.log('suggestUpdated')
 				suggestUpdated = true;
 			}
 		} 
@@ -434,6 +479,16 @@ A：回答2`;
 		if (isLastMessage && message.done) {
 			recentMessages = getHistoryPromptText(messages);
 			console.debug('recentMessages:', recentMessages);
+		}
+	})();
+
+	$: (async () => {
+		if (isLastMessage && message.done && message.id !== lastMessageId) {
+			// toast.success(` in start: ${message.id}, lastMessageId: ${lastMessageId} `);
+			lastMessageId = message.id;
+			// toast.success(` lastMessageId: ${lastMessageId} `);
+			localStorage.setItem('lastMessageId', message.id);
+			await settleTheBill(message.info.prompt_tokens, message.info.completion_tokens);
 		}
 	})();
 

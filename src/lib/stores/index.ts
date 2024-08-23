@@ -1,4 +1,4 @@
-import { APP_NAME } from '$lib/constants';
+import { APP_NAME, INIT_BALANCE_AMOUNT } from '$lib/constants';
 import { type Writable, writable } from 'svelte/store';
 import type { GlobalModelConfig, ModelConfig } from '$lib/apis';
 import type { Banner } from '$lib/types';
@@ -101,6 +101,10 @@ type OllamaModelDetails = {
 	quantization_level: string;
 };
 
+export type Balance = {
+	amount: number; // 余额
+};
+
 type Settings = {
 	models?: string[];
 	conversationMode?: boolean;
@@ -126,6 +130,7 @@ type Settings = {
 	num_batch?: string;
 	num_keep?: string;
 	options?: ModelOptions;
+	balance?: Balance;
 };
 
 type ModelOptions = {
