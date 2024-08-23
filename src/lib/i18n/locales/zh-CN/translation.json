@@ -196,6 +196,7 @@
 	"Deleted {{deleteModelTag}}": "已删除 {{deleteModelTag}}",
 	"Deleted {{name}}": "已删除 {{name}}",
 	"Description": "描述",
+	"Desktop notifications are not supported in this mode": "当前浏览器不支持桌面通知，将网站添加到主屏幕才可以开启",
 	"Didn't fully follow instructions": "没有完全遵照指示",
 	"Disabled": "禁用",
 	"Discover a function": "发现更多函数",

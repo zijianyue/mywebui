@@ -25,6 +25,12 @@
 	let showAdvanced = false;
 
 	const toggleNotification = async () => {
+		// 检查浏览器是否支持 Notification API
+		if (!('Notification' in window)) {
+			toast.error($i18n.t('Desktop notifications are not supported in this mode'));
+			return;
+		}
+
 		const permission = await Notification.requestPermission();
 
 		if (permission === 'granted') {

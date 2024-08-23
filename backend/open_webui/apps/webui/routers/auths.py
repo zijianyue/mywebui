@@ -225,7 +225,7 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
             form_data.name,
             form_data.profile_image_url,
             role,
-            cell_phone = form_data.cell_phone,
+            form_data.cell_phone,
         )
 
         if user:
