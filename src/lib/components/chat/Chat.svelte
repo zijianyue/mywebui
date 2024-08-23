@@ -99,7 +99,6 @@
 	let selectedToolIds = [];
 	let webSearchEnabled = false;
 	let generateImageEnabled = false;
-$config?.features.enable_image_generation
 	let chat = null;
 	let tags = [];
 
@@ -257,6 +256,11 @@ $config?.features.enable_image_generation
 	};
 
 	onMount(async () => {
+		const script = document.createElement('script');
+		script.src = 'https://assets.salesmartly.com/js/project_110907_115361_1724377087.js';
+		script.async = true;
+		document.body.appendChild(script);
+
 		window.addEventListener('message', onMessageHandler);
 		$socket?.on('chat-events', chatEventHandler);
 
