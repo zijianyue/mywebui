@@ -1,14 +1,15 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
 	import Spinner from '$lib/components/common/Spinner.svelte';
-	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
-	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
+	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL, INIT_BALANCE_AMOUNT } from '$lib/constants';
+	import { WEBUI_NAME, config, user, settings, socket, type Balance } from '$lib/stores';
 	import { onMount, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { getBackendConfig } from '$lib/apis';
+	import { getUserSettings, updateUserSettings } from '$lib/apis/users';
 
 	const i18n = getContext('i18n');
 
@@ -19,6 +20,16 @@
 	let cellPhone = '';
 	let email = '';
 	let password = '';
+	let balance: Balance;
+
+	async function updateBalanceAndSettings(balance: Balance) {
+		settings.set({ ...$settings, balance: balance });
+		try {
+			await updateUserSettings(localStorage.token, { ui: $settings });
+		} catch (error) {
+			console.error("Failed to update user settings:", error);
+		}
+	}
 
 	const setSessionUser = async (sessionUser) => {
 		if (sessionUser) {
@@ -31,6 +42,27 @@
 			$socket.emit('user-join', { auth: { token: sessionUser.token } });
 			await user.set(sessionUser);
 			await config.set(await getBackendConfig());
+
+			try {
+				let userSettings = await getUserSettings(localStorage.token);
+				console.log(`userSettings: ${JSON.stringify(userSettings)}`);
+
+				if (sessionUser.role === 'admin') {
+					balance = { amount: INIT_BALANCE_AMOUNT * 10000 };
+					await updateBalanceAndSettings(balance);
+				}
+
+				if (sessionUser.role === 'user' && (!userSettings?.ui?.balance || userSettings?.ui?.balance.amount === undefined)) {
+					console.log(`updateBalanceAndSettings for user: ${userSettings?.ui?.balance}, ${userSettings?.ui?.balance.amount}`);
+
+					balance = { amount: INIT_BALANCE_AMOUNT };
+					await updateBalanceAndSettings(balance);
+				}
+			} catch (error) {
+				console.error("Failed to get user settings:", error);
+				toast.error('获取账户余额失败，请联系管理员');
+			}
+			
 			goto('/');
 		}
 	};

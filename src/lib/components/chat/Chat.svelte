@@ -27,8 +27,11 @@
 		showCallOverlay,
 		tools,
 		currentChatPage,
-		temporaryChatEnabled
+		temporaryChatEnabled,
+		type Balance
 	} from '$lib/stores';
+	import { updateUserSettings } from '$lib/apis/users';
+
 	import {
 		convertMessagesToHistory,
 		copyToClipboard,
@@ -167,6 +170,12 @@
 			}
 		})();
 	}
+
+	export const saveUserBalance = async (amount: number) => {
+		let balance: Balance = { amount: amount };
+		settings.set({ ...$settings, balance: balance });
+		await updateUserSettings(localStorage.token, { ui: $settings });
+	};
 
 	const chatEventHandler = async (event, cb) => {
 		if (event.chat_id === $chatId) {
