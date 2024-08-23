@@ -21,13 +21,13 @@
 	function handleTouchMove(event: TouchEvent) {
 		currentY = event.touches[0].clientY;
 		const elapsedTime = Date.now() - startTime;
-		console.log('currentY:', currentY);
-		console.log('currentY - startY:', currentY - startY);
-		console.log('elapsedTime:', elapsedTime);
-		console.log('isScrolling:', isScrolling);
-		console.log('isRefreshing:', isRefreshing);
+		// console.log('currentY:', currentY);
+		// console.log('currentY - startY:', currentY - startY);
+		// console.log('elapsedTime:', elapsedTime);
+		// console.log('isScrolling:', isScrolling);
+		// console.log('isRefreshing:', isRefreshing);
 
-		if (!isScrolling && currentY < 300 && elapsedTime >= 300 && currentY - startY > 100 && !isRefreshing) { // 增加触发阈值
+		if (!isScrolling && currentY < 300 && elapsedTime >= 300 && currentY - startY > 100 && !isRefreshing) { // 增加触发阈值，防止误触
 			isRefreshing = true;
 			onRefresh();
 		}
