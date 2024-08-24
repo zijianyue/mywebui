@@ -106,7 +106,7 @@ class AuthsTable:
         profile_image_url: str = "/user.png",
         role: str = "pending",
         oauth_sub: Optional[str] = None,
-        cell_phone: str = "",
+        cell_phone: str = '',
     ) -> Optional[UserModel]:
         with get_db() as db:
 
