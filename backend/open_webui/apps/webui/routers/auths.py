@@ -225,7 +225,7 @@ async def signup(request: Request, response: Response, form_data: SignupForm):
             form_data.name,
             form_data.profile_image_url,
             role,
-            form_data.cell_phone,
+            cell_phone = form_data.cell_phone, # 这里要指定传入cell_phone，防止当作oauth_sub
         )
 
         if user:
