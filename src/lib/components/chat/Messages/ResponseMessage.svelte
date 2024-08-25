@@ -182,12 +182,15 @@ A：回答2`;
 	const toggleSpeakMessage = async () => {
 		if (speaking) {
 			try {
-				speechSynthesis.cancel();
+				if ($config.audio.tts.engine === '') {
+					speechSynthesis.cancel();
+				}
 
 				sentencesAudio[speakingIdx].pause();
 				sentencesAudio[speakingIdx].currentTime = 0;
-			} catch {}
-
+			} catch (e) {
+				console.error("Error stopping audio:", e);
+			}
 			speaking = null;
 			speakingIdx = null;
 		} else {
@@ -363,7 +366,6 @@ A：回答2`;
 		recentMessages = '';
 		if (isLastMessage && message.done) {
 			recentMessages = getHistoryPromptText(messages);
-			console.debug('recentMessages:', recentMessages);
 		}
 	})();
 
