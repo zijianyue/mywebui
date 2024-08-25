@@ -1661,7 +1661,7 @@
 			await setChatTitle(_chatId, title);
 		}
 
-		if (messages.length >= 2 && messages.at(-1).done == true) {
+		if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
 			suggestQuestionsList = await generateChatSuggestQuestions(messages)
 			console.log('suggestQuestionsList:', suggestQuestionsList);
 		}
@@ -1955,7 +1955,7 @@
 			await setChatTitle(_chatId, title);
 		}
 
-		if (messages.length >= 2 && messages.at(-1).done == true) {
+		if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
 			suggestQuestionsList = await generateChatSuggestQuestions(messages)
 			console.log('suggestQuestionsList for openai:', suggestQuestionsList);
 		}
