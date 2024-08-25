@@ -151,8 +151,6 @@ export const getHistoryPromptText = (
 	maxTokenLimit: number = 2000,
 	messageLimit: number | null = 6
 ) => {
-    console.debug(`getHistoryPromptText messages: ${JSON.stringify(messages)}`);
-
     const stringMessages: string[] = [];
     
     // We use a count variable to limit the number of messages processed
@@ -186,7 +184,6 @@ export const getHistoryPromptText = (
     }
 
     let ret = stringMessages.join("\\n");
-    console.debug(`getHistoryPromptText ret: ${ret}`);
 
     return ret;
 }

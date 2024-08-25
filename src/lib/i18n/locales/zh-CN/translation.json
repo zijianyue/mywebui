@@ -633,7 +633,7 @@
 	"The maximum number of files that can be used at once in chat. If the number of files exceeds this limit, the files will not be uploaded.": "",
 	"The score should be a value between 0.0 (0%) and 1.0 (100%).": "分值应介于 0.0（0%）和 1.0（100%）之间。",
 	"Theme": "主题",
-	"Thinking...": "正在思考...",
+	"Thinking...": "正在处理...",
 	"This action cannot be undone. Do you wish to continue?": "此操作无法撤销。是否确认继续？",
 	"This ensures that your valuable conversations are securely saved to your backend database. Thank you!": "这将确保您的宝贵对话被安全地保存到后台数据库中。感谢！",
 	"This is an experimental feature, it may not function as expected and is subject to change at any time.": "这是一个实验功能，可能不会如预期那样工作，而且可能随时发生变化。",

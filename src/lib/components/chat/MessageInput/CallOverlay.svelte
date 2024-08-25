@@ -307,10 +307,9 @@
 				// Check if initial speech/noise has started
 				const hasSound = domainData.some((value) => value > 0);
 				if (hasSound) {
-					// BIG RED TEXT
-					console.log('%c%s', 'color: red; font-size: 20px;', '🔊 Sound detected');
-
 					if (!hasStartedSpeaking) {
+						// BIG RED TEXT
+						console.log('%c%s', 'color: red; font-size: 20px;', '🔊 Sound detected hasStartedSpeaking');
 						hasStartedSpeaking = true;
 						stopAllAudio();
 					}
@@ -499,7 +498,6 @@
 							);
 
 							const audio = audioCache.get(content);
-							assistantSpeaking = true;
 							await playAudio(audio); // Here ensure that playAudio is indeed correct method to execute
 							console.log(`Played audio for content: ${content}`);
 							await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
@@ -512,7 +510,7 @@
 				} else {
 					// If not available in the cache, push it back to the queue and delay
 					messages[id].unshift(content); // Re-queue the content at the start
-					console.log(`Audio for "${content}" not yet available in the cache, re-queued...`);
+					// console.log(`Audio for "${content}" not yet available in the cache, re-queued...`);
 					await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
 				}
 			} else if (finishedMessages[id] && messages[id] && messages[id].length === 0) {
