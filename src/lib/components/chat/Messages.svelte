@@ -31,6 +31,7 @@
 	export let messages = [];
 	export let suggestQuestionsList = [];
 	export let submitPrompt: Function;
+	export let getAnswerFromQA: Function;
 
 	export let selectedModels;
 
@@ -372,6 +373,7 @@
 										}}
 										{submitPrompt}
 										{suggestQuestionsList}
+										{getAnswerFromQA}
 									/>
 								{/key}
 							{:else}

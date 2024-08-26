@@ -512,7 +512,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": str(e)},
             )
-        log.debug(f"\nChatCompletionMiddleware request.url.path: {request.url.path}, body: {body}")
+        # log.debug(f"\nChatCompletionMiddleware request.url.path: {request.url.path}, body: {body}")
         ragTemplate = body.pop("ragTemplate", None)
         metadata = {
             "chat_id": body.pop("chat_id", None),
@@ -980,7 +980,7 @@ async def get_models(user=Depends(get_verified_user)):
 
 @app.post("/api/chat/completions")
 async def generate_chat_completions(form_data: dict, user=Depends(get_verified_user)):
-    print(f"\n/api/chat/completions form_data: {form_data}")
+    # log.debug(f"\n/api/chat/completions form_data: {form_data}")
     model_id = form_data["model"]
     use_custom_model = form_data.get("useCustomModel", False)
     if model_id not in app.state.MODELS:
@@ -1482,7 +1482,7 @@ async def generate_suggest_questions(form_data: dict, user=Depends(get_verified_
     #         "location": user.info.get("location") if user.info else None,
     #     },
     # )
-    log.debug(f"generate_suggest_questions prompt: {prompt}")
+    # log.debug(f"generate_suggest_questions prompt: {prompt}")
 
     payload = {
         "model": model_id,
