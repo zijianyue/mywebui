@@ -55,7 +55,7 @@
 		updateChatById
 	} from '$lib/apis/chats';
 	import { judgeGenerateImageIntention, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
-	import { runWebSearch } from '$lib/apis/rag';
+	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
 	import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
@@ -77,6 +77,7 @@
 
 	import { addNewMemory } from '$lib/apis/memories';
 	import { imageGenerations } from '$lib/apis/images';
+	import { chatCompletionSimple } from '$lib/apis/openai';
 
 	const i18n: Writable<i18nType> = getContext('i18n');
 
@@ -125,6 +126,11 @@
 	let mrToMemory = false;
 	let suggestQuestionsList;
 	let callRecordStream :MediaStream;
+	let preQA = false;
+	let qaQuestions = '';
+	let notified = false;
+	let qaQuestionsMap = new Map<number, string>();
+
 	// TODO: 识别用户的意图来决定是否生成图片,还有混合意图的处理,比如既生成图片,又回答问题,需要模型有视觉能力
 	const genImageKeywords = [
 		/^生成.*图片.*/,
@@ -819,6 +825,188 @@
 		return intention || containsKeyword;
 	};
 
+	const getAnswerFromQA = async (
+		prompt: string,
+		model,
+		responseMessageId = '',
+		brief = true,
+		answerOnly = false
+	) => {
+		let _response = null;
+		let detailedResponse = await chatCompletionSimple(`从下面的问题列表中找出于用户问题最相近的问题编号，找不到返回0。人类的问题：${prompt}, 问题列表：${qaQuestions}`, model.id);
+		console.log('detailedResponse is:', detailedResponse);
+		// 正则表达式匹配数字
+		const regex = /\d+/;
+
+		// 使用正则表达式匹配字符串
+		let match = regex.exec(detailedResponse);
+		let questionIndex = 0;
+		if (match) {
+			// 提取匹配到的第一个数字，即编号,并确保其为数字类型
+			questionIndex = parseInt(match[0], 10);
+			console.log("提取到的编号是:", questionIndex);
+		} else {
+			console.log("没有找到编号");
+		}
+		if (questionIndex !== 0) {		
+			let res = await GetQAAnswer(localStorage.token, questionIndex);
+			console.log("answer is:", res);
+			let finalAnswer = ''
+			if (res && 'answer' in res) {
+				if (brief) {
+					finalAnswer = await chatCompletionSimple(`下面这段话有哪些关键点，列出关键点标题即可：${res.answer}`, model.id);
+					console.log('brief answer is:', finalAnswer);
+				} else {
+					finalAnswer = res.answer;
+				}
+				if (answerOnly) {
+					return finalAnswer;
+				}
+				qaQuestionsMap.delete(questionIndex);
+				preQA = true;
+			}
+			// 已经是流式输出
+			// ----------------- 以下是copy自sendPromptOpenAI，模拟生成消息的后处理 ------------------
+			const responseMessage = history.messages[responseMessageId];
+			const _chatId = JSON.parse(JSON.stringify($chatId));
+
+			scrollToBottom();
+			eventTarget.dispatchEvent(
+				new CustomEvent('chat:start', {
+					detail: {
+						id: responseMessageId
+					}
+				})
+			);
+			await tick();
+			responseMessage.content = finalAnswer;
+			responseMessage.done = true;
+			messages = messages;
+			{
+				const messages = createMessagesList(responseMessageId);
+
+				await chatCompletedHandler(_chatId, model.id, responseMessageId, messages);
+			}
+			_response = responseMessage.content;
+			if (navigator.vibrate && ($settings?.hapticFeedback ?? false)) {
+				navigator.vibrate(5);
+			}
+			if ($settings.notificationEnabled && !document.hasFocus()) {
+				const notification = new Notification(`${model.id}`, {
+					body: responseMessage.content,
+					icon: `${WEBUI_BASE_URL}/static/favicon.png`
+				});
+			}
+
+			if ($settings.responseAutoCopy) {
+				copyToClipboard(responseMessage.content);
+			}
+
+			if ($settings.responseAutoPlayback && !$showCallOverlay) {
+				await tick();
+
+				document.getElementById(`speak-button-${responseMessage.id}`)?.click();
+			}
+
+			if ($chatId == _chatId) {
+				if (!$temporaryChatEnabled) {
+					chat = await updateChatById(localStorage.token, _chatId, {
+						models: selectedModels,
+						messages: messages,
+						history: history,
+						params: params,
+						files: chatFiles
+					});
+
+					currentChatPage.set(1);
+					await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				}
+			}
+
+			stopResponseFlag = false;
+			await tick();
+
+			let lastSentence = extractSentencesForAudio(responseMessage.content)?.at(-1) ?? '';
+			if (lastSentence) {
+				eventTarget.dispatchEvent(
+					new CustomEvent('chat', {
+						detail: { id: responseMessageId, content: lastSentence }
+					})
+				);
+			}
+
+			eventTarget.dispatchEvent(
+				new CustomEvent('chat:finish', {
+					detail: {
+						id: responseMessageId,
+						content: responseMessage.content
+					}
+				})
+			);
+
+			if (autoScroll) {
+				scrollToBottom();
+			}
+
+			if (messages.length == 2 && selectedModels[0] === model.id) {
+				window.history.replaceState(history.state, '', `/c/${_chatId}`);
+
+				const _title = await generateChatTitle(prompt);
+				await setChatTitle(_chatId, _title);
+			}
+
+			console.log('last msg done:', messages.at(-1).done);
+			if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
+				// suggestQuestionsList = await generateChatSuggestQuestions(messages)
+				console.log('剩余的问题 before:', qaQuestionsMap.size);
+				if (qaQuestionsMap.size > 0) {
+					suggestQuestionsList = getRandomQuestions(qaQuestionsMap, 3);
+					console.log('剩余的问题 after:', qaQuestionsMap.size);
+					console.log('suggestQuestionsList for preQA:', suggestQuestionsList);
+				} else if (!notified) {
+					notified = true;
+					toast.success('所有常见问题都已经回答过了');
+				}
+			}
+
+			if (autoScroll) {
+				scrollToBottom();
+			}
+		}
+		return _response;
+	};
+
+	function parseQuestions(input: string): Map<number, string> {
+		const questionMap = new Map<number, string>();
+		const lines = input.trim().split('\n');
+
+		lines.forEach(line => {
+			const [key, value] = line.split(': ');
+			const questionNumber = parseInt(key, 10);
+			if (!isNaN(questionNumber)) {
+				questionMap.set(questionNumber, value);
+			}
+		});
+
+		return questionMap;
+	}
+
+	function getRandomQuestions(questionMap: Map<number, string>, count: number): string[] {
+		const keys = Array.from(questionMap.keys());
+		const randomQuestions = [];
+
+		for (let i = 0; i < count; i++) {
+			if (keys.length === 0) break; // 如果所有键都已经被使用，则退出循环
+			const randomIndex = Math.floor(Math.random() * keys.length);
+			const randomKey = keys[randomIndex];
+			randomQuestions.push(questionMap.get(randomKey)!);
+			// questionMap.delete(randomKey);
+			keys.splice(randomIndex, 1); // 从 keys 数组中移除已使用的键
+		}
+
+		return randomQuestions;
+	}
+
 	const sendPrompt = async (
 		prompt: string,
 		parentId: string,
@@ -935,10 +1123,28 @@
 					}
 
 					let _response = null;
+					// RAG知识库模型预答系统
+					preQA = false;
+					if (newChat && model?.info?.meta?.knowledge && messages.length === 2) {
+						// console.log('knowledge:', model?.info?.meta?.knowledge);
+						qaQuestions = ''; // init
+						qaQuestionsMap.clear();
+						notified = false;
+						let res = await processDocToQAQuestions(localStorage.token, model?.info?.meta?.knowledge);
+						console.log('qa_questions is:', res);
+						if (res && 'qa_questions' in res) {
+							qaQuestions= res.qa_questions;
+							qaQuestionsMap = parseQuestions(qaQuestions);
+							
+						}
+					}
+					if (qaQuestions !== '') {
+						_response = await getAnswerFromQA(prompt, model, responseMessageId);
+					}
 
 					if (generateImageEnabled || await wantGenerateImage(prompt, responseMessage.model)) {
 						_response = await generateImage(responseMessage, prompt);
-					} else {
+					} else if (!preQA) {
 						if (model?.owned_by === 'openai') {
 							_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
 						} else if (model) {
@@ -2119,6 +2325,8 @@
 							on:call={async () => {
 								await showControls.set(true);
 							}}
+							{suggestQuestionsList}
+							{getAnswerFromQA}
 						/>
 					</div>
 				</div>

@@ -544,6 +544,7 @@
 			}
 			audioAbortController = new AbortController();
 
+			assistantSpeaking = true;
 			// Start monitoring and playing audio for the message ID
 			monitorAndPlayAudio(id, audioAbortController.signal);
 		}
