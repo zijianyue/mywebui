@@ -201,6 +201,65 @@ export const processDocToVectorDB = async (token: string, file_id: string) => {
 	return res;
 };
 
+export const processDocToQAQuestions = async (token: string, files: []) => {
+	let error = null;
+
+	const res = await fetch(`${RAG_API_BASE_URL}/process/qa_questions`, {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+			authorization: `Bearer ${token}`
+		},
+		body: JSON.stringify({
+			files: files
+		})
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			error = err.detail;
+			console.log(err);
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
+export const GetQAAnswer = async (token: string, questionIndex: number) => {
+	let error = null;
+
+	const res = await fetch(`${RAG_API_BASE_URL}/process/qa_answer/?questionIndex=${questionIndex}`, {
+		method: 'GET',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+			authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			error = err.detail;
+			console.log(err);
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
 export const uploadDocToVectorDB = async (token: string, collection_name: string, file: File) => {
 	const data = new FormData();
 	data.append('file', file);
