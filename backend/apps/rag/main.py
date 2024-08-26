@@ -6,6 +6,7 @@ from fastapi import (
     UploadFile,
     File,
     Form,
+    Query,
 )
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -1164,6 +1165,141 @@ def get_loader(filename: str, file_content_type: str, file_path: str):
     return loader, known_type
 
 
+class ProcessQAQuestionsForm(BaseModel):
+    files: list[dict[str, Any]]
+    collection_names: Optional[list[str]] = None
+
+class QA(BaseModel):
+    question: str
+    answer: str
+
+import re
+QA_PATTERN = re.compile(r'\nQ[:：](.*?)(?=\nQ[:：]|\nA[:：]|$)', re.DOTALL)
+ANSWER_PATTERN = re.compile(r'A[:：](.*?)(?=\nQ[:：]|\nA[:：]|$)', re.DOTALL)
+ZERO_WIDTH_PATTERN = re.compile(r'[\u200c\u200d]')
+WHITESPACE_PATTERN = re.compile(r'\s+', re.DOTALL)
+NUMBER_PATTERN = re.compile(r'^\d+[）)|\)]?\s*(?=\nQ[:：])', re.DOTALL | re.MULTILINE)
+SINGLE_LINE_PATTERN = re.compile(r'^(what|why|how)$', re.MULTILINE)
+GLOBAL_QA_MAP_CACHE: dict[str, dict[int, QA]] = {}
+GLOBAL_QA_MAP_FOR_QUERY: dict[int, str] = {}
+
+
+def parse_qa_file(file_id: str, qa_id: int, qa_map):
+    file = Files.get_file_by_id(file_id)
+    file_path = file.meta.get("path", f"{UPLOAD_DIR}/{file.filename}")
+    loader, known_type = get_loader(
+        file.filename, file.meta.get("content_type"), file_path
+    )
+    data = loader.load()
+    # log.debug(f"data here: {data}")
+
+    for doc in data:
+        page_content = doc.page_content
+        # 去掉零宽度字符
+        page_content = ZERO_WIDTH_PATTERN.sub('', page_content)
+        # 将连续的空白字符替换为一个 \n
+        page_content = WHITESPACE_PATTERN.sub('\n', page_content)
+        # 去掉问题前的序号
+        page_content = NUMBER_PATTERN.sub('', page_content)
+        # 去掉 what why how
+        page_content = SINGLE_LINE_PATTERN.sub('', page_content)
+
+        # log.debug(f"page_content after: {page_content}")
+
+        for match in QA_PATTERN.finditer(page_content):
+            question = match.group(1).strip()
+            answer_start = match.end()
+            answer_end = page_content.find('\nQ', answer_start)
+            if answer_end == -1:
+                answer_end = len(page_content)
+            answer = page_content[answer_start:answer_end].strip()
+            # 提取答案中的内容
+            answer_match = ANSWER_PATTERN.search(answer)
+            if answer_match:
+                answer = answer_match.group(1).strip()
+                # log.debug(f"strip answer: {answer}")
+            qa_map[qa_id] = QA(question=question, answer=answer)
+            GLOBAL_QA_MAP_FOR_QUERY[qa_id] = answer
+            qa_id += 1
+
+
+@app.post("/process/qa_questions")
+def get_qa_questions(
+    form_data: ProcessQAQuestionsForm,
+    user=Depends(get_verified_user),
+):
+    collection_file_ids: dict[str, set[str]] = {}  # 用于存储每个 collection_name 对应的 file_id 集合
+    collection_names_in_files = []
+    try:
+        for file in form_data.files:
+            collection_names_in_files = (
+                file["collection_names"]
+                if file["type"] == "collection"
+                else [file["collection_name"]]
+            )
+            for collection_name in collection_names_in_files:
+                if collection_name in GLOBAL_QA_MAP_CACHE or collection_name in collection_file_ids:
+                    continue
+                collection_file_ids[collection_name] = set()
+                collection = CHROMA_CLIENT.get_collection(name=collection_name)
+                documents = collection.get()
+                metadatas = documents.get("metadatas")
+
+                # 提取所有 file_id
+                for metadata in metadatas:
+                    name = metadata['name']
+                    if '常见问题' in name or 'QA' in name or 'Q&A' in name:
+                        # all_file_ids.add(metadata['file_id'])
+                        collection_file_ids[collection_name].add(metadata['file_id'])
+
+    except Exception as e:
+        raise e
+
+    # 获取所有文档原始内容并生成 qa_map
+    for collection_name, file_ids in collection_file_ids.items():
+        qa_map = {}
+        qa_id = 1  # 自动生成编号的起始值
+        for file_id in file_ids:
+            parse_qa_file(file_id, qa_id, qa_map)
+
+        log.debug(f"update qamap for {collection_name}: {qa_map}")
+        # 更新全局缓存
+        GLOBAL_QA_MAP_CACHE[collection_name] = qa_map
+
+    result_qamap = {}
+    if form_data.collection_names:
+        for collection_name in form_data.collection_names:
+            if collection_name in GLOBAL_QA_MAP_CACHE:
+                result_qamap.update(GLOBAL_QA_MAP_CACHE[collection_name])
+            else:
+                log.error(f"Collection name {collection_name} not found")
+    else:
+        for collection_name in collection_names_in_files:
+            if collection_name in GLOBAL_QA_MAP_CACHE:
+                result_qamap.update(GLOBAL_QA_MAP_CACHE[collection_name])
+
+    if result_qamap:
+        result = "\n".join([f"{id}: {qa.question}" for id, qa in result_qamap.items()])
+        return {"qa_questions": result}
+    else:
+        log.error("No questions found")
+
+
+@app.get("/process/qa_answer")
+def get_qa_answer(
+        questionIndex: int = Query(..., title="questionIndex", description="questionIndex"),
+        user=Depends(get_verified_user)
+):
+    log.debug(f"questionIndex: {questionIndex} , GLOBAL_QA_MAP_FOR_QUERY: {GLOBAL_QA_MAP_FOR_QUERY}")
+    answer = GLOBAL_QA_MAP_FOR_QUERY.get(questionIndex)
+    if answer is None:
+        answer = ''
+        # 如果问题索引不存在，可以抛出一个HTTPException
+        # raise HTTPException(status_code=404, detail="Question index not found")
+
+    return {"answer": answer}
+
+
 @app.post("/doc")
 def store_doc(
     collection_name: Optional[str] = Form(None),
@@ -1191,6 +1327,7 @@ def store_doc(
 
         loader, known_type = get_loader(filename, file.content_type, file_path)
         data = loader.load()
+        log.debug(f"data by loader: {data}")
 
         try:
             result = store_data_in_vector_db(data, collection_name)
