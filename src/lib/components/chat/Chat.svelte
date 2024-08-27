@@ -829,8 +829,7 @@
 		prompt: string,
 		model,
 		responseMessageId = '',
-		brief = true,
-		answerOnly = false
+		brief = true
 	) => {
 		let _response = null;
 		let detailedResponse = await chatCompletionSimple(`从下面的问题列表中找出于用户问题最相近的问题编号，找不到返回0。人类的问题：${prompt}, 问题列表：${qaQuestions}`, model.id);
@@ -848,126 +847,255 @@
 		} else {
 			console.log("没有找到编号");
 		}
-		if (questionIndex !== 0) {		
-			let res = await GetQAAnswer(localStorage.token, questionIndex);
-			console.log("answer is:", res);
-			let finalAnswer = ''
-			if (res && 'answer' in res) {
-				if (brief) {
-					finalAnswer = await chatCompletionSimple(`下面这段话有哪些关键点，列出关键点标题即可：${res.answer}`, model.id);
-					console.log('brief answer is:', finalAnswer);
-				} else {
-					finalAnswer = res.answer;
-				}
-				if (answerOnly) {
-					return finalAnswer;
-				}
-				qaQuestionsMap.delete(questionIndex);
-				preQA = true;
-			}
-			// TODO 流式输出
-			// ----------------- 以下是copy自sendPromptOpenAI，模拟生成消息的后处理 ------------------
+		if (questionIndex !== 0) {
 			const responseMessage = history.messages[responseMessageId];
 			const _chatId = JSON.parse(JSON.stringify($chatId));
 
-			scrollToBottom();
-			eventTarget.dispatchEvent(
-				new CustomEvent('chat:start', {
-					detail: {
-						id: responseMessageId
-					}
-				})
-			);
-			await tick();
-			responseMessage.content = finalAnswer;
-			responseMessage.done = true;
-			messages = messages;
-			{
-				const messages = createMessagesList(responseMessageId);
-
-				await chatCompletedHandler(_chatId, model.id, responseMessageId, messages);
-			}
-			_response = responseMessage.content;
-			if (navigator.vibrate && ($settings?.hapticFeedback ?? false)) {
-				navigator.vibrate(5);
-			}
-			if ($settings.notificationEnabled && !document.hasFocus()) {
-				const notification = new Notification(`${model.id}`, {
-					body: responseMessage.content,
-					icon: `${WEBUI_BASE_URL}/static/favicon.png`
-				});
-			}
-
-			if ($settings.responseAutoCopy) {
-				copyToClipboard(responseMessage.content);
-			}
-
-			if ($settings.responseAutoPlayback && !$showCallOverlay) {
-				await tick();
-
-				document.getElementById(`speak-button-${responseMessage.id}`)?.click();
-			}
-
-			if ($chatId == _chatId) {
-				if (!$temporaryChatEnabled) {
-					chat = await updateChatById(localStorage.token, _chatId, {
-						models: selectedModels,
-						messages: messages,
-						history: history,
-						params: params,
-						files: chatFiles
-					});
-
-					currentChatPage.set(1);
-					await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			let answerRes = await GetQAAnswer(localStorage.token, questionIndex);
+			console.log("answer is:", answerRes);
+			if (answerRes && 'answer' in answerRes) {
+				let res, controller;
+				if (!brief) {
+					return answerRes.answer;
 				}
-			}
-
-			stopResponseFlag = false;
-			await tick();
-
-			let lastSentence = extractSentencesForAudio(responseMessage.content)?.at(-1) ?? '';
-			if (lastSentence) {
+				qaQuestionsMap.delete(questionIndex);
+				preQA = true;
+				// ----------------- 以下是copy自sendPromptOpenAI，模拟生成消息的后处理 ------------------
+				scrollToBottom();
 				eventTarget.dispatchEvent(
-					new CustomEvent('chat', {
-						detail: { id: responseMessageId, content: lastSentence }
+					new CustomEvent('chat:start', {
+						detail: {
+							id: responseMessageId
+						}
 					})
 				);
-			}
+				await tick();
 
-			eventTarget.dispatchEvent(
-				new CustomEvent('chat:finish', {
-					detail: {
-						id: responseMessageId,
-						content: responseMessage.content
-					}
-				})
-			);
+				[res, controller] = await generateOpenAIChatCompletion(
+					localStorage.token,
+					{
+						stream: true,
+						model: model.id,
+						stream_options:
+						(model.info?.meta?.capabilities?.usage ?? false)
+							? {
+								include_usage: true
+							}
+						: undefined,
+						messages: [
+							{
+								role: 'user',
+								content: `下面这段话有哪些关键点，列出关键点标题即可：${answerRes.answer}`
+							}
+						]
+							.filter((message) => message?.content?.trim())
+							.map((message, idx, arr) => ({
+								role: message.role,
+								...((message.files?.filter((file) => file.type === 'image').length > 0 ?? false) &&
+									message.role === 'user'
+									? {
+										content: [
+											{
+												type: 'text',
+												text:
+												arr.length - 1 !== idx
+													? message.content
+													: (message?.raContent ?? message.content)
+											},
+											...message.files
+												.filter((file) => file.type === 'image')
+												.map((file) => ({
+													type: 'image_url',
+													image_url: {
+														url: file.url
+													}
+												}))
+										]
+									}
+									: {
+										content:
+										arr.length - 1 !== idx
+											? message.content
+											: (message?.raContent ?? message.content)
+									})
+							})),
+						seed: params?.seed ?? $settings?.params?.seed ?? undefined,
+						stop:
+							(params?.stop ?? $settings?.params?.stop ?? undefined)
+							? (params?.stop.split(',').map((token) => token.trim()) ?? $settings.params.stop).map(
+								(str) => decodeURIComponent(JSON.parse('"' + str.replace(/\"/g, '\\"') + '"'))
+							)
+							: undefined,
+						temperature: params?.temperature ?? $settings?.params?.temperature ?? undefined,
+						top_p: params?.top_p ?? $settings?.params?.top_p ?? undefined,
+						frequency_penalty:
+							params?.frequency_penalty ?? $settings?.params?.frequency_penalty ?? undefined,
+						max_tokens: params?.max_tokens ?? $settings?.params?.max_tokens ?? undefined,
+						tool_ids: selectedToolIds.length > 0 ? selectedToolIds : undefined,
+						files: files.length > 0 ? files : undefined,
+						session_id: $socket?.id,
+						chat_id: $chatId,
+						id: responseMessageId
+					},
+					`${WEBUI_BASE_URL}/api`
+				);
+				// TODO undefined没生效
+				// res = await chatCompletionSimpleStream(`下面这段话有哪些关键点，列出关键点标题即可：${answerRes.answer}`,
+													   // model.id, responseMessageId, $chatId, $socket?.id);
+				console.log('brief Res is:', res);
 
-			if (autoScroll) {
+				await tick();
+
 				scrollToBottom();
-			}
 
-			if (messages.length == 2 && selectedModels[0] === model.id) {
-				window.history.replaceState(history.state, '', `/c/${_chatId}`);
+				if (res && res.ok && res.body) {
+					const textStream = await createOpenAITextStream(res.body, $settings.splitLargeChunks);
 
-				const _title = await generateChatTitle(prompt);
-				await setChatTitle(_chatId, _title);
-			}
+					for await (const update of textStream) {
+						const { value, done, citations, error, usage } = update;
+						if (error) {
+							await handleOpenAIError(error, null, model, responseMessage);
+							break;
+						}
+						if (done || stopResponseFlag || _chatId !== $chatId) {
+							responseMessage.done = true;
+							messages = messages;
 
-			if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
-				// suggestQuestionsList = await generateChatSuggestQuestions(messages)
-				console.log('剩余的问题个数:', qaQuestionsMap.size);
-				if (qaQuestionsMap.size > 0) {
-					suggestQuestionsList = getRandomQuestions(qaQuestionsMap, 3);
-					console.log('suggestQuestionsList for preQA:', suggestQuestionsList);
-				} else if (!notified) {
-					notified = true;
-					toast.success('所有常见问题都已经回答过了');
+							if (stopResponseFlag) {
+								controller.abort('User: Stop Response');
+							} else {
+								const messages = createMessagesList(responseMessageId);
+
+								await chatCompletedHandler(_chatId, model.id, responseMessageId, messages);
+							}
+
+							_response = responseMessage.content;
+
+							break;
+						}
+
+						if (usage) {
+							responseMessage.info = { ...usage, openai: true };
+						}
+
+						if (citations) {
+							responseMessage.citations = citations;
+							continue;
+						}
+
+						if (responseMessage.content == '' && value == '\n') {
+							continue;
+						} else {
+							responseMessage.content += value;
+
+							if (navigator.vibrate && ($settings?.hapticFeedback ?? false)) {
+								navigator.vibrate(5);
+							}
+
+							const sentences = extractSentencesForAudio(responseMessage.content);
+							sentences.pop();
+
+							// dispatch only last sentence and make sure it hasn't been dispatched before
+							if (
+								sentences.length > 0 &&
+									sentences[sentences.length - 1] !== responseMessage.lastSentence
+							) {
+								responseMessage.lastSentence = sentences[sentences.length - 1];
+								eventTarget.dispatchEvent(
+									new CustomEvent('chat', {
+										detail: { id: responseMessageId, content: sentences[sentences.length - 1] }
+									})
+								);
+							}
+
+							messages = messages;
+						}
+
+						if (autoScroll) {
+							scrollToBottom();
+						}
+					}
+
+					if ($settings.notificationEnabled && !document.hasFocus()) {
+						const notification = new Notification(`${model.id}`, {
+							body: responseMessage.content,
+							icon: `${WEBUI_BASE_URL}/static/favicon.png`
+						});
+					}
+
+					if ($settings.responseAutoCopy) {
+						copyToClipboard(responseMessage.content);
+					}
+
+					if ($settings.responseAutoPlayback && !$showCallOverlay) {
+						await tick();
+
+						document.getElementById(`speak-button-${responseMessage.id}`)?.click();
+					}
+
+					if ($chatId == _chatId) {
+						if (!$temporaryChatEnabled) {
+							chat = await updateChatById(localStorage.token, _chatId, {
+								models: selectedModels,
+								messages: messages,
+								history: history,
+								params: params,
+								files: chatFiles
+							});
+
+							currentChatPage.set(1);
+							await chats.set(await getChatList(localStorage.token, $currentChatPage));
+						}
+					}
+				} else {
+					await handleOpenAIError(null, res, model, responseMessage);
 				}
-			}
 
-			if (autoScroll) {
+				messages = messages;
+
+				stopResponseFlag = false;
+				await tick();
+
+				let lastSentence = extractSentencesForAudio(responseMessage.content)?.at(-1) ?? '';
+				if (lastSentence) {
+					eventTarget.dispatchEvent(
+						new CustomEvent('chat', {
+							detail: { id: responseMessageId, content: lastSentence }
+						})
+					);
+				}
+
+				eventTarget.dispatchEvent(
+					new CustomEvent('chat:finish', {
+						detail: {
+							id: responseMessageId,
+							content: responseMessage.content
+						}
+					})
+				);
+
+				if (autoScroll) {
+					scrollToBottom();
+				}
+
+				if (messages.length == 2 && selectedModels[0] === model.id) {
+					window.history.replaceState(history.state, '', `/c/${_chatId}`);
+
+					const _title = await generateChatTitle(prompt);
+					await setChatTitle(_chatId, _title);
+				}
+
+				if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
+					console.log('剩余的问题个数:', qaQuestionsMap.size);
+					if (qaQuestionsMap.size > 0) {
+						suggestQuestionsList = getRandomQuestions(qaQuestionsMap, 3);
+						console.log('suggestQuestionsList for preQA:', suggestQuestionsList);
+					} else if (!notified) {
+						notified = true;
+						toast.success('所有常见问题都已经回答过了');
+					}
+				}
+
 				scrollToBottom();
 			}
 		}
