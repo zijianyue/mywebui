@@ -1345,7 +1345,7 @@ def get_qa_questions(
     user=Depends(get_verified_user),
 ):
     collection_file_ids: dict[str, set[str]] = {}  # 用于存储每个 collection_name 对应的 file_id 集合
-    collection_names_in_files = []
+    all_collection_names = []
     try:
         for file in form_data.files:
             collection_names_in_files = (
@@ -1353,6 +1353,7 @@ def get_qa_questions(
                 if file["type"] == "collection"
                 else [file["collection_name"]]
             )
+            all_collection_names.extend(collection_names_in_files)
             for collection_name in collection_names_in_files:
                 if collection_name in GLOBAL_QA_MAP_CACHE or collection_name in collection_file_ids:
                     continue
@@ -1390,12 +1391,14 @@ def get_qa_questions(
             else:
                 log.error(f"Collection name {collection_name} not found")
     else:
-        for collection_name in collection_names_in_files:
+        for collection_name in all_collection_names:
             if collection_name in GLOBAL_QA_MAP_CACHE:
+                log.debug(f"get questions for collection_name ok: {collection_name}, questions: {GLOBAL_QA_MAP_CACHE[collection_name]}")
                 result_qamap.update(GLOBAL_QA_MAP_CACHE[collection_name])
 
     if result_qamap:
         result = "\n".join([f"{id}: {qa.question}" for id, qa in result_qamap.items()])
+        log.debug(f"return qa_questions: {result}")
         return {"qa_questions": result}
     else:
         log.error("No questions found")
