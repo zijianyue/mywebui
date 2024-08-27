@@ -115,7 +115,7 @@
 				"api_key": "cant-be-empty"
 			},
 			"engine": "openai",
-			"model": "Systran/faster-whisper-small"
+			"model": "Systran/faster-whisper-large-v3"
 		}
 	},
 	"task": {
