@@ -106,6 +106,7 @@
 	let suggestUpdated = false;
 	let hospitals = [];
 	let recentMessages :string;
+	let lastUserMsg = {};
 	let detailedResponse = '';
 	let loading = false;
 	let lastMessageId: string | null = localStorage.getItem('lastMessageId');
