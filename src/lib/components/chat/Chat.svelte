@@ -749,7 +749,7 @@
 				qaQuestionsMap.delete(questionIndex);
 				preQA = true;
 			}
-			// 已经是流式输出
+			// TODO 流式输出
 			// ----------------- 以下是copy自sendPromptOpenAI，模拟生成消息的后处理 ------------------
 			const responseMessage = history.messages[responseMessageId];
 			const _chatId = JSON.parse(JSON.stringify($chatId));
@@ -839,13 +839,11 @@
 				await setChatTitle(_chatId, _title);
 			}
 
-			console.log('last msg done:', messages.at(-1).done);
 			if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
 				// suggestQuestionsList = await generateChatSuggestQuestions(messages)
-				console.log('剩余的问题 before:', qaQuestionsMap.size);
+				console.log('剩余的问题个数:', qaQuestionsMap.size);
 				if (qaQuestionsMap.size > 0) {
 					suggestQuestionsList = getRandomQuestions(qaQuestionsMap, 3);
-					console.log('剩余的问题 after:', qaQuestionsMap.size);
 					console.log('suggestQuestionsList for preQA:', suggestQuestionsList);
 				} else if (!notified) {
 					notified = true;
@@ -1025,7 +1023,7 @@
 					let _response = null;
 					// RAG知识库模型预答系统
 					preQA = false;
-					if (newChat && model?.info?.meta?.knowledge && messages.length === 2) {
+					if (qaQuestions === '' && model?.info?.meta?.knowledge) {
 						// console.log('knowledge:', model?.info?.meta?.knowledge);
 						qaQuestions = ''; // init
 						qaQuestionsMap.clear();

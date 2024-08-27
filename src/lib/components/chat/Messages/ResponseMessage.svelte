@@ -1294,7 +1294,7 @@ A：回答2`;
 							</table>
 						</div>
 					{/if}
-					{#if detailedResponse.length > 0}
+					{#if detailedResponse && detailedResponse.length > 0}
 						<div>{detailedResponse}</div>
 					{:else if loading}
 						<div>正在查询...</div>
