@@ -268,7 +268,14 @@ export const getOpenAIModelsDirect = async (
 		});
 };
 
-export const chatCompletionSimple = async (userPrompt: string, modelId: string, files = [], useCustomModel = true, ragTemplate = '', temp = 0.1) => {
+export const chatCompletionSimple = async (
+	userPrompt: string,
+	modelId: string,
+	files = [],
+	useCustomModel = true,
+	ragTemplate = '',
+	temp = 0.1,
+) => {
 	const requestBody = {
 		stream: false,
 		model: modelId,
