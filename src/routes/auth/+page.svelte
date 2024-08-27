@@ -227,7 +227,7 @@
 										/>
 									</div>
 
-									<hr class=" my-3 dark:border-gray-900" />
+									<!-- <hr class=" my-3 dark:border-gray-900" /> -->
 								{/if}
 
 								<div class="mb-2">

@@ -60,6 +60,14 @@
 		}
 	};
 
+	// 函数用于截断数字到小数点后两位
+	function toFixedTruncated(num: number | null, digits: number): string {
+		if (num === null) return '0.00';
+		const multiplier = Math.pow(10, digits);
+		const truncated = Math.floor(num * multiplier) / multiplier;
+		return truncated.toFixed(digits);
+	}
+
 	onMount(async () => {
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
@@ -241,11 +249,11 @@
 		<div class="flex justify-between items-center text-sm">
 			账户余额
 			<div class="flex justify-between items-center text-sm">
-				<div class="  font-medium">{ userSettings?.ui?.balance?.amount?.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0] }元</div>
+				<div class="  font-medium">￥{ toFixedTruncated(userSettings?.ui?.balance?.amount, 2) }</div>
 			</div>
 		</div>
 		<div class="flex justify-end items-center text-sm">
-			<a href="/todo" target="_blank"><span class=" underline">费用标准</span></a>
+			<a href="/todo" target="_blank"><span class=" underline">费用中心</span></a>
 		</div>
 		<div class="py-0.5">
 			<UpdatePassword />
