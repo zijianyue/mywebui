@@ -60,8 +60,25 @@
 	<div class=" w-full p-4 px-5 text-gray-700 dark:text-gray-100">
 		<div class=" overflow-y-scroll max-h-80 scrollbar-hidden">
 			<div class="mb-3">
-				<div class="text-sm dark:text-gray-200">将网站安装到桌面,像手机APP一样使用</div>
-				<div class="text-sm dark:text-gray-200">
+				<div class="text-sm dark:text-gray-200">小技巧：将网站安装到桌面,像手机APP一样使用</div>
+				<div class="my-4">
+					<div class="border p-4 rounded-md shadow-sm space-y-4">
+						<span class="text-lg font-medium text-gray-800">跳转其他板块</span>
+						<div class="flex flex-wrap space-x-2">
+							<a href="http://localhost:3000/" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+								<span>{$i18n.t('工作流和智能体')}</span>
+							</a>
+							<a href="http://localhost:7860/" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+								<span>{$i18n.t('模型训练（量化和跑分暂无界面）')}</span>
+							</a>
+							<a href="http://localhost:8188/" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+								<span>{$i18n.t('ComfyUI生成图片')}</span>
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="text-sm dark:text-gray-200" style="text-align: right;">
 					<a href="/agreement" target="_blank"><span class=" underline">{$i18n.t('User Agreement')}</span></a>
 				</div>
 				{#if changelog}
