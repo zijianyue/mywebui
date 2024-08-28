@@ -294,7 +294,9 @@ A：回答2`;
 	const toggleSpeakMessage = async () => {
 		if (speaking) {
 			try {
-				speechSynthesis.cancel();
+				if ($config.audio.tts.engine === '') {
+					speechSynthesis.cancel();
+				}
 
 				if (speakingIdx !== undefined && audioParts[speakingIdx]) {
 					audioParts[speakingIdx]!.pause();
@@ -486,7 +488,6 @@ A：回答2`;
 		recentMessages = '';
 		if (isLastMessage && message.done) {
 			recentMessages = getHistoryPromptText(messages);
-			console.debug('recentMessages:', recentMessages);
 		}
 	})();
 
