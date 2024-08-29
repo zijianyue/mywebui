@@ -49,12 +49,16 @@
 		"api_base_urls": [
 			"https://api.chatanywhere.tech/v1",
 			"https://api.deepseek.com/v1",
-			"https://api.siliconflow.cn/v1"
+			"https://api.siliconflow.cn/v1",
+			"https://api.groq.com/openai/v1",
+			"https://integrate.api.nvidia.com/v1"
 		],
 		"api_keys": [
 			"sk-PwwJqJHaKI0lIOCEpCnoYBiuhwmcmVqe22E0NM7w5oeqQgWU",
 			"sk-f7e79538e5944ae38ff5a3aaec0ba515",
-			"sk-nppkkylbvhgelviukyiwqbfmfdfiykobhpfiosoeytbuhogp"
+			"sk-nppkkylbvhgelviukyiwqbfmfdfiykobhpfiosoeytbuhogp",
+			"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",
+			"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"
 		],
 		"enable": true
 	},
