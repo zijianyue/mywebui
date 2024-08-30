@@ -72,20 +72,47 @@ def get_http_authorization_cred(auth_header: str):
         raise ValueError(ERROR_MESSAGES.INVALID_TOKEN)
 
 
+def is_valid_token(token: str):
+    try:
+        payload = decode_token(token)
+        print(f"is_valid_token decode_token payload: {payload}")
+
+        expiration = datetime.fromtimestamp(payload["expires"])
+        if expiration < datetime.utcnow():
+            return False
+        return True
+    except jwt.PyJWTError:
+        return False
+
+
 def get_current_user(
     request: Request,
     auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
 ):
     token = None
-
+    # print("Auth token:", auth_token)
+    # print("Request method:", request.method)
+    # print("Request headers:", request.headers)
+    # print("Request query_params:", request.query_params)
     if auth_token is not None:
         token = auth_token.credentials
 
+    # print("Request cookies:", request.cookies)
+
     if token is None and "token" in request.cookies:
         token = request.cookies.get("token")
+        # TODO
+        # if not is_valid_token(token):
+        #     logging.warn(f"invalide token from cookie: {token}")
+        #     token = None
+
+    if token is None and "token" in request.query_params:
+        token = request.query_params["token"]
 
     if token is None:
+        logging.info("no token")
         raise HTTPException(status_code=403, detail="Not authenticated")
+    # print("token is:", token)
 
     # auth by api key
     if token.startswith("sk-"):
@@ -93,6 +120,8 @@ def get_current_user(
 
     # auth by jwt token
     data = decode_token(token)
+    # print("token decode is:", data)
+
     if data is not None and "id" in data:
         user = Users.get_user_by_id(data["id"])
         if user is None:
@@ -125,9 +154,19 @@ def get_current_user_by_api_key(api_key: str):
 
 
 def get_verified_user(user=Depends(get_current_user)):
-    if user.role not in {"user", "admin"}:
+    if user.role not in {"user", "paiduser", "admin"}:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
+        )
+    return user
+
+
+def get_paid_user(user=Depends(get_verified_user)):
+    print(f"user.role: {user.role}")
+    if user.role not in {"paiduser", "admin"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
         )
     return user

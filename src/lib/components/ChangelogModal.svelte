@@ -6,15 +6,59 @@
 
 	import { WEBUI_VERSION } from '$lib/constants';
 	import { getChangelog } from '$lib/apis';
+	import { toast } from 'svelte-sonner';
 
 	import Modal from './common/Modal.svelte';
-
 	const i18n = getContext('i18n');
 
 	export let show = false;
 
 	let changelog = null;
+	async function handleComfyUIClick(event: MouseEvent, url: string) {
+		event.preventDefault();
+		// const comfyUIUrl = `https://comfyui.nas.cpolar.cn`;
+		const token = localStorage.token;
+		// 设置 cookie
+		// const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24小时后过期
+		// document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; expires=${expirationDate.toUTCString()}; SameSite=None; Secure`;
+		// TODO 过期时间设置了也无法传递到 /api/auth接口
+		document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; SameSite=None; Secure`;
 
+		try {
+			const response = await fetch(url, {
+				// method: 'HEAD', // TODO HEAD方法无法传递到/api/auth接口
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			});
+
+			if (response.ok) {
+				window.open(url, '_blank');
+			} else {
+			    // TODO 无法收到/api/auth接口返回的异常码，只接到500
+				switch (response.status) {
+                case 401:
+                    toast.error('Authentication failed. Please login again.');
+                    break;
+                case 403:
+                    toast.error('Access forbidden. You may not have the required permissions.');
+                    break;
+                case 400:
+                    toast.success('仅充值会员可以使用');
+                    break;
+                default:
+                    // toast.error('An unexpected error occurred. Please try again.');
+					toast.success('仅充值会员可以使用');
+				}
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			toast.error('Network error. Please check your connection and try again.');
+		}
+
+	}
 	onMount(async () => {
 		const res = await getChangelog();
 		changelog = res;
@@ -71,12 +115,18 @@
 								</a>
 							</div>
 							<div class="px-1 mb-2">
-								<a href="https://llamafactory.nas.cpolar.cn" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-									<span>{$i18n.t('模型训练（量化和跑分暂无界面）')}</span>
+								<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
+									on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
+									class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+								>
+									<span>{$i18n.t('模型训练')}</span>
 								</a>
 							</div>
 							<div class="px-1 mb-2">
-								<a href="https://comfyui.nas.cpolar.cn" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+								<a href="https://comfyui.nas.cpolar.cn" target="_blank"
+									on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
+									class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+								>
 									<span>{$i18n.t('ComfyUI生成图片')}</span>
 								</a>
 							</div>
