@@ -66,6 +66,7 @@ from apps.webui.utils import load_function_module_by_id
 from utils.utils import (
     get_admin_user,
     get_verified_user,
+    get_paid_user,
     get_current_user,
     get_http_authorization_cred,
     get_password_hash,
@@ -2019,6 +2020,24 @@ async def update_pipeline_valves(
 # Config Endpoints
 #
 ##################################
+
+@app.head("/api/auth")
+@app.get("/api/auth")
+async def auth(request: Request, user=Depends(get_paid_user)):
+    original_method = request.headers.get("X-Original-Method")
+    if original_method == "HEAD":
+        # 对于 HEAD 请求，我们只需要返回状态码
+        return Response(status_code=200)
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    print(f"Exception occurred: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": f"Error: {exc.detail}"}
+    )
 
 
 @app.get("/api/config")
