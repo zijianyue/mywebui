@@ -77,7 +77,6 @@
 			console.error("Failed to get user settings:", error);
 			toast.error('获取账户余额失败，请联系管理员');
 		}
-		console.log(`Remaining balance: ${userSettings?.ui.balance?.amount}`);
 
 		// APIKey = await getAPIKey(localStorage.token).catch((error) => {
 		// 	console.log(error);
