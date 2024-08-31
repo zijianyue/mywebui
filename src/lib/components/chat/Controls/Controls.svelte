@@ -17,14 +17,14 @@
 	export let chatFiles = [];
 	export let params = {};
 	onMount(async () => {
-		const firstModelSystem = models[0]?.info?.params?.system;
+		const firstModelPrompt = models[0]?.info?.params?.system;
 		if ($settings.system) {
 			params.system = $settings.system;
 		} else if (firstModelSystem) {
-			params.system = firstModelSystem;
-		} else if ($prompts.length >= 1) {
-			params.system = $prompts[0].content;
-		}
+			params.system = firstModelPrompt;
+		} // else if ($prompts.length >= 1) {
+		// 	params.system = $prompts[0].content;
+		// }
 	});
 
 	const saveSystemDefaultPrompt= async () => {
