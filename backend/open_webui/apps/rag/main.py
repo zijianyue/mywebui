@@ -1351,7 +1351,6 @@ def store_doc(
 
         loader, known_type = get_loader(filename, file.content_type, file_path)
         data = loader.load()
-        log.debug(f"data by loader: {data}")
 
         try:
             result = store_data_in_vector_db(data, collection_name)

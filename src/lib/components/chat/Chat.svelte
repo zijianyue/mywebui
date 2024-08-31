@@ -1581,7 +1581,6 @@
 		await tick();
 
 		try {
-			console.log('sendPromptOpenAI call generateOpenAIChatCompletion');
 			const [res, controller] = await generateOpenAIChatCompletion(
 				localStorage.token,
 				{
