@@ -52,8 +52,8 @@
 					await updateBalanceAndSettings(balance);
 				}
 
-				if (sessionUser.role === 'user' && (!userSettings?.ui?.balance || userSettings?.ui?.balance.amount === undefined)) {
-					console.log(`updateBalanceAndSettings for user: ${userSettings?.ui?.balance}, ${userSettings?.ui?.balance.amount}`);
+				if (sessionUser.role === 'user' && (!userSettings?.ui?.balance || userSettings?.ui?.balance?.amount === undefined)) {
+					console.log(`updateBalanceAndSettings for user`);
 
 					balance = { amount: INIT_BALANCE_AMOUNT };
 					await updateBalanceAndSettings(balance);
