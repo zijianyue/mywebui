@@ -133,6 +133,22 @@
 			await signInHandler();
 		}
 	});
+
+	const signUpAnonymous = async () => {
+		// 使用时间戳和随机数生成唯一的用户名
+		const timestamp = Date.now();
+		const randomSuffix = Math.floor(Math.random() * 100);
+		name = `anonymous_${timestamp}_${randomSuffix}`;
+		
+		// 使用时间戳和随机数生成唯一的11位电话号码
+		const phoneBase = timestamp % 100000000;
+		const randomDigits = randomSuffix.toString().padStart(2, '0');
+
+		cellPhone = `1${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
+		password = '123456';
+
+		await signUpHandler();
+	};
 </script>
 
 <svelte:head>
@@ -298,6 +314,14 @@
 											}}
 										>
 											{mode === 'signin' ? $i18n.t('Sign up') : $i18n.t('Sign in')}
+										</button>
+										|
+										<button
+											class=" font-medium underline"
+											type="button"
+											on:click={signUpAnonymous}
+										>
+											立即体验
 										</button>
 									</div>
 								{/if}

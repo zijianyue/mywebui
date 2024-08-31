@@ -478,7 +478,6 @@ A：回答2`;
 		if (JSON.stringify(lastSuggestQuestionsList) !== JSON.stringify(suggestQuestionsList)) {
 			lastSuggestQuestionsList = [...suggestQuestionsList];
 			if (isLastMessage && message.done) {
-				console.log('suggestUpdated')
 				suggestUpdated = true;
 			}
 		} 

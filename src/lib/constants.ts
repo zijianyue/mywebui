@@ -104,7 +104,7 @@ type PriceTable = {
 	[modelId: string]: ModelPrice;
 };
 
-export const INIT_BALANCE_AMOUNT = 10;
+export const INIT_BALANCE_AMOUNT = 5;
 export const PRICE_COE = 1.5;
 
 // 原始价格，我们要乘个系数

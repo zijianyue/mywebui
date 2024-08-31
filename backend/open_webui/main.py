@@ -2172,15 +2172,6 @@ async def auth(request: Request, user=Depends(get_paid_user)):
     return JSONResponse(status_code=200, content={"status": "ok"})
 
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    print(f"Exception occurred: {exc.detail}")
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"message": f"Error: {exc.detail}"}
-    )
-
-
 @app.get("/api/config")
 async def get_app_config(request: Request):
     user = None
