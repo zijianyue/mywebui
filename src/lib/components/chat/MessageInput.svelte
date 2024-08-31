@@ -37,7 +37,6 @@
 	import XMark from '../icons/XMark.svelte';
 
 	const i18n = getContext('i18n');
-	const dispatch = createEventDispatcher();
 
 	export let transparentBackground = false;
 
