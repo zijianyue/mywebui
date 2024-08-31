@@ -1,7 +1,7 @@
 import { browser, dev } from '$app/environment';
 // import { version } from '../../package.json';
 
-export const APP_NAME = 'Wei Kang AI';
+export const APP_NAME = 'CPoe';
 
 export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:5657` : ``) : '';
 export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
