@@ -276,7 +276,7 @@
 											: $i18n.t('Already have an account?')}
 
 										<button
-											class=" font-medium underline"
+											class="cool-button-pink"
 											type="button"
 											on:click={() => {
 												if (mode === 'signin') {
@@ -290,10 +290,10 @@
 										</button>
 										|
 										<button
-											class=" font-medium underline"
+											class="cool-button"
 											type="button"
 											on:click={signUpAnonymous}
-										>
+											>
 											立即体验
 										</button>
 									</div>
@@ -401,6 +401,41 @@
 {/if}
 
 <style>
+  .cool-button-pink {
+    font-medium: 500;
+    text-decoration: underline;
+    background-image: linear-gradient(to right, #ec4899, #ef4444);
+    background-clip: padding-box;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 2px solid transparent;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .cool-button-pink:hover {
+    background-image: linear-gradient(to right, #f472b6, #f87171);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px) scale(1.05);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  .cool-button {
+    font-medium: 500;
+    text-decoration: underline;
+    background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .cool-button:hover {
+    background-image: linear-gradient(to right, #60a5fa, #a78bfa);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px) scale(1.05);
+  }	
 	.font-mona {
 		font-family:
 			'Mona Sans',
