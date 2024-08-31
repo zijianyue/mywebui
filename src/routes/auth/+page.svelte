@@ -45,7 +45,7 @@
 
 			try {
 				let userSettings = await getUserSettings(localStorage.token);
-				console.log(`userSettings: ${JSON.stringify(userSettings)}`);
+				// console.log(`userSettings: ${JSON.stringify(userSettings)}`);
 
 				if (sessionUser.role === 'admin') {
 					balance = { amount: INIT_BALANCE_AMOUNT * 10000 };
@@ -53,7 +53,7 @@
 				}
 
 				if (sessionUser.role === 'user' && (!userSettings?.ui?.balance || userSettings?.ui?.balance?.amount === undefined)) {
-					console.log(`updateBalanceAndSettings for user`);
+					// console.log(`updateBalanceAndSettings for user`);
 
 					balance = { amount: INIT_BALANCE_AMOUNT };
 					await updateBalanceAndSettings(balance);
