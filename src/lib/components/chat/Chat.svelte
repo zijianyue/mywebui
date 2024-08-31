@@ -2262,35 +2262,6 @@
 					</div>
 				</div>
 
-				<div class={showControls ? 'lg:pr-[24rem]' : ''}>
-					<MessageInput
-						bind:files
-						bind:prompt
-						bind:autoScroll
-						bind:selectedToolIds
-						bind:webSearchEnabled
-						bind:generateImageEnabled
-						bind:atSelectedModel
-						bind:callRecordStream
-						availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
-							const model = $models.find((m) => m.id === e);
-							if (model?.info?.meta?.toolIds ?? false) {
-								return [...new Set([...a, ...model.info.meta.toolIds])];
-							}
-							return a;
-						}, [])}
-						transparentBackground={$settings?.backgroundImageUrl ?? false}
-						{selectedModels}
-						{messages}
-						{submitPrompt}
-						{stopResponse}
-						on:mrStatusChanged = {(e) => {
-							mrToMemory = (e.detail == 'wait model response');
-						}}
-					/>
-				</div>
-			</div>
-
 			<div class={showControls ? 'lg:pr-[24rem]' : ''}>
 				<MessageInput
 					bind:files
@@ -2299,7 +2270,6 @@
 					bind:selectedToolIds
 					bind:webSearchEnabled
 					bind:atSelectedModel
-					bind:callRecordStream
 					availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
 						const model = $models.find((m) => m.id === e);
 						if (model?.info?.meta?.toolIds ?? false) {
@@ -2312,14 +2282,16 @@
 					{messages}
 					{submitPrompt}
 					{stopResponse}
+					on:mrStatusChanged = {(e) => {
+						mrToMemory = (e.detail == 'wait model response');
+					}}
 					on:call={() => {
 						showControls = true;
 					}}
 				/>
 			</div>
 		</div>
-	</div>
-</PullToRefresh>
+	</PullToRefresh>
 {/if}
 
 <ChatControls
