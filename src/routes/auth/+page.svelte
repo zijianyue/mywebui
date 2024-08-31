@@ -138,7 +138,7 @@
 		// 使用时间戳和随机数生成唯一的用户名
 		const timestamp = Date.now();
 		const randomSuffix = Math.floor(Math.random() * 100);
-		name = `anonymous_${timestamp}_${randomSuffix}`;
+		name = `匿名用户_${timestamp}_${randomSuffix}`;
 		
 		// 使用时间戳和随机数生成唯一的11位电话号码
 		const phoneBase = timestamp % 100000000;
