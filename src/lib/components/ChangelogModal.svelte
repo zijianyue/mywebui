@@ -111,14 +111,14 @@
 						<span class="text-lg font-medium text-gray-800">跳转其他板块</span>
 						<div class="flex flex-col sm:flex-row sm:flex-wrap -mx-1">
 							<div class="px-1 mb-2">
-								<a href="https://dify.nas.cpolar.cn" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+								<a href="https://dify.nas.cpolar.cn" target="_blank" class="dify-button">
 									<span>{$i18n.t('工作流和智能体')}</span>
 								</a>
 							</div>
 							<div class="px-1 mb-2">
 								<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
 									on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
-									class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+									class="train-button"
 								>
 									<span>{$i18n.t('模型训练')}</span>
 								</a>
@@ -126,7 +126,7 @@
 							<div class="px-1 mb-2">
 								<a href="https://comfyui.nas.cpolar.cn" target="_blank"
 									on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
-									class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+									class="comfy-ui-button"
 								>
 									<span>{$i18n.t('ComfyUI生成图片')}</span>
 								</a>
@@ -193,3 +193,73 @@
 		</div>
 	</div>
 </Modal>
+<style>
+	.comfy-ui-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 0.25rem;
+		color: white;
+		background-image: linear-gradient(to right, #dc2626, #ea580c);
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		transition: all 0.2s ease-in-out;
+	}
+
+	.comfy-ui-button:hover {
+		background-image: linear-gradient(to right, #b91c1c, #c2410c);
+	}
+
+	.comfy-ui-button:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.5);
+	}
+
+	.train-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 0.25rem;
+		color: white;
+		background-image: linear-gradient(to right, #7e22ce, #2563eb);
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		transition: all 0.2s ease-in-out;
+	}
+
+	.train-button:hover {
+		background-image: linear-gradient(to right, #6b21a8, #1d4ed8);
+	}
+
+	.train-button:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+	}
+
+	.dify-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 0.25rem;
+		color: white;
+		background-image: linear-gradient(to right, #16a34a, #2563eb);
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		transition: all 0.2s ease-in-out;
+	}
+
+	.dify-button:hover {
+		background-image: linear-gradient(to right, #15803d, #1d4ed8);
+	}
+
+	.dify-button:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+	}
+</style>
