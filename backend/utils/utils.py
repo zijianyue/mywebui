@@ -90,14 +90,9 @@ def get_current_user(
     auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
 ):
     token = None
-    # print("Auth token:", auth_token)
-    # print("Request method:", request.method)
-    # print("Request headers:", request.headers)
-    # print("Request query_params:", request.query_params)
+
     if auth_token is not None:
         token = auth_token.credentials
-
-    # print("Request cookies:", request.cookies)
 
     if token is None and "token" in request.cookies:
         token = request.cookies.get("token")
@@ -110,9 +105,7 @@ def get_current_user(
         token = request.query_params["token"]
 
     if token is None:
-        logging.info("no token")
         raise HTTPException(status_code=403, detail="Not authenticated")
-    # print("token is:", token)
 
     # auth by api key
     if token.startswith("sk-"):
@@ -120,8 +113,6 @@ def get_current_user(
 
     # auth by jwt token
     data = decode_token(token)
-    # print("token decode is:", data)
-
     if data is not None and "id" in data:
         user = Users.get_user_by_id(data["id"])
         if user is None:
