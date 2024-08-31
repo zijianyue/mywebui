@@ -183,7 +183,7 @@
 						{#if $config?.features.enable_login_form}
 							<div class="flex flex-col mt-4">
 								{#if mode === 'signup'}
-									<div>
+									<div class="mb-2">
 										<div class=" text-sm font-medium text-left mb-1">{$i18n.t('Name')}</div>
 										<input
 											bind:value={name}
@@ -212,7 +212,7 @@
 									/>
 								</div>
 
-								<div>
+								<div class="mb-2">
 									<div class=" text-sm font-medium text-left mb-1">{$i18n.t('Password')}</div>
 
 									<input
