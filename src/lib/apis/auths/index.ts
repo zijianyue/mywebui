@@ -218,7 +218,7 @@ export const addUser = async (
 			return valid;
 		});
 	if (!ret) {
-		throw '无效手机号码';
+		throw '无效手机号';
 	}
 
 	let error = null;

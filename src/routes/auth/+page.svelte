@@ -101,6 +101,27 @@
 			await signInHandler();
 		}
 	});
+
+	const signUpAnonymous = async () => {
+		// 使用时间戳和随机数生成唯一的用户名
+		const timestamp = Date.now();
+		const randomSuffix = Math.floor(Math.random() * 100); // 生成一个0到999之间的随机数
+		name = `anonymous_${timestamp}_${randomSuffix}`;
+		
+		// 使用时间戳和随机数生成唯一的11位电话号码
+		const phoneBase = timestamp % 100000000; // 取时间戳的后8位
+		const randomDigits = randomSuffix.toString().padStart(2, '0'); // 确保随机数是2位
+		console.log('auth: anonymous signup: phoneBase', phoneBase);
+		console.log('auth: anonymous signup: randomDigits', randomDigits);
+
+		cellPhone = `1${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
+		email = 'default@163.com';
+		password = '123456';
+		console.log('auth: anonymous signup: ', name);
+		console.log('auth: anonymous signup cellPhone: ', cellPhone);
+
+		await signUpHandler();
+	};
 </script>
 
 <svelte:head>
@@ -266,6 +287,14 @@
 											}}
 										>
 											{mode === 'signin' ? $i18n.t('Sign up') : $i18n.t('Sign in')}
+										</button>
+										|
+										<button
+											class=" font-medium underline"
+											type="button"
+											on:click={signUpAnonymous}
+										>
+											立即体验
 										</button>
 									</div>
 								{/if}

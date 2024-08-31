@@ -9,6 +9,7 @@
 	import { toast } from 'svelte-sonner';
 
 	import Modal from './common/Modal.svelte';
+
 	const i18n = getContext('i18n');
 
 	export let show = false;

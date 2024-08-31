@@ -100,6 +100,11 @@
         </div>
 
     </div>
+    <div class="flex" style="text-align: center; align-items: center; justify-content: right;">
+        <p style="font-size: 1.5em; color:blue; font-weight: bold;">
+            <a class="flex flex-1 rounded-xl px-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition" href="/">返回</a>
+        </p>
+    </div>
 </div>
 
 <style>
@@ -149,7 +154,7 @@
         max-height: 100vh;
     }
     .scrollable {
-        height: 100vh;
+        height: calc(100vh - 3.5em);
         overflow-y: scroll; /* 启用垂直滚动条 */
         border: 1px solid #ccc; /* 可视边界 */
         align-content: flex-end; /* 使用这个属性来对齐所有列在底部 */
