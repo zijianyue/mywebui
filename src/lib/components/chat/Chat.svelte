@@ -2269,6 +2269,7 @@
 					bind:autoScroll
 					bind:selectedToolIds
 					bind:webSearchEnabled
+					bind:generateImageEnabled
 					bind:atSelectedModel
 					availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
 						const model = $models.find((m) => m.id === e);
