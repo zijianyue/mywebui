@@ -249,6 +249,12 @@
 	const stopRecording = async () => {
 		if (recording && mediaRecorder) {
 			await mediaRecorder.stop();
+			// 停止所有音频轨道
+			mediaRecorder.stream.getTracks().forEach(track => track.stop());
+		}
+		if (speechRecognition) {
+			speechRecognition.stop();
+			speechRecognition.abort(); // 立即中止识别
 		}
 		stopDurationCounter();
 		audioChunks = [];
@@ -267,6 +273,12 @@
 
 		if (recording && mediaRecorder) {
 			await mediaRecorder.stop();
+			// 停止所有音频轨道
+			mediaRecorder.stream.getTracks().forEach(track => track.stop());
+		}
+		if (speechRecognition) {
+			speechRecognition.stop();
+			speechRecognition.abort(); // 立即中止识别
 		}
 		clearInterval(durationCounter);
 	};
