@@ -112,7 +112,6 @@
 	let suggestUpdated = false;
 	let hospitals = [];
 	let recentMessages :string;
-	let lastUserMsg = {};
 	let detailedResponse = '';
 	let loading = false;
 	let lastMessageId: string | null = localStorage.getItem('lastMessageId');
@@ -196,7 +195,7 @@
 	}
 	async function fetchOriginRagAnswer() {
 		loading = true;
-		lastUserMsg = getLastUserMessage(messages);
+		let lastUserMsg = getLastUserMessage(messages);
 
 		if (getAnswerFromQA) {
 			detailedResponse = await getAnswerFromQA(lastUserMsg.content, model, '', false, true);
