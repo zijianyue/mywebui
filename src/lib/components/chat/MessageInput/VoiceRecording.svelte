@@ -11,7 +11,6 @@
 	const dispatch = createEventDispatcher();
 
 	export let recording = false;
-	export let voiceRecordingStream = null;
 
 	let loading = false;
 	let confirmed = false;
@@ -115,7 +114,7 @@
 					// }
 
 					// if (recording && Date.now() - lastSoundTime > 3000) {
-					// 	if ($settings?.speechAutoSend ?? true) {
+					// 	if ($settings?.speechAutoSend ?? false) {
 					// 		confirmRecording();
 					// 	}
 					// }
@@ -161,12 +160,12 @@
 	const startRecording = async () => {
 		startDurationCounter();
 
-		// const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-		mediaRecorder = new MediaRecorder(voiceRecordingStream);
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		mediaRecorder = new MediaRecorder(stream);
 		mediaRecorder.onstart = () => {
 			console.log('Recording started');
 			audioChunks = [];
-			analyseAudio(voiceRecordingStream);
+			analyseAudio(stream);
 		};
 		mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
 		mediaRecorder.onstop = async () => {
@@ -250,12 +249,6 @@
 	const stopRecording = async () => {
 		if (recording && mediaRecorder) {
 			await mediaRecorder.stop();
-			// 停止所有音频轨道
-			mediaRecorder.stream.getTracks().forEach(track => track.stop());
-		}
-		if (speechRecognition) {
-			speechRecognition.stop();
-			speechRecognition.abort(); // 立即中止识别
 		}
 		stopDurationCounter();
 		audioChunks = [];
@@ -274,12 +267,6 @@
 
 		if (recording && mediaRecorder) {
 			await mediaRecorder.stop();
-			// 停止所有音频轨道
-			mediaRecorder.stream.getTracks().forEach(track => track.stop());
-		}
-		if (speechRecognition) {
-			speechRecognition.stop();
-			speechRecognition.abort(); // 立即中止识别
 		}
 		clearInterval(durationCounter);
 	};

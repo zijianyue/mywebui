@@ -201,7 +201,7 @@ class PersistentConfig(Generic[T]):
         self.env_value = env_value
         self.config_value = get_config_value(config_path)
         if self.config_value is not None:
-            log.debug(f"'{env_name}' loaded from config.json, '{self.config_value}'")
+            log.debug(f"'{env_name}' loaded from the latest database entry")
             self.value = self.config_value
         else:
             log.debug(f"init '{env_name}' by env '{env_value}'")

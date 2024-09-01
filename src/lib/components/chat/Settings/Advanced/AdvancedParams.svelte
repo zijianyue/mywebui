@@ -149,7 +149,7 @@
 				class="p-1 px-3 text-xs flex rounded transition flex-shrink-0 outline-none"
 				type="button"
 				on:click={() => {
-					params.temperature = (params?.temperature ?? null) === null ? 0.1 : null;
+					params.temperature = (params?.temperature ?? null) === null ? 0.8 : null;
 				}}
 			>
 				{#if (params?.temperature ?? null) === null}

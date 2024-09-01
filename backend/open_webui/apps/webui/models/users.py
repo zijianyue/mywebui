@@ -142,7 +142,7 @@ class UsersTable:
 
                 user = db.query(User).filter_by(cell_phone=cell_phone).first()
                 return UserModel.model_validate(user)
-        except:
+        except Exception:
             return None
 
     def get_user_by_oauth_sub(self, sub: str) -> Optional[UserModel]:

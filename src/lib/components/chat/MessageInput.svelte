@@ -376,7 +376,6 @@
 				{#if recording}
 					<VoiceRecording
 						bind:recording
-						{voiceRecordingStream}
 						on:cancel={async () => {
 							recording = false;
 
