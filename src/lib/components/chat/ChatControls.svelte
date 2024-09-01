@@ -58,6 +58,7 @@
 							{modelId}
 							{chatId}
 							{eventTarget}
+							bind:show
 						/>
 					{:else}
 						<Controls
