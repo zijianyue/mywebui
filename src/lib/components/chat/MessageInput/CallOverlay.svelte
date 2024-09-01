@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { config, models, settings, showCallOverlay } from '$lib/stores';
+	import { config, models, settings, showCallOverlay, mobile } from '$lib/stores';
 	import { onMount, tick, getContext, onDestroy, createEventDispatcher } from 'svelte';
 	import { DropdownMenu } from 'bits-ui';
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -636,7 +636,9 @@
 		};
 	});
 	const cleanupResources = async () => {
-		show = false;
+		if (!$mobile) {
+			show = false;
+		}
 		eventTarget.removeEventListener('chat:start', chatStartHandler);
 		eventTarget.removeEventListener('chat', chatEventHandler);
 		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
