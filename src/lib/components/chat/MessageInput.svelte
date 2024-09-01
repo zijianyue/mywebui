@@ -60,7 +60,7 @@
 
 	let user = null;
 	let chatInputPlaceholder = '';
-	let voiceRecordingStream = null;
+
 	export let files = [];
 
 	export let availableToolIds = [];
@@ -70,7 +70,6 @@
 
 	export let prompt = '';
 	export let messages = [];
-	export let callRecordStream :MediaStream;
 
 	let visionCapableModels = [];
 	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
@@ -374,7 +373,6 @@
 				{#if recording}
 					<VoiceRecording
 						bind:recording
-						{voiceRecordingStream}
 						on:cancel={async () => {
 							recording = false;
 
