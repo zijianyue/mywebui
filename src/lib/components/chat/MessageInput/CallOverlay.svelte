@@ -26,7 +26,6 @@
 	export let files;
 	export let chatId;
 	export let modelId;
-	export let callRecordStream :MediaStream | null;
 
 	let wakeLock = null;
 
@@ -183,7 +182,7 @@
 			const _audioChunks = audioChunks.slice(0);
 
 			audioChunks = [];
-			// mediaRecorder = null;
+			mediaRecorder = false;
 
 			if (_continue) {
 				startRecording();
@@ -525,79 +524,6 @@
 		console.log(`Audio monitoring and playing stopped for message ID ${id}`);
 	};
 
-	const chatStartHandler = async (e) => {
-		const { id } = e.detail;
-
-		chatStreaming = true;
-
-		if (currentMessageId !== id) {
-			console.log(`Received chat start event for message ID ${id}`);
-
-			currentMessageId = id;
-			if (audioAbortController) {
-				audioAbortController.abort();
-			}
-			audioAbortController = new AbortController();
-
-			assistantSpeaking = true;
-			// Start monitoring and playing audio for the message ID
-			monitorAndPlayAudio(id, audioAbortController.signal);
-		}
-	};
-
-	const chatEventHandler = async (e) => {
-		const { id, content } = e.detail;
-		// "id" here is message id
-		// if "id" is not the same as "currentMessageId" then do not process
-		// "content" here is a sentence from the assistant,
-		// there will be many sentences for the same "id"
-
-		if (currentMessageId === id) {
-			console.log(`Received chat event for message ID ${id}: ${content}`);
-
-			try {
-				if (messages[id] === undefined) {
-					messages[id] = [content];
-				} else {
-					messages[id].push(content);
-				}
-
-				console.log(content);
-
-				fetchAudio(content);
-			} catch (error) {
-				console.error('Failed to fetch or play audio:', error);
-			}
-		}
-	};
-
-	const chatFinishHandler = async (e) => {
-		const { id, content } = e.detail;
-		// "content" here is the entire message from the assistant
-		finishedMessages[id] = true;
-
-		chatStreaming = false;
-	};
-	const cleanupResources = async () => {
-		eventTarget.removeEventListener('chat:start', chatStartHandler);
-		eventTarget.removeEventListener('chat', chatEventHandler);
-		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
-		audioAbortController.abort();
-		await tick();
-		// 停止所有媒体流
-		if (mediaRecorder) {
-			await stopAllAudio();
-			await stopRecordingCallback(false);
-			if (mediaRecorder.stream) {
-				mediaRecorder.stream.getTracks().forEach(track => track.stop());
-			}
-			mediaRecorder = null;
-			callRecordStream = null;
-		}
-		await stopCamera();
-
-	};
-
 	onMount(async () => {
 		const setWakeLock = async () => {
 			try {
@@ -630,9 +556,78 @@
 		model = $models.find((m) => m.id === modelId);
 
 		startRecording();
+
+		const chatStartHandler = async (e) => {
+			const { id } = e.detail;
+
+			chatStreaming = true;
+
+			if (currentMessageId !== id) {
+				console.log(`Received chat start event for message ID ${id}`);
+
+				currentMessageId = id;
+				if (audioAbortController) {
+					audioAbortController.abort();
+				}
+				audioAbortController = new AbortController();
+
+				assistantSpeaking = true;
+				// Start monitoring and playing audio for the message ID
+				monitorAndPlayAudio(id, audioAbortController.signal);
+			}
+		};
+
+		const chatEventHandler = async (e) => {
+			const { id, content } = e.detail;
+			// "id" here is message id
+			// if "id" is not the same as "currentMessageId" then do not process
+			// "content" here is a sentence from the assistant,
+			// there will be many sentences for the same "id"
+
+			if (currentMessageId === id) {
+				console.log(`Received chat event for message ID ${id}: ${content}`);
+
+				try {
+					if (messages[id] === undefined) {
+						messages[id] = [content];
+					} else {
+						messages[id].push(content);
+					}
+
+					console.log(content);
+
+					fetchAudio(content);
+				} catch (error) {
+					console.error('Failed to fetch or play audio:', error);
+				}
+			}
+		};
+
+		const chatFinishHandler = async (e) => {
+			const { id, content } = e.detail;
+			// "content" here is the entire message from the assistant
+			finishedMessages[id] = true;
+
+			chatStreaming = false;
+		};
+
 		eventTarget.addEventListener('chat:start', chatStartHandler);
 		eventTarget.addEventListener('chat', chatEventHandler);
 		eventTarget.addEventListener('chat:finish', chatFinishHandler);
+
+		return async () => {
+			eventTarget.removeEventListener('chat:start', chatStartHandler);
+			eventTarget.removeEventListener('chat', chatEventHandler);
+			eventTarget.removeEventListener('chat:finish', chatFinishHandler);
+
+			audioAbortController.abort();
+			await tick();
+
+			await stopAllAudio();
+
+			await stopRecordingCallback(false);
+			await stopCamera();
+		};
 	});
 
 	onDestroy(async () => {
