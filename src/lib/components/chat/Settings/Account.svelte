@@ -252,7 +252,7 @@
 			</div>
 		</div>
 		<div class="flex justify-end items-center text-sm">
-			<a href="/todo" target="_blank"><span class=" underline">费用中心</span></a>
+			<a href="/costCenter" target="_blank"><span class=" underline">费用中心</span></a>
 		</div>
 		<div class="py-0.5">
 			<UpdatePassword />
