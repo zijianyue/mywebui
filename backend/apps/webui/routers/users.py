@@ -96,6 +96,20 @@ async def get_user_settings_by_session_user(user=Depends(get_verified_user)):
         )
 
 
+@router.get("/user/{user_id}/settings", response_model=Optional[UserSettings])
+async def get_user_settings_by_user_id(user_id: str, user=Depends(get_verified_user)):
+    print(f"get_user_settings_by_user_id: {user_id}")
+    userRet = Users.get_user_by_id(user_id)
+    if userRet:
+        print(f"get_user_settings_by_user_id ret user: {userRet}")
+
+        return userRet.settings
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ERROR_MESSAGES.USER_NOT_FOUND,
+        )
+
 ############################
 # UpdateUserSettingsBySessionUser
 ############################
@@ -225,6 +239,15 @@ async def update_user_by_id(
             log.debug(f"hashed: {hashed}")
             Auths.update_user_password_by_id(user_id, hashed)
 
+        ui = user.settings.ui
+        print(f"form_data.amount: {form_data.amount}")
+        if form_data.amount is not None:
+            balance = ui.get("balance")
+            if balance is not None:
+                balance["amount"] = form_data.amount
+                user.settings.ui = ui
+                print(f"user settings:{user.settings.ui}")
+
         Auths.update_cell_phone_by_id(user_id, form_data.cell_phone)
         updated_user = Users.update_user_by_id(
             user_id,
@@ -233,6 +256,7 @@ async def update_user_by_id(
                 "cell_phone": form_data.cell_phone,
                 "email": form_data.email.lower(),
                 "profile_image_url": form_data.profile_image_url,
+                "settings": user.settings.model_dump()
             },
         )
 

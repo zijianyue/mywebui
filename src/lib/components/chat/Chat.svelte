@@ -25,10 +25,8 @@
 		socket,
 		showCallOverlay,
 		currentChatPage,
-		temporaryChatEnabled,
-		type Balance
+		temporaryChatEnabled
 	} from '$lib/stores';
-	import { updateUserSettings } from '$lib/apis/users';
 
 	import {
 		convertMessagesToHistory,
@@ -71,6 +69,7 @@
 	import { addNewMemory } from '$lib/apis/memories';
 	import { imageGenerations } from '$lib/apis/images';
 	import { chatCompletionSimple } from '$lib/apis/openai';
+	import { modelPrices } from '$lib/constants';
 
 	const i18n: Writable<i18nType> = getContext('i18n');
 
@@ -165,12 +164,6 @@
 			}
 		})();
 	}
-
-	export const saveUserBalance = async (amount: number) => {
-		let balance: Balance = { amount: amount };
-		settings.set({ ...$settings, balance: balance });
-		await updateUserSettings(localStorage.token, { ui: $settings });
-	};
 
 	const chatEventHandler = async (event, cb) => {
 		if (event.chat_id === $chatId) {
@@ -359,6 +352,7 @@
 		} else {
 			settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 		}
+		console.log('initnewchat settings:', $settings);
 
 		const chatInput = document.getElementById('chat-textarea');
 		setTimeout(() => chatInput?.focus(), 0);
@@ -1165,10 +1159,71 @@
 					if (generateImageEnabled || await wantGenerateImage(prompt, responseMessage.model)) {
 						_response = await generateImage(responseMessage, prompt);
 					} else if (!preQA) {
-						if (model?.owned_by === 'openai') {
-							_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
-						} else if (model) {
-							_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+						let sufficient = true;
+						console.log('settings before:', $settings);
+						try {
+							const userSettings = await getUserSettings(localStorage.token);
+							if (userSettings) {
+								await settings.set(userSettings.ui);
+							} else {
+								await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+							}
+						} catch (error) {
+							console.error("Failed to get user settings:", error);
+							toast.error($i18n.t('Get balance fail, contact the admin'));
+							return;
+						}
+						console.log('settings after :', $settings);
+
+
+						if ($settings?.balance?.amount) {
+							if ($settings.balance.amount < 0.01) {
+								let pricePair = modelPrices[model.id];
+								if (pricePair.input > 0 || pricePair.output > 0) {
+									const balanceAmount = $settings.balance.amount.toString();
+									const decimalIndex = balanceAmount.indexOf('.');
+									const truncatedAmount = decimalIndex !== -1
+										  ? balanceAmount.slice(0, decimalIndex + 4) // 截取到小数点后3位
+										  : balanceAmount; // 如果没有小数点，则直接返回原值
+
+									toast.error(`余额(${truncatedAmount})不足1分钱，请充值或者选择免费的模型`);
+									sufficient = false;
+								}
+							}
+						} else {
+							sufficient = false;
+							toast.error($i18n.t('Get balance fail, contact the admin'));
+						}
+						console.log('sufficient:', sufficient);
+						if (sufficient) {
+							if (model?.owned_by === 'openai') {
+								_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
+							} else if (model) {
+								_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+							}
+						}
+						else {
+							showCallOverlay.set(false);
+							showControls = false;
+							eventTarget.dispatchEvent(
+								new CustomEvent('chat:start', {
+									detail: {
+										id: responseMessageId
+									}
+								})
+							);
+							await tick();
+							responseMessage.done = true;
+							messages = messages;
+							_response = responseMessage.content;
+							eventTarget.dispatchEvent(
+								new CustomEvent('chat:finish', {
+									detail: {
+										id: responseMessageId,
+										content: responseMessage.content
+									}
+								})
+							);
 						}
 					}
 					_responses.push(_response);
