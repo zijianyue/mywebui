@@ -690,17 +690,17 @@
 				intention = await judgeGenerateImageIntention(prompt, modelId);
 				console.log('judgeIntention ret:', intention);
 			}
-			if (!intention) {
-				containsKeyword = genImageKeywords.some(keyword => {
-					if (keyword instanceof RegExp) {
-						if (keyword.test(prompt)) {
-							return true;
-						}
+		}
+		if (!intention) {
+			containsKeyword = genImageKeywords.some(keyword => {
+				if (keyword instanceof RegExp) {
+					if (keyword.test(prompt)) {
+						return true;
 					}
-					return false;
-				});
-				console.log('containsKeyword:', containsKeyword);
-			}
+				}
+				return false;
+			});
+			console.log('containsKeyword:', containsKeyword);
 		}
 		return intention || containsKeyword;
 	};
