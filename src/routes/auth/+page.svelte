@@ -81,14 +81,18 @@
 		if (ckEmail == '') {
 			ckEmail = 'default@163.com';
 		}
+		let ret = true;
 		const sessionUser = await userSignUp(name, cellPhone, ckEmail, password, generateInitialsImage(name)).catch(
 			(error) => {
+				console.log('userSignUp ex:', error);
 				toast.error(error);
+				ret = false;
 				return null;
 			}
 		);
 
 		await setSessionUser(sessionUser);
+		return ret;
 	};
 
 	const submitHandler = async () => {
@@ -136,18 +140,37 @@
 
 	const signUpAnonymous = async () => {
 		// 使用时间戳和随机数生成唯一的用户名
-		const timestamp = Date.now();
-		const randomSuffix = Math.floor(Math.random() * 100);
+		let timestamp = Date.now();
+		let randomSuffix = Math.floor(Math.random() * 100);
 		name = `匿名用户_${timestamp}_${randomSuffix}`;
-		
-		// 使用时间戳和随机数生成唯一的11位电话号码
-		const phoneBase = timestamp % 100000000;
-		const randomDigits = randomSuffix.toString().padStart(2, '0');
-
-		cellPhone = `1${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
 		password = '123456';
+		let count = 0;
 
-		await signUpHandler();
+		// 使用时间戳和随机数生成唯一的11位电话号码
+		let isPhoneUnique = false;
+		// 防呆count < 10
+		while (!isPhoneUnique && count < 10) {
+			// 使用时间戳和随机数生成唯一的11位电话号码
+			const phoneBase = timestamp % 100000000;
+			const randomDigits = randomSuffix.toString().padStart(2, '0');
+			cellPhone = `1${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
+			// if (count === 0) {
+			// 	cellPhone = '17611158566'; // for simulate test
+			// }
+			let ret = await signUpHandler();
+			console.log('signUpHandler return:', ret);
+
+			if (!ret) {
+				count++;
+				console.log('signUp fail! may be duplicated phone');
+				// 如果手机号重复，重新生成时间戳和随机数
+				timestamp = Date.now();
+				randomSuffix = Math.floor(Math.random() * 100);
+			} else {
+				isPhoneUnique = true;
+			}
+		}
+
 	};
 </script>
 

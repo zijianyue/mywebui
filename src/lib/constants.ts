@@ -118,9 +118,8 @@ export const modelPrices: PriceTable = {
 	"weikangai": { input: 0.001, output: 0.002 },
 	"weikangai-bak": { input: 0.001, output: 0.002 },
 	"deepseek-chat": { input: 0.001, output: 0.002},
+	"deepseek-coder": { input: 0.001, output: 0.002 },
 	"gpt-4o-2024-08-06": { input: 0.0175, output: 0.07 },
-	"THUDM/glm-4-9b-chat": { input: 0, output: 0 },
-	"Qwen/Qwen2-7B-Instruct": { input: 0, output: 0 },
 	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06 }
 
 };
