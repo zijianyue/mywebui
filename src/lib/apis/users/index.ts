@@ -116,6 +116,34 @@ export const getUsers = async (token: string) => {
 	return res ? res : [];
 };
 
+
+export const getUserSettingsByUserId = async (token: string, userId: string) => {
+	let error = null;
+	const res = await fetch(`${WEBUI_API_BASE_URL}/users/user/${userId}/settings`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
+
 export const getUserSettings = async (token: string) => {
 	let error = null;
 	const res = await fetch(`${WEBUI_API_BASE_URL}/users/user/settings`, {
@@ -301,6 +329,7 @@ type UserUpdateForm = {
 	email: string;
 	name: string;
 	password: string;
+	amount: string;
 };
 
 export const isValidPhoneNumber = async (phoneNumber: string) => {
@@ -309,6 +338,7 @@ export const isValidPhoneNumber = async (phoneNumber: string) => {
 
 export const updateUserById = async (token: string, userId: string, user: UserUpdateForm) => {
 	let error = null;
+	console.log('updateUserById amount:', user.amount);
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/users/${userId}/update`, {
 		method: 'POST',
@@ -321,7 +351,8 @@ export const updateUserById = async (token: string, userId: string, user: UserUp
 			email: user.email,
 			cell_phone: user.cell_phone,
 			name: user.name,
-			password: user.password !== '' ? user.password : undefined
+			password: user.password !== '' ? user.password : undefined,
+			amount: user.amount
 		})
 	})
 		.then(async (res) => {

@@ -75,6 +75,7 @@ class UserUpdateForm(BaseModel):
     email: str
     profile_image_url: str
     password: Optional[str] = None
+    amount: Optional[str] = None
 
 
 class UsersTable:

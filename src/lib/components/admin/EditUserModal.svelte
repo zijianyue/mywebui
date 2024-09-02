@@ -6,6 +6,7 @@
 
 	import { updateUserById } from '$lib/apis/users';
 	import Modal from '../common/Modal.svelte';
+	import { getUserSettingsByUserId } from '$lib/apis/users';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -13,30 +14,48 @@
 	export let show = false;
 	export let selectedUser;
 	export let sessionUser;
-
+	import { settings } from '$lib/stores';
 	let _user = {
 		profile_image_url: '',
 		cell_phone: '',
 		email: '',
 		name: '',
-		password: ''
+		password: '',
+		amount: 0
 	};
 
 	const submitHandler = async () => {
 		const res = await updateUserById(localStorage.token, selectedUser.id, _user).catch((error) => {
 			toast.error(error);
 		});
-
-		// if (res) {
+		if (res) {
 			dispatch('save');
-			show = false;
-		// }
+		}
+		show = false;
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		if (selectedUser) {
 			_user = selectedUser;
 			_user.password = '';
+			try {
+				console.log('selectedUser:', selectedUser);
+
+				const userSettings = await getUserSettingsByUserId(localStorage.token, selectedUser.id);
+				if (userSettings) {
+					await settings.set(userSettings.ui);
+				} else {
+					await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+				}
+				if ($settings?.balance?.amount) {
+					_user.amount = $settings.balance.amount;
+				}
+			} catch (error) {
+				console.error("Failed to get user settings:", error);
+				toast.error($i18n.t('Get balance fail, contact the admin'));
+				return;
+			}
+			console.log('_user:', _user);
 		}
 	});
 </script>
@@ -132,7 +151,6 @@
 									type="password"
 									bind:value={_user.password}
 									autocomplete="new-password"
-									required
 								/>
 							</div>
 						</div>
@@ -147,6 +165,18 @@
 									bind:value={_user.email}
 									autocomplete="off"
 								/>
+							</div>
+						</div>
+						<div class="flex flex-col w-full">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('账户余额')}</div>
+
+							<div class="flex-1">
+								<input
+									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
+									type="text"
+									bind:value={_user.amount}
+									autocomplete="off"
+									/>
 							</div>
 						</div>
 					</div>

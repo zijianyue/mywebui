@@ -60,7 +60,7 @@
 				}
 			} catch (error) {
 				console.error("Failed to get user settings:", error);
-				toast.error('获取账户余额失败，请联系管理员');
+				toast.error($i18n.t('Get balance fail, contact the admin'));
 			}
 			
 			goto('/');
