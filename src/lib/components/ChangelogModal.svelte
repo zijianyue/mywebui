@@ -2,7 +2,7 @@
 	import { onMount, getContext } from 'svelte';
 	import { Confetti } from 'svelte-confetti';
 
-	import { WEBUI_NAME, config } from '$lib/stores';
+	import { WEBUI_NAME, config, mobile } from '$lib/stores';
 
 	import { WEBUI_VERSION } from '$lib/constants';
 	import { getChangelog } from '$lib/apis';
@@ -106,34 +106,36 @@
 		<div class=" overflow-y-scroll max-h-80 scrollbar-hidden">
 			<div class="mb-3">
 				<div class="text-sm dark:text-gray-200">小技巧：将网站安装到桌面,像手机APP一样使用</div>
-				<div class="my-4">
-					<div class="border p-4 rounded-md shadow-sm space-y-4">
-						<span class="text-lg font-medium text-gray-800">跳转其他板块</span>
-						<div class="flex flex-col sm:flex-row sm:flex-wrap -mx-1">
-							<div class="px-1 mb-2">
-								<a href="https://dify.nas.cpolar.cn" target="_blank" class="dify-button">
-									<span>{$i18n.t('工作流和智能体')}</span>
-								</a>
-							</div>
-							<div class="px-1 mb-2">
-								<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
-									on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
-									class="train-button"
-								>
-									<span>{$i18n.t('模型训练')}</span>
-								</a>
-							</div>
-							<div class="px-1 mb-2">
-								<a href="https://comfyui.nas.cpolar.cn" target="_blank"
-									on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
-									class="comfy-ui-button"
-								>
-									<span>{$i18n.t('ComfyUI生成图片')}</span>
-								</a>
+				{#if !$mobile}
+					<div class="my-4">
+						<div class="border p-4 rounded-md shadow-sm space-y-4">
+							<span class="text-lg font-medium text-gray-800">跳转其他板块</span>
+							<div class="flex flex-col sm:flex-row sm:flex-wrap -mx-1">
+								<div class="px-1 mb-2">
+									<a href="https://dify.nas.cpolar.cn" target="_blank" class="dify-button">
+										<span>{$i18n.t('工作流和智能体')}</span>
+									</a>
+								</div>
+								<div class="px-1 mb-2">
+									<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
+									   on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
+										class="train-button"
+										>
+										<span>{$i18n.t('模型训练')}</span>
+									</a>
+								</div>
+								<div class="px-1 mb-2">
+									<a href="https://comfyui.nas.cpolar.cn" target="_blank"
+									   on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
+										class="comfy-ui-button"
+										>
+										<span>{$i18n.t('ComfyUI生成图片')}</span>
+									</a>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				{/if}
 
 				<div class="text-sm dark:text-gray-200" style="text-align: right;">
 					<a href="/agreement" target="_blank"><span class=" underline">{$i18n.t('User Agreement')}</span></a>
