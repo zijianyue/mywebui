@@ -151,43 +151,49 @@
 	}
 
 	async function settleTheBill(input_tokens, output_tokens) {
-		let userSettings;
-		console.log(`settings: ${JSON.stringify($settings)}`);
-		// settings这里是空的
+		if (!input_tokens && !output_tokens) {
+			console.log('no token consumed');
+			return;
+		}
 		try {
-			userSettings = await getUserSettings(localStorage.token);
+			const userSettings = await getUserSettings(localStorage.token);
+			if (userSettings) {
+				console.log('settleTheBill getUserSettings:', userSettings);
+				await settings.set(userSettings.ui);
+			} else {
+				await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+			}
 		} catch (error) {
 			console.error("Failed to get user settings:", error);
-			toast.error('获取账户余额失败，请联系管理员');
+			toast.error($i18n.t('Get balance fail, contact the admin'));
 			return;
 		}
-		let setting = userSettings?.ui;
-		if (!setting?.balance?.amount) {
+		console.log('settleTheBill userSettings:', $settings);
+		if (!$settings?.balance?.amount) {
 			console.error("Failed to get user balance:");
-			toast.error('获取账户余额失败，请联系管理员');
 			return;
 		}
+		let remaining = $settings.balance.amount;
 		let pricePair = modelPrices[model.id];
 		if (!pricePair) {
 			toast.error(`Model ${model.id}, ${model.name} not found in price table`);
 			return;
 		}
-		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${setting?.balance?.amount}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
+		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${remaining}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
 
 		let inputCost = (input_tokens / 1000) * (pricePair.input * PRICE_COE);
 		let outputCost = (output_tokens / 1000) * (pricePair.output * PRICE_COE);
 		let totalCost = inputCost + outputCost;
-		let remaining = setting.balance.amount;
 		if (remaining < totalCost) {
 			toast.error(`Insufficient balance. Current balance: ${remaining}, Required: ${totalCost}`);
-			return;
+			totalCost = remaining;
 		}
 		console.log('totalCost:', totalCost);
-
-		setting.balance.amount -= totalCost;
-		console.log(`Consumed total tokens: ${input_tokens + output_tokens}, Total cost: ${totalCost}, Remaining balance: ${setting.balance.amount}`);
+		$settings.balance.amount -= totalCost;
+		console.log(`Consumed total tokens: ${input_tokens + output_tokens}, Total cost: ${totalCost}, Remaining balance: ${$settings.balance.amount}`);
+		await settings.set($settings);
 		try {
-			await updateUserSettings(localStorage.token, { ui: setting });
+			await updateUserSettings(localStorage.token, { ui: $settings });
 		} catch (error) {
 			console.error("Failed to update user settings:", error);
 			toast.error('更新账户余额失败，请联系管理员');
@@ -495,7 +501,7 @@ A：回答2`;
 			lastMessageId = message.id;
 			// toast.success(` lastMessageId: ${lastMessageId} `);
 			localStorage.setItem('lastMessageId', message.id);
-			await settleTheBill(message.info.prompt_tokens, message.info.completion_tokens);
+			await settleTheBill(message.info?.prompt_tokens, message.info?.completion_tokens);
 		}
 	})();
 
