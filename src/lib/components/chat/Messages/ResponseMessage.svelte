@@ -155,6 +155,11 @@
 			console.log('no token consumed');
 			return;
 		}
+		let pricePair = modelPrices[model.id];
+		if (!pricePair) {
+			console.log(`Model ${model.id}, ${model.name} not found in price table`);
+			return;
+		}
 		try {
 			const userSettings = await getUserSettings(localStorage.token);
 			if (userSettings) {
@@ -174,11 +179,6 @@
 			return;
 		}
 		let remaining = $settings.balance.amount;
-		let pricePair = modelPrices[model.id];
-		if (!pricePair) {
-			toast.error(`Model ${model.id}, ${model.name} not found in price table`);
-			return;
-		}
 		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${remaining}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
 
 		let inputCost = (input_tokens / 1000) * (pricePair.input * PRICE_COE);

@@ -1133,6 +1133,76 @@
 
 		return randomQuestions;
 	}
+	async function shutResponse(responseMessageId) {
+		let _response = null;
+		const responseMessage = history.messages[responseMessageId];
+
+		showCallOverlay.set(false);
+		showControls = false;
+		eventTarget.dispatchEvent(
+			new CustomEvent('chat:start', {
+				detail: {
+					id: responseMessageId
+				}
+			})
+		);
+		await tick();
+		responseMessage.done = true;
+		messages = messages;
+		_response = responseMessage.content;
+		eventTarget.dispatchEvent(
+			new CustomEvent('chat:finish', {
+				detail: {
+					id: responseMessageId,
+					content: responseMessage.content
+				}
+			})
+		);
+		return _response;
+	}
+
+
+	async function isAmountSufficient(model) {
+		let sufficient = true;
+		let pricePair = modelPrices[model.id];
+		if (!pricePair) { // 没价格的就当是免费
+			return sufficient;
+		}
+		try {
+			const userSettings = await getUserSettings(localStorage.token);
+			if (userSettings) {
+				await settings.set(userSettings.ui);
+			} else {
+				await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+			}
+		} catch (error) {
+			console.error("Failed to get user settings:", error);
+			toast.error($i18n.t('Get balance fail, contact the admin'));
+			return;
+		}
+		console.log('isAmountSufficient start settings:', $settings);
+
+		if ($settings?.balance?.amount) {
+			if ($settings.balance.amount < 0.01) {
+				let pricePair = modelPrices[model.id];
+				if (pricePair.input > 0 || pricePair.output > 0) {
+					const balanceAmount = $settings.balance.amount.toString();
+					const decimalIndex = balanceAmount.indexOf('.');
+					const truncatedAmount = decimalIndex !== -1
+						  ? balanceAmount.slice(0, decimalIndex + 4) // 截取到小数点后3位
+						  : balanceAmount; // 如果没有小数点，则直接返回原值
+
+					toast.error(`余额(${truncatedAmount})不足1分钱，请充值或者选择免费的模型`);
+					sufficient = false;
+				}
+			}
+		} else {
+			sufficient = false;
+			toast.error($i18n.t('Get balance fail, contact the admin'));
+		}
+		console.log('sufficient:', sufficient);
+		return sufficient;
+	}
 
 	const sendPrompt = async (
 		prompt: string,
@@ -1272,42 +1342,7 @@
 					if (generateImageEnabled || await wantGenerateImage(prompt, responseMessage.model)) {
 						_response = await generateImage(responseMessage, prompt);
 					} else if (!preQA) {
-						let sufficient = true;
-						console.log('settings before:', $settings);
-						try {
-							const userSettings = await getUserSettings(localStorage.token);
-							if (userSettings) {
-								await settings.set(userSettings.ui);
-							} else {
-								await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
-							}
-						} catch (error) {
-							console.error("Failed to get user settings:", error);
-							toast.error($i18n.t('Get balance fail, contact the admin'));
-							return;
-						}
-						console.log('settings after :', $settings);
-
-
-						if ($settings?.balance?.amount) {
-							if ($settings.balance.amount < 0.01) {
-								let pricePair = modelPrices[model.id];
-								if (pricePair.input > 0 || pricePair.output > 0) {
-									const balanceAmount = $settings.balance.amount.toString();
-									const decimalIndex = balanceAmount.indexOf('.');
-									const truncatedAmount = decimalIndex !== -1
-										  ? balanceAmount.slice(0, decimalIndex + 4) // 截取到小数点后3位
-										  : balanceAmount; // 如果没有小数点，则直接返回原值
-
-									toast.error(`余额(${truncatedAmount})不足1分钱，请充值或者选择免费的模型`);
-									sufficient = false;
-								}
-							}
-						} else {
-							sufficient = false;
-							toast.error($i18n.t('Get balance fail, contact the admin'));
-						}
-						console.log('sufficient:', sufficient);
+						let sufficient = await isAmountSufficient(model);
 						if (sufficient) {
 							if (model?.owned_by === 'openai') {
 								_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
@@ -1316,27 +1351,7 @@
 							}
 						}
 						else {
-							showCallOverlay.set(false);
-							showControls = false;
-							eventTarget.dispatchEvent(
-								new CustomEvent('chat:start', {
-									detail: {
-										id: responseMessageId
-									}
-								})
-							);
-							await tick();
-							responseMessage.done = true;
-							messages = messages;
-							_response = responseMessage.content;
-							eventTarget.dispatchEvent(
-								new CustomEvent('chat:finish', {
-									detail: {
-										id: responseMessageId,
-										content: responseMessage.content
-									}
-								})
-							);
+							shutResponse(responseMessageId);
 						}
 					}
 					_responses.push(_response);
