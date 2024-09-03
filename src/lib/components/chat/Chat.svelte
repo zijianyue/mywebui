@@ -1069,7 +1069,7 @@
 						  ? balanceAmount.slice(0, decimalIndex + 4) // 截取到小数点后3位
 						  : balanceAmount; // 如果没有小数点，则直接返回原值
 
-					toast.error(`余额(${truncatedAmount})不足1分钱，请充值或者选择免费的模型`);
+					toast.error(`余额(${truncatedAmount})不足1分钱，请联系在线客服充值或者选择免费的模型`);
 					sufficient = false;
 				}
 			}
