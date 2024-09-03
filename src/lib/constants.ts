@@ -118,7 +118,9 @@ export const modelPrices: PriceTable = {
 	"deepseek-chat": { input: 0.001, output: 0.002},
 	"deepseek-coder": { input: 0.001, output: 0.002 },
 	"gpt-4o-2024-08-06": { input: 0.0175, output: 0.07 },
-	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06 }
+	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06 },
+	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413 }
+
 
 };
 
