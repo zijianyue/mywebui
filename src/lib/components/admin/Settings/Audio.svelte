@@ -308,18 +308,16 @@
 							<div class=" mb-1.5 text-sm font-medium">{$i18n.t('TTS Voice')}</div>
 							<div class="flex w-full">
 								<div class="flex-1">
-									<input
-										list="voice-list"
+									<select 
 										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none"
 										bind:value={TTS_VOICE}
-										placeholder="Select a voice"
-									/>
-
-									<datalist id="voice-list">
+									>
 										{#each voices as voice}
-											<option value={voice.id}>{voice.name}</option>
+											<option value={voice.id} selected={voice.id === TTS_VOICE}>
+												{voice.name}
+											</option>
 										{/each}
-									</datalist>
+									</select>
 								</div>
 							</div>
 						</div>

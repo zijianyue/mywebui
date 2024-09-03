@@ -213,18 +213,16 @@
 				<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Voice')}</div>
 				<div class="flex w-full">
 					<div class="flex-1">
-						<input
-							list="voice-list"
-							class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-none"
+						<select 
+							class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none"
 							bind:value={voice}
-							placeholder="Select a voice"
-						/>
-
-						<datalist id="voice-list">
+							>
 							{#each voices as voice}
-								<option value={voice.id}>{voice.name}</option>
+								<option value={voice.id} selected={voice.id === voice}>
+									{voice.name}
+								</option>
 							{/each}
-						</datalist>
+						</select>
 					</div>
 				</div>
 			</div>
