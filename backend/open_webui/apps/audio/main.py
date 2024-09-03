@@ -466,14 +466,23 @@ def get_available_voices() -> dict:
     """Returns {voice_id: voice_name} dict"""
     ret = {}
     if app.state.config.TTS_ENGINE == "openai":
-        ret = {
-            "alloy": "alloy",
-            "echo": "echo",
-            "fable": "fable",
-            "onyx": "onyx",
-            "nova": "nova",
-            "shimmer": "shimmer",
-        }
+        if "18759" in app.state.config.TTS_OPENAI_API_BASE_URL:
+            ret = {
+                "echo": "普通话男声",
+                "nova": "普通话女声",
+                "hongkong": "粤语男声",
+                "dongbei": "东北话女声",
+                "shaanxi": "陕西话女声",
+            }
+        else:
+            ret = {
+                "alloy": "alloy",
+                "echo": "echo",
+                "fable": "fable",
+                "onyx": "onyx",
+                "nova": "nova",
+                "shimmer": "shimmer",
+            }
     elif app.state.config.TTS_ENGINE == "elevenlabs":
         try:
             ret = get_elevenlabs_voices()
