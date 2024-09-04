@@ -32,9 +32,14 @@
 	>
 		<Tooltip content={$i18n.t('Help')} placement="left">
 			<button
-				class="text-gray-600 dark:text-gray-300 bg-gray-300/20 size-5 flex items-center justify-center text-[0.7rem] rounded-full"
-			>
-				?
+				class="select-none flex items-center justify-center rounded-xl p-1.5 hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+				aria-label="Help"
+				>
+				<svg class="size-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"></circle>
+					<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+					<line x1="12" y1="17" x2="12.01" y2="17"></line>
+				</svg>
 			</button>
 		</Tooltip>
 	</HelpMenu>
