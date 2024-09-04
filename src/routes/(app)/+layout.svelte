@@ -191,8 +191,7 @@
 			});
 
 			// if ($user.role === 'admin') {
-			// showChangelog.set(localStorage.version !== $config.version);
-			showChangelog.set(true); // TODO 把3个板块加到侧边栏后这里的判定条件要恢复
+			showChangelog.set(localStorage.version !== $config.version);
 			// }
 
 			if ($page.url.searchParams.get('temporary-chat') === 'true') {
