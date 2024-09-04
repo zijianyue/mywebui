@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import {
@@ -24,7 +24,6 @@
 	import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
 	import Map from '../icons/Map.svelte';
 	import Help from '$lib/components/layout/Help.svelte';
-	import { getUserSettings } from '$lib/apis/users';
 
 	const i18n = getContext('i18n');
 
@@ -38,27 +37,6 @@
 
 	let showShareChatModal = false;
 	let showDownloadChatModal = false;
-
-	let userSettings;
-
-	// 函数用于截断数字到小数点后两位
-	function toFixedTruncated(num: number | null, digits: number): string {
-		if (num === null) return '0.00';
-		const multiplier = Math.pow(10, digits);
-		const truncated = Math.floor(num * multiplier) / multiplier;
-		return truncated.toFixed(digits);
-	}
-
-	onMount(async () => {
-		if ($user !== undefined) {
-			try {
-				userSettings = await getUserSettings(localStorage.token);
-			} catch (error) {
-				console.error("Failed to get user settings:", error);
-				toast.error('获取账户余额失败，请联系管理员');
-			}
-		}
-	});
 </script>
 
 <ShareChatModal bind:show={showShareChatModal} chatId={$chatId} />
@@ -199,10 +177,6 @@
 							</div>
 						</button>
 					</UserMenu>
-
-					<div class="flex justify-between items-center text-sm">
-						<div class="  font-medium">￥{ toFixedTruncated(userSettings?.ui?.balance?.amount, 2) }</div>
-					</div>
 				{/if}
 			</div>
 		</div>
