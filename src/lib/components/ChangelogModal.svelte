@@ -15,7 +15,7 @@
 	export let show = false;
 
 	let changelog = null;
-	async function handleComfyUIClick(event: MouseEvent, url: string) {
+	async function handleModuleUIClick(event: MouseEvent, url: string) {
 		event.preventDefault();
 		// const comfyUIUrl = `https://comfyui.nas.cpolar.cn`;
 		const token = localStorage.token;
@@ -116,7 +116,7 @@
 				<div class="text-sm dark:text-gray-200">小技巧：将网站安装到桌面,像手机APP一样使用</div>
 				<div class="my-4">
 					<div class="border p-4 rounded-md shadow-sm space-y-4">
-						<span class="text-lg font-medium text-gray-800">跳转其他板块</span>
+						<span class="text-lg font-medium text-gray-800 dark:text-white">跳转其他板块</span>
 						<div class="flex flex-col sm:flex-row sm:flex-wrap -mx-1">
 							<div class="px-1 mb-2">
 								<a href="https://dify.nas.cpolar.cn" target="_blank" class="dify-button">
@@ -125,7 +125,7 @@
 							</div>
 							<div class="px-1 mb-2">
 								<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
-								   on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
+								   on:click={(event) => handleModuleUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
 									class="train-button"
 									>
 									<span>{$i18n.t('模型训练微调')}</span>
@@ -133,7 +133,7 @@
 							</div>
 							<div class="px-1 mb-2">
 								<a href="https://comfyui.nas.cpolar.cn" target="_blank"
-								   on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
+								   on:click={(event) => handleModuleUIClick(event, 'https://comfyui.nas.cpolar.cn')}
 									class="comfy-ui-button"
 									>
 									<span>{$i18n.t('ComfyUI生成图片或视频')}</span>

@@ -152,10 +152,15 @@ def get_verified_user(user=Depends(get_current_user)):
         )
     return user
 
+
 INIT_BALANCE_AMOUNT = 5
+
+
 def get_paid_user(user=Depends(get_verified_user)):
     # print(f"user: {user}")
     balance_amount = float(user.settings.ui.get('balance', {}).get('amount', 0))
+    print(f"amount: {balance_amount}")
+
     if balance_amount <= INIT_BALANCE_AMOUNT:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
