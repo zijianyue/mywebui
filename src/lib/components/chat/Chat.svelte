@@ -9,7 +9,7 @@
 
 	import type { Unsubscriber, Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
-	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL, PIC_PRICE, LOWEST_AMOUNT } from '$lib/constants';
 	import PullToRefresh from '$lib/components/common/PullToRefresh.svelte';
 	import {
 		chatId,
@@ -25,7 +25,8 @@
 		socket,
 		showCallOverlay,
 		currentChatPage,
-		temporaryChatEnabled
+		temporaryChatEnabled,
+		type Balance
 	} from '$lib/stores';
 
 	import {
@@ -49,7 +50,7 @@
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
-	import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
+	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings } from '$lib/apis/users';
 	import {
 		chatCompleted,
 		generateTitle,
@@ -262,7 +263,22 @@
 			}
 		}
 	};
-
+	const adjustUserBalance = async (diff: number) => {
+		const userSettings = await getUserSettings(localStorage.token);
+		if (userSettings) {
+			settings.set(userSettings.ui);
+		} else {
+			settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+		}
+		if (!$settings.balance?.amount) {
+			console.error("Failed to get user settings");
+			toast.error($i18n.t('Get balance fail, contact the admin'));
+			return;
+		}
+		let balance: Balance = { amount: $settings.balance.amount + diff };
+		settings.set({ ...$settings, balance: balance });
+		await updateUserSettings(localStorage.token, { ui: $settings });
+	};
 	onMount(async () => {
 		const script = document.createElement('script');
 		script.src = 'https://assets.salesmartly.com/js/project_110907_115361_1724377087.js';
@@ -1035,7 +1051,7 @@
 	}
 
 
-	async function isAmountSufficient(model) {
+	async function isAmountSufficient(model, require) {
 		let sufficient = true;
 		let pricePair = modelPrices[model.id];
 		if (!pricePair) { // 没价格的就当是免费
@@ -1056,7 +1072,7 @@
 		console.log('isAmountSufficient start settings:', $settings);
 
 		if ($settings?.balance?.amount) {
-			if ($settings.balance.amount < 0.01) {
+			if ($settings.balance.amount < require) {
 				let pricePair = modelPrices[model.id];
 				if (pricePair.input > 0 || pricePair.output > 0) {
 					const balanceAmount = $settings.balance.amount.toString();
@@ -1065,7 +1081,11 @@
 						  ? balanceAmount.slice(0, decimalIndex + 4) // 截取到小数点后3位
 						  : balanceAmount; // 如果没有小数点，则直接返回原值
 
-					toast.error(`余额(${truncatedAmount})不足1分钱，请联系在线客服充值或者选择免费的模型`);
+					if (require === PIC_PRICE) {
+						toast.error(`余额${truncatedAmount}不足${require}，无法使用生图功能，请充值`);
+					} else {
+						toast.error(`余额${truncatedAmount}不足${require}，请充值或选择免费的模型`);
+					}
 					sufficient = false;
 				}
 			}
@@ -1225,22 +1245,27 @@
 					if (qaQuestions !== '') {
 						_response = await getAnswerFromQA(prompt, model, responseMessageId);
 					}
-
 					if (generateImageEnabled || await wantGenerateImage(prompt, responseMessage.model)) {
-						_response = await generateImage(responseMessage, prompt);
+						let sufficient = await isAmountSufficient(model, PIC_PRICE);
+						if (sufficient) {
+							_response = await generateImage(responseMessage, prompt);
+							adjustUserBalance(-PIC_PRICE);
+						} else {
+							shutResponse(responseMessageId);
+						}
 					} else if (!preQA) {
-						let sufficient = await isAmountSufficient(model);
+						let sufficient = await isAmountSufficient(model, LOWEST_AMOUNT);
 						if (sufficient) {
 							if (model?.owned_by === 'openai') {
 								_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
 							} else if (model) {
 								_response = await sendPromptOllama(model, prompt, responseMessageId, _chatId);
 							}
-						}
-						else {
+						} else {
 							shutResponse(responseMessageId);
 						}
 					}
+				
 					_responses.push(_response);
 
 					if (mrToMemory) {	// 针对生成电子病历的对话请求

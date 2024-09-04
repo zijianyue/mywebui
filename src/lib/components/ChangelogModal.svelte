@@ -121,7 +121,7 @@
 									   on:click={(event) => handleComfyUIClick(event, 'https://llamafactory.nas.cpolar.cn')}
 										class="train-button"
 										>
-										<span>{$i18n.t('模型训练')}</span>
+										<span>{$i18n.t('模型训练微调')}</span>
 									</a>
 								</div>
 								<div class="px-1 mb-2">
@@ -129,7 +129,7 @@
 									   on:click={(event) => handleComfyUIClick(event, 'https://comfyui.nas.cpolar.cn')}
 										class="comfy-ui-button"
 										>
-										<span>{$i18n.t('ComfyUI生成图片')}</span>
+										<span>{$i18n.t('ComfyUI生成图片或视频')}</span>
 									</a>
 								</div>
 							</div>
