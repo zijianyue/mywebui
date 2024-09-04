@@ -102,6 +102,60 @@
 		chatListLoading = false;
 	};
 
+	async function handleModuleUIClick2(event: MouseEvent, url: string) {
+		event.preventDefault();
+		// const comfyUIUrl = `https://comfyui.nas.cpolar.cn`;
+		const token = localStorage.token;
+		// 设置 cookie
+		// const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24小时后过期
+		// document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; expires=${expirationDate.toUTCString()}; SameSite=None; Secure`;
+		// TODO 过期时间设置了也无法传递到 /api/auth接口
+		document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; SameSite=None; Secure`;
+		const newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
+		try {
+			const response = await fetch(url, {
+				// method: 'HEAD', // TODO HEAD方法无法传递到/api/auth接口
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			});
+
+			if (response.ok) {
+				if (newWindow) {
+					newWindow.location.href = url;
+				}
+			} else {
+				if (newWindow) {
+					newWindow.close();
+				}
+			    // TODO 无法收到/api/auth接口返回的异常码，只接到500
+				switch (response.status) {
+                case 401:
+                    toast.error('Authentication failed. Please login again.');
+                    break;
+                case 403:
+                    toast.error('Access forbidden. You may not have the required permissions.');
+                    break;
+                case 400:
+                    toast.success('仅充值会员可以使用');
+                    break;
+                default:
+                    // toast.error('An unexpected error occurred. Please try again.');
+					toast.success('仅充值会员可以使用');
+				}
+			}
+		} catch (error) {
+			if (newWindow) {
+				newWindow.close();
+			}
+			console.error('Error:', error);
+			toast.error('Network error. Please check your connection and try again.');
+		}
+
+	}
+
 	onMount(async () => {
 		mobile.subscribe((e) => {
 			if ($showSidebar && e) {
@@ -551,6 +605,23 @@
 			</div>
 		</div>
 
+		<div class="my-4 px-2.5">
+			<div class="space-y-2">
+				<a href="https://dify.nas.cpolar.cn" target="_blank" class="custom-button dify-button">
+					<span>{$i18n.t('工作流和智能体')}</span>
+				</a>
+				<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
+				   on:click={(event) => handleModuleUIClick2(event, 'https://llamafactory.nas.cpolar.cn')}
+					class="custom-button train-button">
+					<span>{$i18n.t('模型训练微调')}</span>
+				</a>
+				<a href="https://comfyui.nas.cpolar.cn" target="_blank"
+				   on:click={(event) => handleModuleUIClick2(event, 'https://comfyui.nas.cpolar.cn')}
+					class="custom-button comfy-ui-button">
+					<span>{$i18n.t('ComfyUI生成图片或视频')}</span>
+				</a>
+			</div>
+		</div>
 		<div class="px-2.5">
 			<!-- <hr class=" border-gray-900 mb-1 w-full" /> -->
 
@@ -595,4 +666,69 @@
 	.scrollbar-hidden::-webkit-scrollbar-thumb {
 		visibility: hidden;
 	}
+    .custom-button {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.75rem;
+        color: #333;
+        background-color: #f3f4f6;
+        transition: all 0.2s ease-in-out;
+        width: auto;
+        text-align: left;
+        border: 1px solid #e5e7eb;
+    }
+
+    .custom-button:hover {
+        background-color: #e5e7eb;
+    }
+
+    .dify-button {
+        background-color: #e8f5e9;
+        border-color: #c8e6c9;
+    }
+
+    .dify-button:hover {
+        background-color: #c8e6c9;
+    }
+
+    .train-button {
+        background-color: #e8eaf6;
+        border-color: #c5cae9;
+    }
+
+    .train-button:hover {
+        background-color: #c5cae9;
+    }
+
+    .comfy-ui-button {
+        background-color: #e65100;
+        border-color: #ef6c00;
+    }
+
+    .comfy-ui-button:hover {
+        background-color: #ef6c00;
+    }
+
+    .comfy-ui-button {
+        background-color: #fff3e0;
+        border-color: #ffe0b2;
+    }
+
+    .comfy-ui-button:hover {
+        background-color: #ffe0b2;
+    }
+
+    .user-button {
+        background-color: transparent;
+        border: none;
+		width: 100%; /* 保持用户按钮宽度为100% */
+    }
+
+    .user-button:hover {
+        background-color: #f3f4f6;
+    }
 </style>
