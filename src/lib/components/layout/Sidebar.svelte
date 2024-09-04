@@ -607,6 +607,11 @@
 
 		<div class="my-4 px-2.5">
 			<div class="space-y-2">
+				{#if $user?.role === 'admin'}
+					<a href="https://langfuse.nas.cpolar.cn/project/cm0no0ap60006ztr79g3ue4d0" target="_blank" class="custom-button comfy-ui-button">
+						<span>{$i18n.t('监控仪表盘')}</span>
+					</a>
+				{/if}
 				<a href="https://dify.nas.cpolar.cn" target="_blank" class="custom-button dify-button">
 					<span>{$i18n.t('工作流和智能体')}</span>
 				</a>
@@ -720,15 +725,5 @@
 
     .comfy-ui-button:hover {
         background-color: #ffe0b2;
-    }
-
-    .user-button {
-        background-color: transparent;
-        border: none;
-		width: 100%; /* 保持用户按钮宽度为100% */
-    }
-
-    .user-button:hover {
-        background-color: #f3f4f6;
     }
 </style>
