@@ -24,7 +24,7 @@
 		// document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; expires=${expirationDate.toUTCString()}; SameSite=None; Secure`;
 		// TODO 过期时间设置了也无法传递到 /api/auth接口
 		document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; SameSite=None; Secure`;
-
+		const newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
 		try {
 			const response = await fetch(url, {
 				// method: 'HEAD', // TODO HEAD方法无法传递到/api/auth接口
@@ -36,8 +36,13 @@
 			});
 
 			if (response.ok) {
-				window.open(url, '_blank');
+				if (newWindow) {
+					newWindow.location.href = url;
+				}
 			} else {
+				if (newWindow) {
+					newWindow.close();
+				}
 			    // TODO 无法收到/api/auth接口返回的异常码，只接到500
 				switch (response.status) {
                 case 401:
@@ -55,6 +60,9 @@
 				}
 			}
 		} catch (error) {
+			if (newWindow) {
+				newWindow.close();
+			}
 			console.error('Error:', error);
 			toast.error('Network error. Please check your connection and try again.');
 		}
