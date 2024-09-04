@@ -103,7 +103,10 @@ type PriceTable = {
 };
 
 export const INIT_BALANCE_AMOUNT = 5;
-export const PRICE_COE = 1.5;
+export const PRICE_COE = 2;
+export const PIC_PRICE = 0.1;
+export const LOWEST_AMOUNT = 0.01;
+
 
 // 原始价格，我们要乘个系数
 // 价格随着供应商的变动而变动
