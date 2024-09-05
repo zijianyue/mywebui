@@ -42,13 +42,8 @@
 				console.log('selectedUser:', selectedUser);
 
 				const userSettings = await getUserSettingsByUserId(localStorage.token, selectedUser.id);
-				if (userSettings) {
-					await settings.set(userSettings.ui);
-				} else {
-					await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
-				}
-				if ($settings?.balance?.amount) {
-					_user.amount = $settings.balance.amount;
+				if (userSettings?.ui?.balance?.amount) {
+					_user.amount = userSettings.ui.balance.amount;
 				}
 			} catch (error) {
 				console.error("Failed to get user settings:", error);
