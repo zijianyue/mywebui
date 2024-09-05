@@ -1,7 +1,49 @@
-
 <script lang="ts">
-    let year = new Date().getFullYear();
+    import { onMount } from 'svelte';
+    import { getAcountBillsByYear } from '$lib/apis/users';
+    import { user } from '$lib/stores';
+
+    let yearUpper = new Date().getFullYear();
     let selectedYear = 2024;
+    
+    let billMonth = [
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0},
+    ];
+
+    async function updateBillInfo(year: number) {
+        if ($user != undefined && year != undefined) {
+            let acount_bill_info = await getAcountBillsByYear($user.id, year);
+            console.log(acount_bill_info);
+
+            for (let i = 0; i < billMonth.length; i++) {
+                billMonth[i].month = year.toString() + '-' + (i + 1).toString();
+                billMonth[i].tokenAmount = 0;
+                billMonth[i].cost = 0;
+            }
+
+            for (const bill of acount_bill_info) {
+                billMonth[bill.month - 1].tokenAmount += Number(bill.input_tokens) + Number(bill.output_tokens);
+                billMonth[bill.month - 1].cost += Number(bill.input_cost) + Number(bill.output_cost);
+            }
+            console.log(billMonth);
+        }
+	}
+
+    onMount(async () => {
+        let year = new Date().getFullYear();
+        updateBillInfo(year);
+	});
 </script>
 
 <div class="wrap">
@@ -20,8 +62,8 @@
             <hr class=" dark:border-gray-850 my-4" />
 
             <select style="width: 8em; " bind:value={selectedYear}>
-                {#each Array(year - 2020).keys() as i}
-                    <option value={year - i}>{year - i}</option>
+                {#each Array(yearUpper - 2022).keys() as i}
+                    <option value={yearUpper - i}>{yearUpper - i}</option>
                 {/each}
             </select>
 
@@ -33,18 +75,23 @@
                     <th style="font-weight: bold;">消费总额（元）</th>
                     <th style="font-weight: bold;">操作</th>
                 </tr>
-                <tr>
-                    <th>2024-08</th>
-                    <th>2079329</th>
-                    <th>0.2746</th>
-                    <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
-                </tr>
-                <tr class="table-row">
-                    <th>2024-07</th>
-                    <th>2043311</th>
-                    <th>0.2698</th>
-                    <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
-                </tr>
+                {#each billMonth.reverse() as perBill, i}
+                    {#if i % 2 == 0 }
+                        <tr>
+                            <th>{perBill.month}</th>
+                            <th>{perBill.tokenAmount}</th>
+                            <th>{perBill.cost}</th>
+                            <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
+                        </tr>
+                    {:else}
+                        <tr class="table-row">
+                            <th>{perBill.month}</th>
+                            <th>{perBill.tokenAmount}</th>
+                            <th>{perBill.cost}</th>
+                            <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
+                        </tr>
+                    {/if}
+                {/each}
             </table>
 
             <p>&nbsp;</p>
