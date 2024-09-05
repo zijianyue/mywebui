@@ -39,6 +39,7 @@
 	export let suggestQuestionsList = [];
 	export let submitPrompt: Function;
 	export let getAnswerFromQA: Function;
+	export let translateResponse: Function;
 
 	let messagesCount = 20;
 	let messagesLoading = false;

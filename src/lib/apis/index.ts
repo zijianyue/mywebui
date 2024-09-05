@@ -28,7 +28,10 @@ export const getModels = async (token: string = '') => {
 	let models = res?.data ?? [];
 
 	models = models
-		.filter((models) => models)
+		.filter((model) => {
+			// console.log(`Model: id=${model.id}, urlIdx=${model.urlIdx}`);
+			return model && !(model.id === 'google/gemma-2-27b-it' && model.urlIdx === 2); // 临时处理
+		})
 		// Sort the models
 		.sort((a, b) => {
 			// Check if models have position property

@@ -32,6 +32,7 @@
 	export let continueResponse: Function;
 	export let regenerateResponse: Function;
 	export let mergeResponses: Function;
+	export let translateResponse: Function;
 
 	const dispatch = createEventDispatcher();
 
@@ -208,6 +209,7 @@
 									{rateMessage}
 									{editMessage}
 									{continueResponse}
+									{translateResponse}
 									regenerateResponse={async (message) => {
 										regenerateResponse(message);
 										await tick();
