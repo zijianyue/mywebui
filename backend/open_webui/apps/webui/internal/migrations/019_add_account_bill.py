@@ -40,6 +40,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     @migrator.create_model
     class AccountBill(pw.Model):
         id = pw.CharField(max_length=255)
+        model_id = pw.CharField(max_length=255)
         expense_time = pw.BigIntegerField() # timestamp
         input_tokens = pw.CharField(max_length=255)
         output_tokens = pw.CharField(max_length=255)
