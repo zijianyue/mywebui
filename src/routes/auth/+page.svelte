@@ -153,7 +153,7 @@
 			// 使用时间戳和随机数生成唯一的11位电话号码
 			const phoneBase = timestamp % 100000000;
 			const randomDigits = randomSuffix.toString().padStart(2, '0');
-			cellPhone = `1${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
+			cellPhone = `2${phoneBase.toString().padStart(8, '0')}${randomDigits}`;
 			// if (count === 0) {
 			// 	cellPhone = '17611158566'; // for simulate test
 			// }
