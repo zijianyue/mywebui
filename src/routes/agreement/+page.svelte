@@ -275,7 +275,7 @@
             
             <p>您应当保证所提供的联系方式是准确、有效的，并进行实时更新。如果因提供的联系方式不确切，或不及时告知变更后的联系方式，使法律文书无法送达或未及时送达，由您自行承担由此可能产生的法律后果。</p>
             
-            <p><span class="blue-text">4.</span>&nbsp;您可以通过邮箱：<span class="blue-text underline-text">taopi2001@163.com</span>与我们联系。您也可拨打以下电话：18217300459。但请注意，<span class="bold-text">我们仅接受您通过邮箱发送任何有法律效力的通知，不接受您通过电话或其他方式送达我们该等通知。</span></p>
+            <p><span class="blue-text">4.</span>&nbsp;您可以通过邮箱：<span class="blue-text underline-text">taopi2001@163.com</span>与我们联系。您也可拨打以下电话：19350540120。但请注意，<span class="bold-text">我们仅接受您通过邮箱发送任何有法律效力的通知，不接受您通过电话或其他方式送达我们该等通知。</span></p>
             
             <p>&nbsp;</p>
             
@@ -412,7 +412,7 @@
             <p><span class="blue-text">2.</span>
                 <span class="bold-text">&nbsp;您因使用唯康智能平台服务所产生及与唯康智能平台服务有关的争议，由唯康智能与您协商解决。您可通过邮箱：</span>
                 <span class="blue-text underline-text">taopi2001@163.com</span>
-                <span class="bold-text">与我们联系，您也可拨打以下电话：18217300459与我们协商。协商不成时，任何一方均可向猿核所在地有管辖权的人民法院提起诉讼。</span>
+                <span class="bold-text">与我们联系，您也可拨打以下电话：19350540120与我们协商。协商不成时，任何一方均可向猿核所在地有管辖权的人民法院提起诉讼。</span>
             </p>
             
             <p><span class="blue-text">3.</span>
