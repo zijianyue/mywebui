@@ -998,6 +998,7 @@ async def generate_chat_completions(form_data: dict, user=Depends(get_verified_u
 
     if use_custom_model:
         model_id = get_task_model_id(model_id)
+        print(f"use_custom_model: {model_id}")
         form_data["model"] = model_id
     model = app.state.MODELS[model_id]
     if model.get("pipe"):

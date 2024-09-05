@@ -32,6 +32,7 @@
 	export let suggestQuestionsList = [];
 	export let submitPrompt: Function;
 	export let getAnswerFromQA: Function;
+	export let translateResponse: Function;
 
 	export let selectedModels;
 
@@ -374,6 +375,7 @@
 										{submitPrompt}
 										{suggestQuestionsList}
 										{getAnswerFromQA}
+										{translateResponse}
 									/>
 								{/key}
 							{:else}
@@ -393,6 +395,7 @@
 										{continueGeneration}
 										{mergeResponses}
 										{regenerateResponse}
+										{translateResponse}
 										on:action={async (e) => {
 											console.log('action', e);
 											if (typeof e.detail === 'string') {

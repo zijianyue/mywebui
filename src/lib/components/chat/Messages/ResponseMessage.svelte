@@ -101,6 +101,7 @@
 	export let submitPrompt: Function;
 	export let suggestQuestionsList = [];
 	export let getAnswerFromQA: Function;
+	export let translateResponse: Function;
 
 	let lastSuggestQuestionsList = [];
 	let suggestUpdated = false;
@@ -140,9 +141,9 @@
 			console.log('no token consumed');
 			return;
 		}
-		let pricePair = modelPrices[model.id];
+		let pricePair = modelPrices[model?.id]; // 走翻译的话，这里model是null
 		if (!pricePair) {
-			console.log(`Model ${model.id}, ${model.name} not found in price table`);
+			console.log(`Model ${model?.id}, ${model?.name} not found in price table`);
 			return;
 		}
 		try {
@@ -425,10 +426,6 @@ A：回答2`;
 		await tick();
 	};
 
-	function isPureEnglish(str) {
-		return /^[\x00-\x7F]*$/.test(str);
-	}
-
 	const generateImage = async (message: MessageType) => {
 		generatingImage = true;
 		let promptUsed = await translatePrompt(message.content, message.model);
@@ -476,9 +473,12 @@ A：回答2`;
 		if (isLastMessage && message.done && message.id !== lastMessageId) {
 			// toast.success(` in start: ${message.id}, lastMessageId: ${lastMessageId} `);
 			lastMessageId = message.id;
+			console.log('bill message:', message);
 			// toast.success(` lastMessageId: ${lastMessageId} `);
 			localStorage.setItem('lastMessageId', message.id);
-			await settleTheBill(message.info?.prompt_tokens, message.info?.completion_tokens);
+			if (!message.translate) {
+				await settleTheBill(message.info?.prompt_tokens, message.info?.completion_tokens);
+			}
 		}
 	})();
 
@@ -1136,6 +1136,27 @@ A：回答2`;
 														stroke-linejoin="round"
 														d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
 													/>
+												</svg>
+											</button>
+										</Tooltip>
+
+										<Tooltip content={$i18n.t('中英文翻译回复内容')} placement="bottom">
+											<button
+												type="button"
+												class="{isLastMessage
+													   ? 'visible'
+													   : 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition translate-message-button"
+												on:click={() => {
+													translateResponse(message);
+												}}
+												>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 20 20"
+													fill="currentColor"
+													class="w-4 h-4"
+													>
+													<path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clip-rule="evenodd" />
 												</svg>
 											</button>
 										</Tooltip>
