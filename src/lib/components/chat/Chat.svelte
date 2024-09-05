@@ -9,7 +9,7 @@
 
 	import type { Unsubscriber, Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
-	import { WEBUI_BASE_URL, PIC_PRICE, LOWEST_AMOUNT } from '$lib/constants';
+	import { WEBUI_BASE_URL, PIC_PRICE, LOWEST_AMOUNT, modelsNeedTranslate, modelsCanOutputChinese } from '$lib/constants';
 	import PullToRefresh from '$lib/components/common/PullToRefresh.svelte';
 	import {
 		chatId,
@@ -46,7 +46,7 @@
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
-	import { judgeGenerateImageIntention, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { judgeGenerateImageIntention, isPureEnglish, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -125,6 +125,8 @@
 	let qaQuestions = '';
 	let notified = false;
 	let qaQuestionsMap = new Map<number, string>();
+	let translate = false;
+	let responseIdToTrans = '';
 
 	// TODO: 识别用户的意图来决定是否生成图片,还有混合意图的处理,比如既生成图片,又回答问题,需要模型有视觉能力
 	const genImageKeywords = [
@@ -560,7 +562,7 @@
 	// Chat functions
 	//////////////////////////
 
-	const submitPrompt = async (userPrompt, { _raw = false } = {}) => {
+	const submitPrompt = async (userPrompt, { _raw = false, _translate = false } = {}) => {
 		let _responses = [];
 		console.log('submitPrompt', $chatId);
 
@@ -645,15 +647,15 @@
 
 			// Wait until history/message have been updated
 			await tick();
+			if (_translate) {
+				translate = true;
+			}
 			_responses = await sendPrompt(userPrompt, userMessageId, { newChat: true });
+			translate = false;
 		}
 
 		return _responses;
 	};
-
-	function isPureEnglish(str) {
-		return /^[\x00-\x7F]*$/.test(str);
-	}
 
 	const generateImage = async (responseMessage, userPrompt: string) => {
 		console.log('start generate image by send prompt:', userPrompt);
@@ -1132,7 +1134,8 @@
 					modelName: model.name ?? model.id,
 					modelIdx: modelIdx ? modelIdx : _modelIdx,
 					userContext: null,
-					timestamp: Math.floor(Date.now() / 1000) // Unix epoch
+					timestamp: Math.floor(Date.now() / 1000), // Unix epoch
+					translate: false
 				};
 
 				// Add message to history and Set currentId to messageId
@@ -1262,6 +1265,7 @@
 					} else if (!preQA) {
 						let sufficient = await isAmountSufficient(model, LOWEST_AMOUNT);
 						if (sufficient) {
+							// 下面传参promptUsed只是为了生成title用的，不是发送消息中的prompt
 							if (model?.owned_by === 'openai') {
 								_response = await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
 							} else if (model) {
@@ -1676,11 +1680,65 @@
 		await tick();
 
 		try {
+			// 中英互译
+			console.log('translate:', translate);
+			console.log('responseIdToTrans:', responseIdToTrans);
+
+			let clonedMessages;
+			let useTranslate = false, pureTranslate = false;
+			if (translate || responseIdToTrans !== '') {
+				useTranslate = true;
+				pureTranslate = true;
+				clonedMessages = JSON.parse(JSON.stringify(messages));
+				console.log('clonedMessages:', clonedMessages);
+
+				let mockUserMsg = clonedMessages.find(message => message.id === responseMessage.parentId);
+				console.log('mockUserMsg:', mockUserMsg);
+				let userPrompt;
+				if (responseIdToTrans !== '') {
+					userPrompt = history.messages[responseIdToTrans].content;
+				} else {
+					userPrompt = mockUserMsg.content;
+				}
+
+				if (isPureEnglish(userPrompt)) {
+					userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
+				} else {
+					userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
+				}
+				console.log('prompt for translate:', userPrompt);
+				mockUserMsg.content = userPrompt;
+			} else {
+				const firstSelectModel = $models.find((m) => selectedModelIds.includes(m.id));
+				if (firstSelectModel && modelsNeedTranslate.includes(firstSelectModel.id)) {
+					// 译成英文提示词
+					if (!isPureEnglish(userPrompt)) {
+						useTranslate = true;
+						clonedMessages = JSON.parse(JSON.stringify(messages));
+						let mockUserMsg = clonedMessages.find(message => message.id === responseMessage.parentId);
+						let userPrompt = mockUserMsg.content;
+
+						let promptUsed = await translatePrompt(userPrompt, firstSelectModel.id);
+						if (modelsCanOutputChinese.includes(firstSelectModel.id)) {
+							promptUsed += '. please respond in Simplified Chinese.'
+						}
+						userPrompt = promptUsed;
+						console.log('translate prompt to English for specified model：', userPrompt);
+						mockUserMsg.content = userPrompt;
+					}
+				}
+			}
+			if (pureTranslate) {
+				responseMessage.translate = true;
+			}
+
+			
 			const [res, controller] = await generateOpenAIChatCompletion(
 				localStorage.token,
 				{
 					stream: true,
 					model: model.id,
+					...(pureTranslate ? { useCustomModel: true } : {}),
 					stream_options:
 						(model.info?.meta?.capabilities?.usage ?? false)
 							? {
@@ -1704,7 +1762,7 @@
 									}`
 								}
 							: undefined,
-						...messages
+						...(useTranslate ? clonedMessages : messages)
 					]
 						.filter((message) => message?.content?.trim())
 						.map((message, idx, arr) => ({
@@ -1768,6 +1826,7 @@
 
 				for await (const update of textStream) {
 					const { value, done, citations, error, usage } = update;
+					// console.log("textStream usage:", usage);
 					if (error) {
 						await handleOpenAIError(error, null, model, responseMessage);
 						break;
@@ -1984,6 +2043,17 @@
 		}
 	};
 
+	const translateResponse = async (message) => {
+		console.log('translateResponse');
+
+		if (messages.length != 0) {
+			let userMessage = history.messages[message.parentId];
+			responseIdToTrans = message.id;
+			await sendPrompt(userMessage.content, userMessage.id);
+			responseIdToTrans = '';
+		}
+	};
+	
 	const continueGeneration = async () => {
 		console.log('continueGeneration');
 		const _chatId = JSON.parse(JSON.stringify($chatId));
@@ -2335,6 +2405,7 @@
 							{submitPrompt}
 							{suggestQuestionsList}
 							{getAnswerFromQA}
+							{translateResponse}
 						/>
 					</div>
 				</div>

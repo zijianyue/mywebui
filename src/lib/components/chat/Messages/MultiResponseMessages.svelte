@@ -38,6 +38,7 @@
 	export let continueGeneration: Function;
 	export let mergeResponses: Function;
 	export let regenerateResponse: Function;
+	export let translateResponse: Function;
 
 	const dispatch = createEventDispatcher();
 
@@ -190,6 +191,7 @@
 									{readOnly}
 									{rateMessage}
 									{copyToClipboard}
+									{translateResponse}
 									{continueGeneration}
 									regenerateResponse={async (message) => {
 										regenerateResponse(message);

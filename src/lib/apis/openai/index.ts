@@ -360,7 +360,7 @@ export const judgeGenerateImageIntention = async (userPrompt: string, modelId: s
 	return false;
 };
 
-function isPureEnglish(str) {
+export function isPureEnglish(str) {
 	return /^[\x00-\x7F]*$/.test(str);
 }
 
