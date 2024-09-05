@@ -30,6 +30,7 @@
 
     interface BillRec {
         id: string;
+        model_id: string;
         expense_time: number;
         input_tokens: string;
         output_tokens: string;
