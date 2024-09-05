@@ -64,7 +64,19 @@
 			<p>入口：进入CPoe网站主界面，如下图，侧边栏可跳转到其他三大板块。这三个板块，需要缴费后才能开通使用权限。</p>
 			<p>&nbsp;</p>
 			<img class="img-row" src="/static/help/entry.jpg" alt="入口" />
-			<p>&nbsp;</p>			
+			<p>&nbsp;</p>
+		</div>
+
+		<div class=" flex flex-col dark:text-gray-300 px-5 pt-4">
+			<p>账号余额，在主界面侧边栏，如下图。同时也是费用中心的快捷入口。</p>
+			<p>&nbsp;</p>
+			<img class="img-row" src="/static/help/account_fast.jpg" alt="入口" />
+			<p>&nbsp;</p>
+
+			<p>点击账号余额，会弹开费用中心页面，可以查看收费标准、充值方式、费用明细。</p>
+			<p>&nbsp;</p>
+			<img class="img-row" src="/static/help/expense_bil.jpg" alt="费用中心" />
+			<p>&nbsp;</p>
 		</div>
 
 		<div class=" flex flex-col dark:text-gray-300 px-5 pt-4">
@@ -82,27 +94,22 @@
 			<img class="img-row" src="/static/help/model_ctrl.jpg" alt="模型控制" />
 			<p>&nbsp;</p>
 
-			<p>六、用户菜单，顶端右侧黄色小圆圈，鼠标左键点击，会弹开用户菜单。选择“设置->账号”，能看到账户余额，还有一个费用中心的超链接。</p>
+			<p>六、用户菜单，顶端右侧黄色小圆圈，鼠标左键点击，会弹开用户菜单。选择“设置->账号”，能看到账户余额，还有一个费用中心的超链接，与主界面侧边栏的费用中心入口的作用一样。</p>
 			<p>&nbsp;</p>
 			<img class="img-row" src="/static/help/account.jpg" alt="账号" />
 			<p>&nbsp;</p>
 
-			<p>七、六中点开费用中心超链接，可以查看收费标准、充值方式、费用明细。</p>
-			<p>&nbsp;</p>
-			<img class="img-row" src="/static/help/expense_bil.jpg" alt="费用中心" />
-			<p>&nbsp;</p>
-
-			<p>八、对话界面。</p>
+			<p>七、对话界面。</p>
 			<p>&nbsp;</p>
 			<img class="img-row" src="/static/help/chat.jpg" alt="对话界面" />
 			<p>&nbsp;</p>
 
-			<p>九、对话输入。</p>
+			<p>八、对话输入。</p>
 			<p>&nbsp;</p>
 			<img class="img-row" src="/static/help/chat_input.jpg" alt="对话输入" />
 			<p>&nbsp;</p>
 
-			<p>十、录音、语音交互。</p>
+			<p>九、录音、语音交互。</p>
 			<p>&nbsp;</p>
 			<img class="img-row" src="/static/help/video.jpg" alt="录音、对话" />
 			<p>&nbsp;</p>
