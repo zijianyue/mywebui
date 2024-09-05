@@ -39,7 +39,7 @@
 	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import Loader from '../common/Loader.svelte';
-	import { getUserSettings } from '$lib/apis/users';
+	import { handleModuleUIClick } from '$lib/apis';
 
 	const BREAKPOINT = 768;
 
@@ -103,59 +103,17 @@
 		chatListLoading = false;
 	};
 
-	async function handleModuleUIClick2(event: MouseEvent, url: string) {
-		event.preventDefault();
-		// const comfyUIUrl = `https://comfyui.nas.cpolar.cn`;
-		const token = localStorage.token;
-		// 设置 cookie
-		// const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24小时后过期
-		// document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; expires=${expirationDate.toUTCString()}; SameSite=None; Secure`;
-		// TODO 过期时间设置了也无法传递到 /api/auth接口
-		document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; SameSite=None; Secure`;
-		const newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
-		try {
-			const response = await fetch(url, {
-				// method: 'HEAD', // TODO HEAD方法无法传递到/api/auth接口
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Authorization': `Bearer ${token}`
-				}
-			});
-
-			if (response.ok) {
-				if (newWindow) {
-					newWindow.location.href = url;
-				}
-			} else {
-				if (newWindow) {
-					newWindow.close();
-				}
-			    // TODO 无法收到/api/auth接口返回的异常码，只接到500
-				switch (response.status) {
-                case 401:
-                    toast.error('Authentication failed. Please login again.');
-                    break;
-                case 403:
-                    toast.error('Access forbidden. You may not have the required permissions.');
-                    break;
-                case 400:
-                    toast.success('仅充值会员可以使用');
-                    break;
-                default:
-                    // toast.error('An unexpected error occurred. Please try again.');
-					toast.success('仅充值会员可以使用');
-				}
-			}
-		} catch (error) {
-			if (newWindow) {
-				newWindow.close();
-			}
-			console.error('Error:', error);
-			toast.error('Network error. Please check your connection and try again.');
+	async function handleModuleUIClickWrapper(event: MouseEvent, url: string) {
+		let ret = await handleModuleUIClick(event, url);
+		if (ret === 400 || ret === 500) {
+			toast.success('仅充值会员可以使用');
+		} else if (ret === 200) {
+			
+		} else {
+			toast.error('无法访问');
 		}
-
 	}
+
 	function toFixedTruncated(num: number | null, digits: number): string {
 		if (num === null) return '0.00';
 		const multiplier = Math.pow(10, digits);
@@ -633,13 +591,13 @@
 					<span>{$i18n.t('工作流和智能体')}</span>
 				</a>
 				<a href="https://llamafactory.nas.cpolar.cn" target="_blank"
-				   on:click={(event) => handleModuleUIClick2(event, 'https://llamafactory.nas.cpolar.cn')}
+				   on:click={(event) => handleModuleUIClickWrapper(event, 'https://llamafactory.nas.cpolar.cn')}
 					class="custom-button train-button">
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>&nbsp;
 					<span>{$i18n.t('模型训练微调')}</span>
 				</a>
 				<a href="https://comfyui.nas.cpolar.cn" target="_blank"
-				   on:click={(event) => handleModuleUIClick2(event, 'https://comfyui.nas.cpolar.cn')}
+				   on:click={(event) => handleModuleUIClickWrapper(event, 'https://comfyui.nas.cpolar.cn')}
 					class="custom-button comfy-ui-button">
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>

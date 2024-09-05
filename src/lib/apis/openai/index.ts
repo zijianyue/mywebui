@@ -309,8 +309,7 @@ export const chatCompletionSimple = async (
 	if (!data) {
 		return null;
 	}
-	console.log('answer json:', data);
-	console.log('answer content:', data.choices[0].message.content);
+	console.debug('answer json:', data);
 
 	return data.choices[0].message.content;
 };
@@ -377,7 +376,7 @@ export const translatePrompt = async (userPrompt: string, modelId: string) => {
 		if (!promptUsed) {
 			return userPrompt;
 		}
-		console.log('promptUsed:', promptUsed);
+		console.debug('promptUsed:', promptUsed);
 		if (isPureEnglish(promptUsed)) {
 			break;
 		} else {

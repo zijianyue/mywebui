@@ -110,8 +110,8 @@ export const getSessionUser = async (token: string) => {
 	return res;
 };
 
-export const isValidPhoneNumber = async (phoneNumber: string) => {
-    return /^1\d{10}$/.test(phoneNumber);
+const isValidPhoneNumber = async (phoneNumber: string) => {
+	return /^[12]\d{10}$/.test(phoneNumber);
 };
 
 export const userSignIn = async (cellPhone: string, email: string, password: string) => {
