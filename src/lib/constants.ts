@@ -120,14 +120,17 @@ export const modelPrices: PriceTable = {
 	"weikangai-bak": { input: 0.001, output: 0.002 },
 	"deepseek-chat": { input: 0.001, output: 0.002},
 	"deepseek-coder": { input: 0.001, output: 0.002 },
+	"gpt-4o-mini": { input: 0.00105, output: 0.0042 },
 	"gpt-4o-2024-08-06": { input: 0.0175, output: 0.07 },
 	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06 },
+	"Qwen/Qwen2-72B-Instruct": { input: 0.00413, output: 0.00413 },
 	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413 },
-	"meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021 },
+	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021 },
+	"meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413 },
 	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021 },
-	"microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126 },
-	"microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126 },
-	"google/gemma-2-27b-it": { input: 0.00126, output: 0.00126 },
+	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126 },
+	// "microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126 },
+	// "google/gemma-2-27b-it": { input: 0.00126, output: 0.00126 },
 
 };
 export const modelsNeedTranslate = [
