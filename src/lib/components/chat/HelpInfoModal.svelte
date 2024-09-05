@@ -61,9 +61,9 @@
 
 		<div class=" flex flex-col dark:text-gray-300 px-5 pt-4">
 			<p>四大板块：CPoe平台、工作流与智能体（Dify）、模型训练（LLaMA-Factory）、ComfyUI生成图片。</p>
-			<p>入口：进入CPoe网站，会弹出一个欢迎界面，可跳转到其他三大板块。后面三个板块，需要缴费后才能开通使用权限。</p>
+			<p>入口：进入CPoe网站主界面，如下图，侧边栏可跳转到其他三大板块。这三个板块，需要缴费后才能开通使用权限。</p>
 			<p>&nbsp;</p>
-			<img class="img-row" src="/static/help/entrance.jpg" alt="入口" />
+			<img class="img-row" src="/static/help/entry.jpg" alt="入口" />
 			<p>&nbsp;</p>			
 		</div>
 
