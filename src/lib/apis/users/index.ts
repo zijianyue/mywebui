@@ -332,10 +332,6 @@ type UserUpdateForm = {
 	amount: string;
 };
 
-export const isValidPhoneNumber = async (phoneNumber: string) => {
-    return /^1\d{10}$/.test(phoneNumber);
-};
-
 export const updateUserById = async (token: string, userId: string, user: UserUpdateForm) => {
 	let error = null;
 	console.log('updateUserById amount:', user.amount);

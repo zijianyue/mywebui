@@ -1731,7 +1731,7 @@
 							promptUsed += '. please respond in Simplified Chinese.'
 						}
 						userPrompt = promptUsed;
-						console.log('translate prompt to English for specified model：', userPrompt);
+						console.log('translate prompt to English for specified model');
 						mockUserMsg.content = userPrompt;
 					}
 				}
