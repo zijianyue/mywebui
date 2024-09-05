@@ -201,7 +201,7 @@
 		}
 
 		let data = new Date();
-		console.log('call addAcountBill user: ', $user.id, 'model: ', model.id);
+		console.log('settleTheBill call addAcountBill user: ', $user.id, 'model: ', model.id);
 		addAcountBill($user.id, model.id, input_tokens.toString(), output_tokens.toString(), inputCost.toString(), outputCost.toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	}
 	async function fetchOriginRagAnswer() {

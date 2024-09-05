@@ -57,7 +57,7 @@
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
-	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings } from '$lib/apis/users';
+	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings, addAcountBill } from '$lib/apis/users';
 	import {
 		chatCompleted,
 		generateTitle,
@@ -301,6 +301,10 @@
 		let balance: Balance = { amount: $settings.balance.amount + diff };
 		settings.set({ ...$settings, balance: balance });
 		await updateUserSettings(localStorage.token, { ui: $settings });
+
+		let data = new Date();
+		console.log('adjustUserBalance call addAcountBill user: ', $user.id);
+		addAcountBill($user.id, 'FLUX.1-Dev', '0', '图片', '0', (-diff).toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	};
 	onMount(async () => {
 		const script = document.createElement('script');
