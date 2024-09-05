@@ -4,7 +4,39 @@ from typing import Optional
 from open_webui.apps.webui.internal.db import Base, JSONField, get_db
 from open_webui.apps.webui.models.chats import Chats
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import BigInteger, Column, String, Text
+from sqlalchemy import BigInteger, Column, String, Text, ForeignKey
+
+
+####################
+# User Account Bill
+####################
+
+
+class AccountBill(Base):
+    __tablename__ = "account_bill"
+
+    id = Column(String, ForeignKey('user.id'), primary_key=True)
+    expense_time = Column(BigInteger, primary_key=True) # timestamp
+    input_tokens = Column(String)
+    output_tokens = Column(String)
+    input_cost = Column(String)
+    output_cost = Column(String)
+    amount = Column(String)
+    year = Column(BigInteger)
+    month = Column(BigInteger)
+
+
+class AccountBillModel(BaseModel):
+    id: str
+    expense_time: int
+    input_tokens: str
+    output_tokens: str
+    input_cost: str
+    output_cost: str
+    amount: str
+    year: int
+    month: int
+
 
 ####################
 # User DB Schema
@@ -64,6 +96,22 @@ class UserModel(BaseModel):
 ####################
 
 
+class AccountBillGetForm(BaseModel):
+    id: str
+    year: int
+
+
+class AccountBillAddForm(BaseModel):
+    id: str
+    input_tokens: str
+    output_tokens: str
+    input_cost: str
+    output_cost: str
+    amount: str
+    year: int
+    month: int
+
+
 class UserRoleUpdateForm(BaseModel):
     id: str
     role: str
@@ -77,6 +125,63 @@ class UserUpdateForm(BaseModel):
     password: Optional[str] = None
     amount: Optional[str] = None
 
+
+class AccountBillTable:
+    def get_account_bills_by_year(self, id: str, year: int):
+        try:
+            with get_db() as db:
+                acbs = db.query(AccountBill).filter_by(id=id, year=year).all()
+                if acbs:
+                    return acbs
+                else:
+                    return []
+        except Exception as e:
+            return []
+        
+    def get_account_bills_by_year_month(self, id: str, year: int, month: int):
+        try:
+            with get_db() as db:
+                acbs = db.query(AccountBill).filter_by(id=id, year=year, month=month).all()
+                if acbs:
+                    return acbs
+                else:
+                    return []
+        except Exception as e:
+            return []
+
+    def add_account_bill(self,
+        id: str,
+        expense_time: int,
+        input_tokens: str,
+        output_tokens: str,
+        input_cost: str,
+        output_cost: str,
+        amount: str,
+        year: int,
+        month: int):
+        with get_db() as db:
+
+            newBill = AccountBillModel(**{
+                    "id": id,
+                    "expense_time": expense_time,
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "input_cost": input_cost,
+                    "output_cost": output_cost,
+                    "amount": amount,
+                    "year": year,
+                    "month": month
+                }
+            )
+            result = AccountBill(**newBill.model_dump())
+            db.add(result)
+            db.commit()
+            db.refresh(result)
+
+            if result:
+                return newBill
+            else:
+                return None
 
 class UsersTable:
     def insert_new_user(
@@ -274,3 +379,4 @@ class UsersTable:
 
 
 Users = UsersTable()
+AccountBills = AccountBillTable()

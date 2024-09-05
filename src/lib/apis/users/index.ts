@@ -89,6 +89,79 @@ export const updateUserRole = async (token: string, id: string, role: string) =>
 	return res;
 };
 
+export const addAcountBill = async (id: string,
+    input_tokens: string,
+    output_tokens: string,
+    input_cost: string,
+    output_cost: string,
+    amount: string,
+	year: number,
+	month: number) => {
+	let error = null;
+
+	const res = await fetch(`${WEBUI_API_BASE_URL}/users/add/account_bill`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			id: id,
+			input_tokens: input_tokens,
+			output_tokens: output_tokens,
+			input_cost: input_cost,
+			output_cost: output_cost,
+			amount: amount,
+			year: year,
+			month: month,
+		})
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+	return res;
+};
+
+export const getAcountBillsByYear = async (id: string, year: number) => {
+	let error = null;
+	console.log(`id ${id}, year ${year}`)
+
+	const res = await fetch(`${WEBUI_API_BASE_URL}/users/get/account_bills_by_year`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			id: id,
+			year: year,
+		})
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res ? res : [];
+};
+
 export const getUsers = async (token: string) => {
 	let error = null;
 

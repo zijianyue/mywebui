@@ -38,7 +38,7 @@
 	import Error from './Error.svelte';
 	import Citations from './Citations.svelte';
 	import {translatePrompt, chatCompletionSimple } from '$lib/apis/openai';
-	import { updateUserSettings, getUserSettings } from '$lib/apis/users';
+	import { updateUserSettings, getUserSettings, addAcountBill } from '$lib/apis/users';
 
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -199,6 +199,10 @@
 			console.error("Failed to update user settings:", error);
 			toast.error('更新账户余额失败，请联系管理员');
 		}
+
+		let data = new Date();
+		console.log('call addAcountBill', $user.id);
+		addAcountBill($user.id, input_tokens.toString(), output_tokens.toString(), inputCost.toString(), outputCost.toString(), setting.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	}
 	async function fetchOriginRagAnswer() {
 		loading = true;
