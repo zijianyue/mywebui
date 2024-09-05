@@ -86,7 +86,7 @@
             <p class="tile-text" style="font-size: 1.5em; text-align: center;"><a href="/recommend/001_sst/case" target="_blank"><span class=" underline">案例集展示</span></a></p>
 
             <p>&nbsp;</p>
-            <p class="tile-text" style="text-indent: 2em; text-align: center;">展示的案例已进行匿名化处理，如有意见，请及时通过邮箱：taopi2001@163.com与我们联系。您也可拨打以下电话：18217300459。</p>
+            <p class="tile-text" style="text-indent: 2em; text-align: center;">展示的案例已进行匿名化处理，如有意见，请及时通过邮箱：taopi2001@163.com与我们联系。您也可拨打以下电话：19350540120。</p>
 
             <p>&nbsp;</p>
             <p>&nbsp;</p>

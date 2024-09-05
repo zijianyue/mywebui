@@ -126,19 +126,19 @@
 							<div
 								class=" h-fit py-1 px-2 flex items-center justify-center rounded border border-black/10 text-gray-600 dark:border-white/10 dark:text-gray-300"
 							>
-								电话：18217300459
+								电话：19350540120
 							</div>
 
-							<div
+							<!-- <div
 								class=" h-fit py-1 px-2 flex items-center justify-center rounded border border-black/10 text-gray-600 dark:border-white/10 dark:text-gray-300"
 							>
 								微信号1：taopi2001
-							</div>
+							</div> -->
 
 							<div
 								class=" h-fit py-1 px-2 flex items-center justify-center rounded border border-black/10 text-gray-600 dark:border-white/10 dark:text-gray-300"
 							>
-								微信号2：zijianyue
+								微信号：jinhulord
 							</div>
 						</div>
 					</div>
