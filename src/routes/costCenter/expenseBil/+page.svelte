@@ -1,10 +1,14 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { getAcountBillsByYear } from '$lib/apis/users';
+    import dayjs from 'dayjs';
+    import { onMount, getContext } from 'svelte';
+    import { getAcountBillsByYear, getAcountBillsByYearMonth } from '$lib/apis/users';
     import { user } from '$lib/stores';
+
+    const i18n = getContext('i18n');
 
     let yearUpper = new Date().getFullYear();
     let selectedYear = 2024;
+    let noYearRecords = false;
     
     let billMonth = [
         { month: '', tokenAmount: 0, cost: 0},
@@ -21,10 +25,32 @@
         { month: '', tokenAmount: 0, cost: 0},
     ];
 
+    let selectMonth = -1;
+    let showCostDetails = false;
+
+    interface BillRec {
+        id: string;
+        expense_time: number;
+        input_tokens: string;
+        output_tokens: string;
+        input_cost: string;
+        output_cost: string;
+        amount: string;
+        year: number;
+        month: number;
+    }
+    let costDetails : BillRec[] = [];
+
     async function updateBillInfo(year: number) {
         if ($user != undefined && year != undefined) {
             let acount_bill_info = await getAcountBillsByYear($user.id, year);
-            console.log(acount_bill_info);
+            // console.log(acount_bill_info);
+
+            if (acount_bill_info.length == 0) {
+                noYearRecords = true;
+                return;
+            }
+            noYearRecords = false;
 
             for (let i = 0; i < billMonth.length; i++) {
                 billMonth[i].month = year.toString() + '-' + (i + 1).toString();
@@ -40,10 +66,37 @@
         }
 	}
 
+    $: if (selectedYear != undefined) {
+        showCostDetails = false;
+        updateBillInfo(selectedYear);
+    }
+
+    async function handleCostDetails(event: MouseEvent, month: number) {
+		event.preventDefault();
+        selectMonth = -1;
+        showCostDetails = false;
+
+        if (month > 0 && month <= 12) {
+            selectMonth = month;
+            showCostDetails = true;
+            console.log('select month is', selectMonth, billMonth[selectMonth - 1]);
+
+            if ($user != undefined && selectedYear != undefined) {
+                costDetails = await getAcountBillsByYearMonth($user.id, selectedYear, month);
+                console.log(costDetails);
+            }
+        }
+	}
+
     onMount(async () => {
         let year = new Date().getFullYear();
         updateBillInfo(year);
 	});
+
+    // 函数用于截断浮点数到小数点后六位，去掉浮点精度的随机误差
+    const setAccuracy = (val : number) => {
+        return Math.floor(val * 1000000) / 1000000;
+    };
 </script>
 
 <div class="wrap">
@@ -68,35 +121,91 @@
             </select>
 
             <p>&nbsp;</p>
-            <table>
-                <tr class="table-cap">
-                    <th style="font-weight: bold;">账单</th>
-                    <th style="font-weight: bold;">Token数量</th>
-                    <th style="font-weight: bold;">消费总额（元）</th>
-                    <th style="font-weight: bold;">操作</th>
-                </tr>
-                {#each billMonth.reverse() as perBill, i}
-                    {#if i % 2 == 0 }
-                        <tr>
-                            <th>{perBill.month}</th>
-                            <th>{perBill.tokenAmount}</th>
-                            <th>{perBill.cost}</th>
-                            <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
-                        </tr>
-                    {:else}
-                        <tr class="table-row">
-                            <th>{perBill.month}</th>
-                            <th>{perBill.tokenAmount}</th>
-                            <th>{perBill.cost}</th>
-                            <th><a href="/todo" target="_blank"><span class=" underline">费用账单</span></a></th>
-                        </tr>
-                    {/if}
-                {/each}
-            </table>
+            {#if noYearRecords}
+                <p>没有消费记录。</p>
+            {:else}
+                <table>
+                    <tr class="table-cap">
+                        <th style="font-weight: bold;">账单</th>
+                        <th style="font-weight: bold;">Token数量</th>
+                        <th style="font-weight: bold;">消费总额（元）</th>
+                        <th style="font-weight: bold;">操作</th>
+                    </tr>
+                    {#each billMonth.reverse() as perBill, i}
+                        {#if perBill.tokenAmount > 0}
+                            {#if i % 2 == 0 }
+                                <tr>
+                                    <th>{perBill.month}</th>
+                                    <th>{perBill.tokenAmount}</th>
+                                    <th>{setAccuracy(perBill.cost)}</th>
+                                    <th><button class=" underline" on:click={(e) => handleCostDetails(e, 12 - i)}>费用明细</button></th>
+                                </tr>
+                            {:else}
+                                <tr class="table-row">
+                                    <th>{perBill.month}</th>
+                                    <th>{perBill.tokenAmount}</th>
+                                    <th>{setAccuracy(perBill.cost)}</th>
+                                    <th><button class=" underline" on:click={(e) => handleCostDetails(e, 12 - i)}>费用明细</button></th>
+                                </tr>
+                            {/if}
+                        {/if}
+                    {/each}
+                </table>
+            {/if}
+
 
             <p>&nbsp;</p>
             <p>&nbsp;</p>
         </div>
+
+        {#if showCostDetails}
+            <hr class=" dark:border-gray-850 my-4" />
+
+            <p>&nbsp;</p>
+            <p>{selectedYear}年{selectMonth}月费用明细</p>
+            <hr class=" dark:border-gray-850 my-4" />
+
+            {#if costDetails.length == 0}
+                <p>没有消费记录。</p>
+            {:else}
+                <div style="font-size: 0.95em;">
+                    <table>
+                        <tr class="table-cap">
+                            <th style="font-weight: bold;">消费时间</th>
+                            <th style="font-weight: bold;">模型</th>
+                            <th style="font-weight: bold;">输入Token数量</th>
+                            <th style="font-weight: bold;">输入消费（元）</th>
+                            <th style="font-weight: bold;">输出Token数量</th>
+                            <th style="font-weight: bold;">输出消费（元）</th>
+                            <th style="font-weight: bold;">余额（元）</th>
+                        </tr>
+                        {#each costDetails.reverse() as perBill, i}
+                            {#if i % 2 == 0 }
+                                <tr>
+                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('MMMM DD, YYYY'))}</th>
+                                    <th>{perBill.model_id}</th>
+                                    <th>{perBill.input_tokens}</th>
+                                    <th>{perBill.input_cost}</th>
+                                    <th>{perBill.output_tokens}</th>
+                                    <th>{perBill.output_cost}</th>
+                                    <th>{perBill.amount}</th>
+                                </tr>
+                            {:else}
+                                <tr class="table-row">
+                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('MMMM DD, YYYY'))}</th>
+                                    <th>{perBill.model_id}</th>
+                                    <th>{perBill.input_tokens}</th>
+                                    <th>{perBill.input_cost}</th>
+                                    <th>{perBill.output_tokens}</th>
+                                    <th>{perBill.output_cost}</th>
+                                    <th>{perBill.amount}</th>
+                                </tr>
+                            {/if}
+                        {/each}
+                    </table>
+                </div>
+            {/if}
+        {/if}
     </div>
     <div class="flex" style="text-align: center; align-items: center; justify-content: right;">
         <p style="font-size: 1.5em; color:blue; font-weight: bold;">

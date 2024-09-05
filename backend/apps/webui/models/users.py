@@ -17,6 +17,7 @@ class AccountBill(Base):
     __tablename__ = "account_bill"
 
     id = Column(String, ForeignKey('user.id'), primary_key=True)
+    model_id = Column(String)
     expense_time = Column(BigInteger, primary_key=True) # timestamp
     input_tokens = Column(String)
     output_tokens = Column(String)
@@ -29,6 +30,7 @@ class AccountBill(Base):
 
 class AccountBillModel(BaseModel):
     id: str
+    model_id: str
     expense_time: int
     input_tokens: str
     output_tokens: str
@@ -102,8 +104,15 @@ class AccountBillGetForm(BaseModel):
     year: int
 
 
+class AccountBillGetFormByMonth(BaseModel):
+    id: str
+    year: int
+    month: int
+
+
 class AccountBillAddForm(BaseModel):
     id: str
+    model_id: str
     input_tokens: str
     output_tokens: str
     input_cost: str
@@ -152,6 +161,7 @@ class AccountBillTable:
 
     def add_account_bill(self,
         id: str,
+        model_id: str,
         expense_time: int,
         input_tokens: str,
         output_tokens: str,
@@ -164,6 +174,7 @@ class AccountBillTable:
 
             newBill = AccountBillModel(**{
                     "id": id,
+                    "model_id": model_id,
                     "expense_time": expense_time,
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,

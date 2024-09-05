@@ -16,6 +16,7 @@ from apps.webui.models.users import (
     UserSettings,
     Users,
     AccountBillGetForm,
+    AccountBillGetFormByMonth,
     AccountBillAddForm,
     AccountBillModel,
     AccountBills,
@@ -48,6 +49,7 @@ router = APIRouter()
 async def add_account_bill(form_data: AccountBillAddForm):
     return AccountBills.add_account_bill(
         form_data.id,
+        form_data.model_id,
         int(time.time()),
         form_data.input_tokens,
         form_data.output_tokens,
@@ -67,6 +69,11 @@ async def add_account_bill(form_data: AccountBillAddForm):
 @router.post("/get/account_bills_by_year", response_model=list[AccountBillModel])
 async def get_account_bills_by_year(form_data: AccountBillGetForm):
     return AccountBills.get_account_bills_by_year(form_data.id, form_data.year)
+
+
+@router.post("/get/account_bills_by_year_month", response_model=list[AccountBillModel])
+async def get_account_bills_by_year(form_data: AccountBillGetFormByMonth):
+    return AccountBills.get_account_bills_by_year_month(form_data.id, form_data.year, form_data.month)
 
 
 ############################
