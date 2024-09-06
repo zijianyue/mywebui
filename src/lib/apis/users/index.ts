@@ -1,5 +1,6 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 import { getUserPosition } from '$lib/utils';
+import { toFixedTruncated } from '$lib/apis';
 
 export const getUserPermissions = async (token: string) => {
 	let error = null;
@@ -100,6 +101,10 @@ export const addAcountBill = async (user_id: string,
 	month: number) => {
 	let error = null;
 
+	let fix_input_cost = toFixedTruncated(Number(input_cost), 6).toString();
+	let fix_output_cost = toFixedTruncated(Number(output_cost), 6).toString();
+	let fix_amount = toFixedTruncated(Number(amount), 6).toString();
+
 	const res = await fetch(`${WEBUI_API_BASE_URL}/users/add/account_bill`, {
 		method: 'POST',
 		headers: {
@@ -110,9 +115,9 @@ export const addAcountBill = async (user_id: string,
 			model_id: model_id,
 			input_tokens: input_tokens,
 			output_tokens: output_tokens,
-			input_cost: input_cost,
-			output_cost: output_cost,
-			amount: amount,
+			input_cost: fix_input_cost,
+			output_cost: fix_output_cost,
+			amount: fix_amount,
 			year: year,
 			month: month,
 		})
