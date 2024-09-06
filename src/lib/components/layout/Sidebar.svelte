@@ -20,7 +20,7 @@
 
 	const i18n = getContext('i18n');
 
-	import { updateUserSettings } from '$lib/apis/users';
+	import { getUserSettings, updateUserSettings } from '$lib/apis/users';
 	import {
 		deleteChatById,
 		getChatList,
