@@ -60,7 +60,11 @@
             }
 
             for (const bill of acount_bill_info) {
-                billMonth[bill.month - 1].tokenAmount += Number(bill.input_tokens) + Number(bill.output_tokens);
+                if (bill.output_tokens == '图片') {
+                    // 避免NaN
+                } else {
+                    billMonth[bill.month - 1].tokenAmount += Number(bill.input_tokens) + Number(bill.output_tokens);
+                }
                 billMonth[bill.month - 1].cost += Number(bill.input_cost) + Number(bill.output_cost);
             }
             console.log(billMonth);
