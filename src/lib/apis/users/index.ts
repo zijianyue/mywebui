@@ -307,6 +307,30 @@ export const updateUserSettings = async (token: string, settings: object) => {
 	return res;
 };
 
+// type: 0. recharge, 1. pic
+export const adjustUserBalance = async (diff: number, user_id: string, type: number) => {
+	let settings;
+	const userSettings = await getUserSettings(localStorage.token);
+	if (userSettings) {
+		settings = userSettings.ui;
+	} else {
+		settings = JSON.parse(localStorage.getItem('settings') ?? '{}');
+	}
+	if (!settings.balance?.amount) {
+		console.error("Failed to get user settings");
+		return 1;
+	}
+	settings.balance.amount += diff;
+	await updateUserSettings(localStorage.token, { ui: settings });
+
+	let data = new Date();
+	if (type == 0) {
+	} else if (type == 1) {
+		addAcountBill(user_id, 'FLUX.1-Dev', '0', '图片', '0', (-diff).toString(), settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
+	}
+	return 0;
+};
+
 export const getUserById = async (token: string, userId: string) => {
 	let error = null;
 
