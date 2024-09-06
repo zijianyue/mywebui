@@ -21,6 +21,10 @@
 
 	let profileImageUrl = '';
 	let name = '';
+	let cellPhone = '';
+	let password = '匿名用户默认密码为123456，如果用户修改了密码，请一定要记住。如忘记了修改后的密码，请联系管理员处理。';
+
+	let textarea: HTMLTextAreaElement;
 
 	let showAPIKeys = false;
 
@@ -63,6 +67,7 @@
 	let isLoading = true;
 	onMount(async () => {
 		name = $user.name;
+		cellPhone = $user.cell_phone;
 		profileImageUrl = $user.profile_image_url;
 		try {
 			userSettings = await getUserSettings(localStorage.token);
@@ -77,6 +82,18 @@
 		// 	console.log(error);
 		// 	return '';
 		// });
+
+		function adjustHeight() {
+			textarea.style.height = 'auto'; // 先将高度设为auto，以便计算内容高度
+			textarea.style.height = `${textarea.scrollHeight}px`; // 设置为内容实际高度
+		}
+
+		textarea.addEventListener('input', adjustHeight);
+		adjustHeight(); // 初始化时调整高度
+
+		return () => {
+			textarea.removeEventListener('input', adjustHeight);
+		};
 	});
 </script>
 
@@ -237,6 +254,32 @@
 						/>
 					</div>
 				</div>
+
+				{#if name.includes('匿名用户')}
+					<div class="flex flex-col w-full">
+						<div class=" mb-1 text-xs font-medium">{$i18n.t('Cell-phone number')}</div>
+
+						<div class="flex-1">
+							<input
+								class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-none"
+								type="text"
+								bind:value={cellPhone}
+								required
+							/>
+						</div>
+					</div>
+
+					<div class="flex flex-col w-full">
+						<div class=" mb-1 text-xs font-medium">{$i18n.t('Password')}</div>
+						<div class="flex-1">
+							<textarea bind:this={textarea}
+								class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-none flex "
+								bind:value={password}
+								required
+							/>
+						</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 

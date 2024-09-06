@@ -194,6 +194,7 @@ type PromptSuggestion = {
 
 type SessionUser = {
 	id: string;
+	cell_phone: string;
 	email: string;
 	name: string;
 	role: string;
