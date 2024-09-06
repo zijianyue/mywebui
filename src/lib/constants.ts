@@ -126,7 +126,7 @@ export const modelPrices: PriceTable = {
 	"Qwen/Qwen2-72B-Instruct": { input: 0.00413, output: 0.00413 },
 	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413 },
 	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021 },
-	"meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413 },
+	// "meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413 },
 	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021 },
 	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126 },
 	// "microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126 },
