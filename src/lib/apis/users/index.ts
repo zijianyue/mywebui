@@ -307,7 +307,7 @@ export const updateUserSettings = async (token: string, settings: object) => {
 	return res;
 };
 
-// type: 0. recharge, 1. pic
+// type: 0. other, 1. pic
 export const adjustUserBalance = async (diff: number, user_id: string, type: number) => {
 	let settings;
 	const userSettings = await getUserSettings(localStorage.token);
@@ -320,7 +320,7 @@ export const adjustUserBalance = async (diff: number, user_id: string, type: num
 		console.error("Failed to get user settings");
 		return 1;
 	}
-	settings.balance.amount += diff;
+	settings.balance.amount = Number(settings.balance.amount) + diff;
 	await updateUserSettings(localStorage.token, { ui: settings });
 
 	let data = new Date();

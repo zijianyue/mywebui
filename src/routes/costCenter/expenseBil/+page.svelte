@@ -11,18 +11,18 @@
     let noYearRecords = false;
     
     let billMonth = [
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
-        { month: '', tokenAmount: 0, cost: 0},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
+        { month: '', tokenAmount: 0, cost: 0, has: false},
     ];
 
     let selectMonth = -1;
@@ -57,15 +57,22 @@
                 billMonth[i].month = year.toString() + '-' + (i + 1).toString();
                 billMonth[i].tokenAmount = 0;
                 billMonth[i].cost = 0;
+                billMonth[i].has = false;
             }
 
             for (const bill of acount_bill_info) {
+                if ((bill.model_id).includes('充值')) {
+                    // 不统计
+                    billMonth[bill.month - 1].has = true;
+                    continue;
+                }
                 if (bill.output_tokens == '图片') {
                     // 避免NaN
                 } else {
                     billMonth[bill.month - 1].tokenAmount += Number(bill.input_tokens) + Number(bill.output_tokens);
                 }
                 billMonth[bill.month - 1].cost += Number(bill.input_cost) + Number(bill.output_cost);
+                billMonth[bill.month - 1].has = true;
             }
             // console.log(billMonth);
         }
@@ -137,7 +144,7 @@
                         <th style="font-weight: bold;">操作</th>
                     </tr>
                     {#each billMonth.reverse() as perBill, i}
-                        {#if perBill.tokenAmount > 0}
+                        {#if perBill.has}
                             {#if i % 2 == 0 }
                                 <tr>
                                     <th>{perBill.month}</th>
