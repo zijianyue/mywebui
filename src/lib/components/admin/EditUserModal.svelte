@@ -6,7 +6,7 @@
 
 	import { updateUserById } from '$lib/apis/users';
 	import Modal from '../common/Modal.svelte';
-	import { getUserSettingsByUserId } from '$lib/apis/users';
+	import { getUserSettingsByUserId, addAcountBill } from '$lib/apis/users';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -22,6 +22,7 @@
 		password: '',
 		amount: 0
 	};
+	let oldAmout = 0;
 
 	const submitHandler = async () => {
 		const res = await updateUserById(localStorage.token, selectedUser.id, _user).catch((error) => {
@@ -29,6 +30,15 @@
 		});
 		if (res) {
 			dispatch('save');
+
+			if (oldAmout != _user.amount) {
+				let data = new Date();
+				let diff = _user.amount - oldAmout;
+				console.log('recharge ', diff, ' settings ', _user.amount, ' selectedUser.id ', selectedUser.id);
+				addAcountBill(selectedUser.id, '充值' + diff.toString(), 'N/A', 'N/A', 'N/A', 'N/A', _user.amount.toString(), data.getFullYear(), data.getMonth() + 1);
+
+				oldAmout = _user.amount;
+			}
 		}
 		show = false;
 	};
@@ -43,6 +53,7 @@
 				const userSettings = await getUserSettingsByUserId(localStorage.token, selectedUser.id);
 				if (userSettings?.ui?.balance?.amount) {
 					_user.amount = userSettings.ui.balance.amount;
+					oldAmout = _user.amount;
 				}
 			} catch (error) {
 				console.error("Failed to get user settings:", error);
