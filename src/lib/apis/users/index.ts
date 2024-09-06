@@ -329,7 +329,7 @@ type UserUpdateForm = {
 	email: string;
 	name: string;
 	password: string;
-	amount: string;
+	amount: number;
 };
 
 export const updateUserById = async (token: string, userId: string, user: UserUpdateForm) => {

@@ -13,6 +13,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import { getUserSettings } from '$lib/apis/users';
+	import { toFixedTruncated } from '$lib/apis';
 
 	const i18n = getContext('i18n');
 
@@ -59,14 +60,6 @@
 			toast.error($i18n.t('Failed to create API Key.'));
 		}
 	};
-
-	// 函数用于截断数字到小数点后两位
-	function toFixedTruncated(num: number | null, digits: number): string {
-		if (num === null) return '0.00';
-		const multiplier = Math.pow(10, digits);
-		const truncated = Math.floor(num * multiplier) / multiplier;
-		return truncated.toFixed(digits);
-	}
 
 	onMount(async () => {
 		name = $user.name;
