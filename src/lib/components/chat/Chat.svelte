@@ -51,7 +51,7 @@
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
-	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings, addAcountBill } from '$lib/apis/users';
+	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings, adjustUserBalance } from '$lib/apis/users';
 	import {
 		chatCompleted,
 		generateTitle,
@@ -268,27 +268,6 @@
 				submitPrompt(event.data.text);
 			}
 		}
-	};
-
-	const adjustUserBalance = async (diff: number) => {
-		const userSettings = await getUserSettings(localStorage.token);
-		if (userSettings) {
-			settings.set(userSettings.ui);
-		} else {
-			settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
-		}
-		if (!$settings.balance?.amount) {
-			console.error("Failed to get user settings");
-			toast.error($i18n.t('Get balance fail, contact the admin'));
-			return;
-		}
-		let balance: Balance = { amount: $settings.balance.amount + diff };
-		settings.set({ ...$settings, balance: balance });
-		await updateUserSettings(localStorage.token, { ui: $settings });
-
-		let data = new Date();
-		console.log('adjustUserBalance call addAcountBill user: ', $user.id);
-		addAcountBill($user.id, 'FLUX.1-Dev', '0', '图片', '0', (-diff).toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	};
 
 	function newConversation() {
@@ -1321,7 +1300,10 @@
 						let sufficient = await isAmountSufficient(model, PIC_PRICE);
 						if (sufficient) {
 							_response = await generateImage(responseMessage, prompt);
-							adjustUserBalance(-PIC_PRICE);
+							let ret = await adjustUserBalance(-PIC_PRICE, $user.id, 1);
+							if (ret) {
+								toast.error($i18n.t('Get balance fail, contact the admin'));
+							}
 						} else {
 							shutResponse(responseMessageId);
 						}
