@@ -117,7 +117,7 @@
 	async function fetchUserSettings() {
 		try {
 			const userSettings = await getUserSettings(localStorage.token);
-			console.debug('sidebar userSettings:', userSettings);
+			// console.debug('sidebar userSettings:', userSettings);
 			if (userSettings) {
 				settings.set(userSettings.ui);
 			} else {

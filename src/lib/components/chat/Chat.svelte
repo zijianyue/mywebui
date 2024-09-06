@@ -2,10 +2,11 @@
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
 	import mermaid from 'mermaid';
-
+	import { fade } from 'svelte/transition';
 	import { getContext, onDestroy, onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import Tooltip from '../common/Tooltip.svelte';
 
 	import type { Unsubscriber, Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -126,6 +127,9 @@
 	let notified = false;
 	let qaQuestionsMap = new Map<number, string>();
 	let translate = false;
+	let correctText = false;
+	let summarize = false;
+
 	let responseIdToTrans = '';
 
 	// TODO: 识别用户的意图来决定是否生成图片,还有混合意图的处理,比如既生成图片,又回答问题,需要模型有视觉能力
@@ -265,6 +269,7 @@
 			}
 		}
 	};
+
 	const adjustUserBalance = async (diff: number) => {
 		const userSettings = await getUserSettings(localStorage.token);
 		if (userSettings) {
@@ -285,7 +290,59 @@
 		console.log('adjustUserBalance call addAcountBill user: ', $user.id);
 		addAcountBill($user.id, 'FLUX.1-Dev', '0', '图片', '0', (-diff).toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	};
+
+	function newConversation() {
+		initNewChat();
+	}
+
+	let buttonContainer: HTMLElement;
+	let currentIndex = 0;
+	const buttons = [
+		{ icon: 'summary', text: '一键总结' },
+		{ icon: 'correct', text: '校正文字' },
+		{ icon: 'translate', text: '中英互译' },
+	];
+
+	function scrollLeft() {
+		if (currentIndex > 0) {
+			currentIndex--;
+			updateScroll();
+		}
+	}
+
+	function scrollRight() {
+		if (currentIndex < buttons.length - 3) {
+			currentIndex++;
+			updateScroll();
+		}
+	}
+
+	function updateScroll() {
+		if (!buttonContainer) return; // 如果 buttonContainer 未定义，直接返回
+		
+		const buttonWidth = 36; // 按钮宽度
+		const gap = 4; // 按钮之间的间距
+		buttonContainer.style.transform = `translateX(-${currentIndex * (buttonWidth + gap)}px)`;
+	}
+
+	function handleButtonClick(action: string) {
+		switch (action) {
+		case 'summary':
+			submitPrompt(prompt, { _summarize: true });
+			break;
+		case 'correct':
+			submitPrompt(prompt, { _correctText: true });
+			break;
+		case 'translate':
+			submitPrompt(prompt, { _translate: true });
+			break;
+		default:
+			console.log('未知操作');
+		}
+	}
+
 	onMount(async () => {
+		updateScroll();
 		const script = document.createElement('script');
 		script.src = 'https://assets.salesmartly.com/js/project_110907_115361_1724377087.js';
 		script.async = true;
@@ -562,7 +619,7 @@
 	// Chat functions
 	//////////////////////////
 
-	const submitPrompt = async (userPrompt, { _raw = false, _translate = false } = {}) => {
+	const submitPrompt = async (userPrompt, { _raw = false, _translate = false, _correctText = false, _summarize = false } = {}) => {
 		let _responses = [];
 		console.log('submitPrompt', $chatId);
 
@@ -650,8 +707,16 @@
 			if (_translate) {
 				translate = true;
 			}
+			if (_summarize) {
+				summarize = true;
+			}
+			if (_correctText) {
+				correctText = true;
+			}
 			_responses = await sendPrompt(userPrompt, userMessageId, { newChat: true });
 			translate = false;
+			correctText = false;
+			summarize = false;
 		}
 
 		return _responses;
@@ -1135,7 +1200,7 @@
 					modelIdx: modelIdx ? modelIdx : _modelIdx,
 					userContext: null,
 					timestamp: Math.floor(Date.now() / 1000), // Unix epoch
-					translate: false
+					useCustomModel: false
 				};
 
 				// Add message to history and Set currentId to messageId
@@ -1694,13 +1759,16 @@
 		try {
 			// 中英互译
 			console.log('translate:', translate);
+			console.log('correctText:', correctText);
+			console.log('summarize:', summarize);
+
 			console.log('responseIdToTrans:', responseIdToTrans);
 
 			let clonedMessages;
-			let useTranslate = false, pureTranslate = false;
-			if (translate || responseIdToTrans !== '') {
-				useTranslate = true;
-				pureTranslate = true;
+			let useMockMsg = false, useCustomModel = false;
+			if (translate || correctText || summarize || responseIdToTrans !== '') {
+				useMockMsg = true;
+				useCustomModel = true;
 				clonedMessages = JSON.parse(JSON.stringify(messages));
 				console.log('clonedMessages:', clonedMessages);
 
@@ -1713,19 +1781,26 @@
 					userPrompt = mockUserMsg.content;
 				}
 
-				if (isPureEnglish(userPrompt)) {
-					userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
-				} else {
-					userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
+				if (translate || responseIdToTrans !== '') {
+					if (isPureEnglish(userPrompt)) {
+						userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
+					} else {
+						userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
+					}
+				} else if (correctText) {
+					userPrompt = `Please help me proofread the following text with its original language: "${userPrompt}"`;
+					
+				} else if (summarize) {
+					userPrompt = `Summarize this with its original language: "${userPrompt}"`;
 				}
-				console.log('prompt for translate:', userPrompt);
+				console.log('prompt for useCustomModel:', userPrompt);
 				mockUserMsg.content = userPrompt;
 			} else {
 				const firstSelectModel = $models.find((m) => selectedModelIds.includes(m.id));
 				if (firstSelectModel && modelsNeedTranslate.includes(firstSelectModel.id)) {
 					// 译成英文提示词
 					if (!isPureEnglish(userPrompt)) {
-						useTranslate = true;
+						useMockMsg = true;
 						clonedMessages = JSON.parse(JSON.stringify(messages));
 						let mockUserMsg = clonedMessages.find(message => message.id === responseMessage.parentId);
 						let userPrompt = mockUserMsg.content;
@@ -1740,8 +1815,8 @@
 					}
 				}
 			}
-			if (pureTranslate) {
-				responseMessage.translate = true;
+			if (useCustomModel) {
+				responseMessage.useCustomModel = true;
 			}
 
 			
@@ -1750,7 +1825,7 @@
 				{
 					stream: true,
 					model: model.id,
-					...(pureTranslate ? { useCustomModel: true } : {}),
+					...(useCustomModel ? { useCustomModel: true } : {}),
 					stream_options:
 						(model.info?.meta?.capabilities?.usage ?? false)
 							? {
@@ -1774,7 +1849,7 @@
 									}`
 								}
 							: undefined,
-						...(useTranslate ? clonedMessages : messages)
+						...(useMockMsg ? clonedMessages : messages)
 					]
 						.filter((message) => message?.content?.trim())
 						.map((message, idx, arr) => ({
@@ -2433,6 +2508,80 @@
 				</div>
 
 			<div class={showControls ? 'lg:pr-[24rem]' : ''}>
+				<div class="relative flex justify-between items-center mb-2 px-4 md:px-6 lg:px-8">
+					<button
+						on:click={newConversation}
+						class="frosted-gold flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 text-gray-800 dark:text-gray-200 hover:brightness-110 hover:scale-105"
+						aria-label="新建对话"
+						>
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+						</svg>
+						<span>新对话</span>
+					</button>
+
+					{#if prompt.trim() !== ''}
+						<div transition:fade="{{ duration: 300 }}" class="absolute right-4 md:right-6 lg:right-8 flex items-center justify-center space-x-2">
+							<button
+								on:click={scrollLeft}
+								class="p-1 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none transition-colors duration-200"
+								aria-label="向左滚动"
+								disabled={currentIndex === 0}
+								>
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+								</svg>
+							</button>
+
+							<div class="overflow-hidden w-[116px]">
+								<div bind:this={buttonContainer} class="flex transition-transform duration-300 ease-in-out space-x-1">
+									{#each buttons as button}
+										<Tooltip content={$i18n.t(button.text)}>
+											<button
+												on:click={() => handleButtonClick(button.icon)}
+												class="flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-md shadow-sm text-xs font-medium text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-colors duration-200"
+												>
+												{#if button.icon === 'summary'}
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+														<path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+														<path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+													</svg>
+												{:else if button.icon === 'correct'}
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+														<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+													</svg>
+												{:else if button.icon === 'translate'}
+													<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+														<path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clip-rule="evenodd" />
+													</svg>
+												{:else if button.icon === 'analyze'}
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+														<path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+													</svg>
+												{:else if button.icon === 'extract'}
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+														<path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+													</svg>
+												{/if}
+											</button>
+										</Tooltip>
+									{/each}
+								</div>
+							</div>
+
+							<button
+								on:click={scrollRight}
+								class="p-1 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none transition-colors duration-200"
+								aria-label="向右滚动"
+								disabled={currentIndex === buttons.length - 3}
+								>
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+								</svg>
+							</button>
+						</div>
+					{/if}
+				</div>
 				<MessageInput
 					bind:files
 					bind:prompt
@@ -2483,3 +2632,38 @@
 	chatId={$chatId}
 	{eventTarget}
 />
+	<style>
+		.frosted-gold {
+			background: rgba(255, 255, 255, 0.2);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.frosted-gold::before {
+			content: '';
+			position: absolute;
+			top: -50%;
+			left: -50%;
+			width: 200%;
+			height: 200%;
+			background: radial-gradient(
+				ellipse at center,
+				rgba(255, 215, 0, 0.3) 0%,
+				rgba(255, 215, 0, 0) 70%
+			);
+			opacity: 0.5;
+			animation: shimmer 3s infinite;
+		}
+
+		@keyframes shimmer {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+	</style>

@@ -1033,7 +1033,7 @@ export const updateModelConfig = async (token: string, config: GlobalModelConfig
 };
 
 export function toFixedTruncated(num: number | null, digits: number): string {
-    console.log('toFixedTruncat sidebar amount:', num);
+    // console.log('toFixedTruncat sidebar amount:', num);
     if (num === null) return '0.00';
 
     // 将数字转换为字符串，避免浮点精度问题
@@ -1054,7 +1054,7 @@ export function toFixedTruncated(num: number | null, digits: number): string {
     const paddedDecimal = truncatedDecimal.padEnd(digits, '0');
 
     let ret = `${intPart}.${paddedDecimal}`;
-    console.log('toFixedTruncated ret:', ret);
+    // console.log('toFixedTruncated ret:', ret);
     return ret;
 }
 
