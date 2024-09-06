@@ -1041,7 +1041,7 @@ export async function handleModuleUIClick(event: MouseEvent, url: string) {
 	// document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; expires=${expirationDate.toUTCString()}; SameSite=None; Secure`;
 	// TODO 过期时间设置了也无法传递到 /api/auth接口
 	let ret = 200;
-	document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; SameSite=None; Secure`;
+	document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; max-age=86400; SameSite=None; Secure`;
 	const newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
 	try {
 		const response = await fetch(url, {
