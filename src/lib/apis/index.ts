@@ -1032,6 +1032,32 @@ export const updateModelConfig = async (token: string, config: GlobalModelConfig
 	return res;
 };
 
+export function toFixedTruncated(num: number | null, digits: number): string {
+    console.log('toFixedTruncat sidebar amount:', num);
+    if (num === null) return '0.00';
+
+    // 将数字转换为字符串，避免浮点精度问题
+    const str = num.toString();
+    
+    // 分离整数部分和小数部分
+    const [intPart, decimalPart] = str.split('.');
+
+    // 如果没有小数部分，直接添加小数点和足够的零
+    if (!decimalPart) {
+        return intPart + '.' + '0'.repeat(digits);
+    }
+
+    // 截断小数部分到指定的位数
+    const truncatedDecimal = decimalPart.slice(0, digits);
+    
+    // 如果截断后的小数部分长度不足，补零
+    const paddedDecimal = truncatedDecimal.padEnd(digits, '0');
+
+    let ret = `${intPart}.${paddedDecimal}`;
+    console.log('toFixedTruncated ret:', ret);
+    return ret;
+}
+
 export async function handleModuleUIClick(event: MouseEvent, url: string) {
 	event.preventDefault();
 	// const comfyUIUrl = `https://comfyui.nas.cpolar.cn`;

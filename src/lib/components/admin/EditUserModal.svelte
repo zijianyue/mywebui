@@ -14,7 +14,6 @@
 	export let show = false;
 	export let selectedUser;
 	export let sessionUser;
-	import { settings } from '$lib/stores';
 	let _user = {
 		profile_image_url: '',
 		cell_phone: '',
