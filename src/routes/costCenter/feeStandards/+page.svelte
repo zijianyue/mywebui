@@ -1,17 +1,12 @@
 
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { modelPrices, PRICE_COE } from '$lib/constants';
+    import { modelPrices, PRICE_COE, type ModelPrice } from '$lib/constants';
 	import { getModels, toFixedTruncated } from '$lib/apis';
 
     let modelPriceMap = Object.entries(modelPrices);
 
-    type ModelPrice = {
-        input: number;  // 输入价格（元/千token）
-        output: number; // 输出价格（元/千token）
-    };
     let existModelList: [string, ModelPrice][] = [['?', { input: 0, output: 0}]];
-
     let loaded = false;
     onMount(async () => {
         let models = await getModels(localStorage.token);
