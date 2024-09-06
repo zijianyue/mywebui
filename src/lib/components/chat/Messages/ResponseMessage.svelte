@@ -473,7 +473,7 @@ A：回答2`;
 		if (isLastMessage && message.done && message.id !== lastMessageId) {
 			// toast.success(` in start: ${message.id}, lastMessageId: ${lastMessageId} `);
 			lastMessageId = message.id;
-			console.log('bill message:', message);
+			console.debug('bill message:', message);
 			// toast.success(` lastMessageId: ${lastMessageId} `);
 			localStorage.setItem('lastMessageId', message.id);
 			if (!message.translate) {

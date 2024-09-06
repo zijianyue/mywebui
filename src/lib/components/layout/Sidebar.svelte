@@ -16,7 +16,7 @@
 		currentChatPage,
 		temporaryChatEnabled
 	} from '$lib/stores';
-	import { onMount, getContext, tick } from 'svelte';
+	import { onMount, onDestroy, getContext, tick } from 'svelte';
 
 	const i18n = getContext('i18n');
 
@@ -39,7 +39,7 @@
 	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import Loader from '../common/Loader.svelte';
-	import { handleModuleUIClick } from '$lib/apis';
+	import { toFixedTruncated, handleModuleUIClick } from '$lib/apis';
 
 	const BREAKPOINT = 768;
 
@@ -113,17 +113,11 @@
 			toast.error('无法访问');
 		}
 	}
-
-	function toFixedTruncated(num: number | null, digits: number): string {
-		if (num === null) return '0.00';
-		const multiplier = Math.pow(10, digits);
-		const truncated = Math.floor(num * multiplier) / multiplier;
-		return truncated.toFixed(digits);
-	}
-
-	onMount(async () => {
+	const POLL_INTERVAL = 60000; // 1 minute
+	async function fetchUserSettings() {
 		try {
 			const userSettings = await getUserSettings(localStorage.token);
+			console.debug('sidebar userSettings:', userSettings);
 			if (userSettings) {
 				settings.set(userSettings.ui);
 			} else {
@@ -133,6 +127,13 @@
 			console.error("Failed to get user settings:", error);
 			toast.error($i18n.t('Get balance fail, contact the admin'));
 		}
+	}
+
+	let intervalId: number;
+	onMount(async () => {
+		await fetchUserSettings();
+		intervalId = window.setInterval(fetchUserSettings, POLL_INTERVAL);
+
 		mobile.subscribe((e) => {
 			if ($showSidebar && e) {
 				showSidebar.set(false);
@@ -212,7 +213,9 @@
 			window.removeEventListener('blur', onBlur);
 		};
 	});
-
+	onDestroy(() => {
+		clearInterval(intervalId);
+	});
 	// Helper function to fetch and add chat content to each chat
 	const enrichChatsWithContent = async (chatList) => {
 		const enrichedChats = await Promise.all(

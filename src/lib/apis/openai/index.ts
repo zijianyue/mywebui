@@ -372,23 +372,27 @@ export const translatePrompt = async (userPrompt: string, modelId: string) => {
 		retries = 0;
 	}
 	while (retries > 0) {
-		promptUsed = await chatCompletionSimple(transPrompt, modelId);
+		promptUsed = await chatCompletionSimple(transPrompt, modelId).catch((e) => {
+			console.error('translatePrompt error:', e);
+			return null;
+		});
 		if (!promptUsed) {
 			return userPrompt;
 		}
 		console.debug('promptUsed:', promptUsed);
-		if (isPureEnglish(promptUsed)) {
-			break;
-		} else {
-			console.log('not pure english');
-			retries--;
-		}
+		break;
+		// if (isPureEnglish(promptUsed)) {
+		// 	break;
+		// } else {
+		// 	console.log('not pure english');
+		// 	retries--;
+		// }
 	}
 
-	if (!pure && !isPureEnglish(promptUsed)) {
-		console.log('translate fail at last');
-		return userPrompt;
-	}
+	// if (!pure && !isPureEnglish(promptUsed)) {
+	// 	console.log('translate fail at last');
+	// 	return userPrompt;
+	// }
 	return promptUsed;
 };
 
