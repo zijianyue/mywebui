@@ -1,12 +1,31 @@
 
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { modelPrices, PRICE_COE } from '$lib/constants';
-    const models = Object.entries(modelPrices);
+	import { getModels, toFixedTruncated } from '$lib/apis';
 
-    // 函数用于截断浮点数到小数点后六位，去掉浮点精度的随机误差
-    const setAccuracy = (val : number) => {
-        return Math.floor(val * 1000000) / 1000000;
+    let modelPriceMap = Object.entries(modelPrices);
+
+    type ModelPrice = {
+        input: number;  // 输入价格（元/千token）
+        output: number; // 输出价格（元/千token）
     };
+    let existModelList: [string, ModelPrice][] = [['?', { input: 0, output: 0}]];
+
+    let loaded = false;
+    onMount(async () => {
+        let models = await getModels(localStorage.token);
+
+        existModelList.pop();
+        for ( let [m_id, priceEle] of modelPriceMap) {
+            let model = models.find((m) => m.id === m_id);
+            if (model != undefined) {
+                console.log('name ', model.name, ' : ', priceEle);
+                existModelList.push([model.name, priceEle]);
+            }
+        }
+        loaded = true;
+    }); 
 </script>
 
 <div class="wrap">
@@ -31,12 +50,14 @@
                     <th>输入价格（元）/千token</th>
                     <th>输出价格（元）/千token</th>
                 </tr>
-                {#each models as [id, item]}
-                    <tr>
-                        <th class="table-first-col">{id}</th>
-                        <th class="table-other-col">{setAccuracy(item.input * PRICE_COE)}</th>
-                        <th class="table-other-col">{setAccuracy(item.output * PRICE_COE)}</th>
-                    </tr>
+                {#each existModelList as [name, item]}
+                    {#if loaded}
+                        <tr>
+                            <th class="table-first-col">{name}</th>
+                            <th class="table-other-col">{toFixedTruncated(item.input * PRICE_COE, 6)}</th>
+                            <th class="table-other-col">{toFixedTruncated(item.output * PRICE_COE, 6)}</th>
+                        </tr>
+                    {/if}
                 {/each}
             </table>
 

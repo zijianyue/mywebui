@@ -67,7 +67,7 @@
                 }
                 billMonth[bill.month - 1].cost += Number(bill.input_cost) + Number(bill.output_cost);
             }
-            console.log(billMonth);
+            // console.log(billMonth);
         }
 	}
 
@@ -88,7 +88,7 @@
 
             if ($user != undefined && selectedYear != undefined) {
                 costDetails = await getAcountBillsByYearMonth($user.id, selectedYear, month);
-                console.log(costDetails);
+                // console.log(costDetails);
             }
         }
 	}
