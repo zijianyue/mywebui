@@ -3,6 +3,7 @@
     import { onMount, getContext } from 'svelte';
     import { getAcountBillsByYear, getAcountBillsByYearMonth } from '$lib/apis/users';
     import { user } from '$lib/stores';
+    import { toFixedTruncated } from '$lib/apis';
 
     const i18n = getContext('i18n');
 
@@ -104,11 +105,6 @@
         let year = new Date().getFullYear();
         updateBillInfo(year);
 	});
-
-    // 函数用于截断浮点数到小数点后六位，去掉浮点精度的随机误差
-    const setAccuracy = (val : number) => {
-        return Math.floor(val * 1000000) / 1000000;
-    };
 </script>
 
 <div class="wrap">
@@ -149,14 +145,14 @@
                                 <tr>
                                     <th>{perBill.month}</th>
                                     <th>{perBill.tokenAmount}</th>
-                                    <th>{setAccuracy(perBill.cost)}</th>
+                                    <th>{toFixedTruncated(perBill.cost, 6)}</th>
                                     <th><button class=" underline" on:click={(e) => handleCostDetails(e, 12 - i)}>费用明细</button></th>
                                 </tr>
                             {:else}
                                 <tr class="table-row">
                                     <th>{perBill.month}</th>
                                     <th>{perBill.tokenAmount}</th>
-                                    <th>{setAccuracy(perBill.cost)}</th>
+                                    <th>{toFixedTruncated(perBill.cost, 6)}</th>
                                     <th><button class=" underline" on:click={(e) => handleCostDetails(e, 12 - i)}>费用明细</button></th>
                                 </tr>
                             {/if}
