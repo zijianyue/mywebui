@@ -124,6 +124,17 @@
 	}
 
 	onMount(async () => {
+		try {
+			const userSettings = await getUserSettings(localStorage.token);
+			if (userSettings) {
+				settings.set(userSettings.ui);
+			} else {
+				settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+			}
+		} catch (error) {
+			console.error("Failed to get user settings:", error);
+			toast.error($i18n.t('Get balance fail, contact the admin'));
+		}
 		mobile.subscribe((e) => {
 			if ($showSidebar && e) {
 				showSidebar.set(false);
