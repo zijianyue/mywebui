@@ -60,16 +60,18 @@
 			toast.error($i18n.t('Failed to create API Key.'));
 		}
 	};
-
+	let isLoading = true;
 	onMount(async () => {
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
 		try {
 			userSettings = await getUserSettings(localStorage.token);
+			console.debug('account userSetting:', userSettings);
 		} catch (error) {
 			console.error("Failed to get user settings:", error);
 			toast.error($i18n.t('Get balance fail, contact the admin'));
 		}
+		isLoading = false;
 
 		// APIKey = await getAPIKey(localStorage.token).catch((error) => {
 		// 	console.log(error);
@@ -241,7 +243,11 @@
 		<div class="flex justify-between items-center text-sm">
 			账户余额
 			<div class="flex justify-between items-center text-sm">
-				<div class="  font-medium">￥{ toFixedTruncated(userSettings?.ui?.balance?.amount, 2) }</div>
+				{#if isLoading}
+					<div class="font-medium">加载中...</div>
+				{:else}
+					<div class="font-medium">￥{toFixedTruncated(userSettings?.ui?.balance?.amount, 2)}</div>
+				{/if}
 			</div>
 		</div>
 		<div class="flex justify-end items-center text-sm">

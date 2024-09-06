@@ -141,7 +141,7 @@
 			console.log('no token consumed');
 			return;
 		}
-		let pricePair = modelPrices[model?.id]; // 走翻译的话，这里model是null
+		let pricePair = modelPrices[model?.id];
 		if (!pricePair) {
 			console.log(`Model ${model?.id}, ${model?.name} not found in price table`);
 			return;
