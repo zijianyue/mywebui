@@ -719,8 +719,12 @@
 													id="clear-input-button"
 													class="text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 transition rounded-full p-1.5 mr-0.5 self-center"
 													type="button"
-													on:click={() => {
+													on:click={ async () => {
 														prompt = '';  // 清空输入框
+														await tick();
+														chatTextAreaElement.style.height = 'auto';
+														chatTextAreaElement.style.height = chatTextAreaElement.scrollHeight + 'px';
+														chatTextAreaElement?.focus();
 													}}
 													>
 													<svg
