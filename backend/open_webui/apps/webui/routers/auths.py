@@ -99,7 +99,8 @@ async def update_password(
     if WEBUI_AUTH_TRUSTED_EMAIL_HEADER:
         raise HTTPException(400, detail=ERROR_MESSAGES.ACTION_PROHIBITED)
     if session_user:
-        user = Auths.authenticate_user(session_user.email, form_data.password)
+        # user = Auths.authenticate_user(session_user.email, form_data.password)
+        user = Auths.authenticate_user_by_cell_phone(session_user.cell_phone, form_data.password)
 
         if user:
             hashed = get_password_hash(form_data.new_password)
