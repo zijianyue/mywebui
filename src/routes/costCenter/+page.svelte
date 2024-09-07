@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { enhance } from '$app/forms';
 	import { fade, fly } from 'svelte/transition';
 
 	let showContent = false;
