@@ -31,8 +31,8 @@ export const getModels = async (token: string = '') => {
 		.filter((model) => {
 			// console.log(`Model: id=${model.id}, urlIdx=${model.urlIdx}`);
 			// 临时处理
-			const cond4Gemma27b = model && !(model.id === 'google/gemma-2-27b-it' && model.urlIdx === 2);
-			const cond4Gemini = model.urlIdx !== 6 || (model.urlIdx === 6 && model.id.toLowerCase().includes('gemini'));
+			const cond4Gemma27b = !(model.id === 'google/gemma-2-27b-it' && model.urlIdx === 2);
+			const cond4Gemini = model.urlIdx !== 6 || (model.urlIdx === 6 && model.id.toLowerCase().includes('gemini-1.5'));
 
 			return cond4Gemma27b && cond4Gemini;
 		})
