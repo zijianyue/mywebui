@@ -98,9 +98,11 @@ export const SUPPORTED_FILE_EXTENSIONS = [
 type ModelPrice = {
 	input: number;  // 输入价格（元/千token）
 	output: number; // 输出价格（元/千token）
-	disc1: string;
-	disc2: string;
-	disc3: string;
+	coe?: number;	// 系数，不指定的都按PRICE_COE
+	useExchangeRate?: boolean;		// 需要乘美元汇率，默认不用乘
+	disc1?: string;
+	disc2?: string;
+	disc3?: string;
 };
 
 type PriceTable = {
@@ -133,6 +135,10 @@ export const modelPrices: PriceTable = {
 	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
 	// "meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
 	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
+	"chatgpt-4o-latest": { input: 0.035, output: 0.105, disc1: "", disc2: "", disc3: "" },
+	// "gemini-1.5-flash": { input: 0.002, output: 0.006, coe: 1.1, useExchangeRate: true ,disc1: "", disc2: "", disc3: "" }, // 2/6$ 服务不可用
+	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true, disc1: "", disc2: "", disc3: "" }, // 4/12$
+
 	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
 	// "microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
 	// "google/gemma-2-27b-it": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },

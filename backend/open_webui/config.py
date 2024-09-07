@@ -886,6 +886,16 @@ SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
     os.environ.get("SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE", ""),
 )
 
+EXCHANGERATE = PersistentConfig(
+    "EXCHANGERATE",
+    "task.tools.exchangerate",
+    float(
+        os.environ.get(
+            "EXCHANGERATE",
+            7.09,
+        )
+    ),
+)
 
 TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = PersistentConfig(
     "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE",
