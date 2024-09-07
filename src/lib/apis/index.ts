@@ -1068,7 +1068,13 @@ export async function handleModuleUIClick(event: MouseEvent, url: string) {
 	// TODO 过期时间设置了也无法传递到 /api/auth接口
 	let ret = 200;
 	document.cookie = `token=${token}; path=/; domain=.nas.cpolar.cn; max-age=86400; SameSite=None; Secure`;
-	const newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
+	// 检测是否为 Safari 浏览器
+	const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+	let newWindow;
+
+	if (isSafari) {
+		newWindow = window.open('about:blank', '_blank'); // 用这个是为了兼顾safari的安全限制，即用户操作后要马上跳转，否则在异步处理中不允许window.open
+	}
 	try {
 		const response = await fetch(url, {
 			// method: 'HEAD', // TODO HEAD方法无法传递到/api/auth接口
@@ -1080,8 +1086,10 @@ export async function handleModuleUIClick(event: MouseEvent, url: string) {
 		});
 
 		if (response.ok) {
-			if (newWindow) {
+			if (isSafari && newWindow) {
 				newWindow.location.href = url;
+			} else {
+				window.open(url, '_blank');
 			}
 		} else {
 			if (newWindow) {
@@ -1115,4 +1123,4 @@ export async function handleModuleUIClick(event: MouseEvent, url: string) {
 		ret = 501;
 	}
 	return ret;
-};
+}
