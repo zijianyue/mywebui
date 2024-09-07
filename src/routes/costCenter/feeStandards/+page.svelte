@@ -20,7 +20,18 @@
             }
         }
         loaded = true;
-    }); 
+    });
+
+    let showModelDetails = false;
+    let selectModel = '';
+    let modelDetails: string[] = [];
+    async function handleModelDetails(event: MouseEvent, name: string, disc1: string, disc2: string, disc3: string) {
+		event.preventDefault();
+
+        selectModel = name;
+        modelDetails = [disc1, disc2, disc3];
+        showModelDetails = true;
+	};
 </script>
 
 <div class="wrap">
@@ -33,9 +44,13 @@
         <div style="font-size: 0.95em;">            
             <p class="title-text">按量后付费</p>
             <p>根据实际接口调用产生的tokens进行计费，大语言模型根据实际的输入及输出总和tokens数量，系统实时会对您的账户进行扣费。</p>
+            
             <p>&nbsp;</p>
+            <hr class=" dark:border-gray-850 my-4" />
 
             <p>下表所列模型价格以“百万tokens”为单位。Token是模型用来表示自然语言文本的最小单位，可以是一个词、一个数字或一个标点符号等。我们将根据模型输入和输出的总token数进行计量计费。</p>
+            <p class="bold-text">下表未列出，而平台在使用的模型，属于免费模型，使用不产生任何费用。</p>
+            <p>部分免费模型，如meta/llama-3.1-405b-instruct，有时候比较卡，且每天流量有限，不是太好用，所以平台提供给大家免费使用。</p>
             <p>&nbsp;</p>
 
             <table>
@@ -44,6 +59,7 @@
                     <th>模型</th>
                     <th>输入价格（元）/千token</th>
                     <th>输出价格（元）/千token</th>
+                    <th>操作</th>
                 </tr>
                 {#each existModelList as [name, item]}
                     {#if loaded}
@@ -51,16 +67,26 @@
                             <th class="table-first-col">{name}</th>
                             <th class="table-other-col">{toFixedTruncated(item.input * PRICE_COE, 6)}</th>
                             <th class="table-other-col">{toFixedTruncated(item.output * PRICE_COE, 6)}</th>
+                            <th class="table-other-col"><button class="underline" on:click={(e) => handleModelDetails(e, name, item.disc1, item.disc2, item.disc3)}>显示模型详细描述</button></th>
                         </tr>
                     {/if}
                 {/each}
             </table>
 
             <p>&nbsp;</p>
+            {#if showModelDetails}
+                <p class="bold-text">模型“{selectModel}”点评：</p>
+                {#each modelDetails as disc}
+                    <p style="text-indent: 2em;">{disc}</p>
+                {/each}
+                <button class="underline" on:click={(e) => { showModelDetails = false; } }>关闭模型详细描述</button>
+            {/if}
+
             <p>&nbsp;</p>
+            <hr class=" dark:border-gray-850 my-4" />
 
             <p style="font-weight: bold;">扣费规则</p>
-            <p>扣减费用 = token 消耗量 X 模型单价，对应的费用将直接从充值余额或赠送余额中进行扣减。当充值余额与赠送余额同时存在时，优先扣减赠送余额。</p>
+            <p>扣减费用 = token 消耗量 x 模型单价，对应的费用将直接从充值余额或赠送余额中进行扣减。当充值余额与赠送余额同时存在时，优先扣减赠送余额。</p>
             <p>产品价格可能发生变动，CPoe保留修改价格的权利。请您依据实际用量按需充值，定期查看此页面以获知最新价格信息。</p>
 
             <p>&nbsp;</p>
