@@ -1276,7 +1276,7 @@ A：回答2`;
 									推荐感统治疗机构
 								</button>
 							{/if}
-							{#if suggestQuestionsList.some(question => ["医", "治", "疗", "疼", "痛", "诊"].some(keyword => question.includes(keyword)))}
+							{#if suggestQuestionsList.some(question => ["医", "治", "疗", "疼", "痛", "诊", "药"].some(keyword => question.includes(keyword)))}
 								<button
 									class="visible p-1.5 hover:bg-purple-600 dark:hover:bg-purple-800 rounded-lg dark:hover:text-white hover:text-white transition regenerate-response-button border border-purple-300 dark:border-purple-600 bg-purple-200 dark:bg-purple-700 text-purple-900 dark:text-purple-300"
 									style="flex: 0 1 auto; min-width: 50px; margin: 5px;"
@@ -1304,48 +1304,93 @@ A：回答2`;
 						:root {
 							--bg-color-light: #f2f2f2;
 							--text-color-light: #333;
-							--bg-color-dark: #333;
-							--text-color-dark: #fff;
+							--border-color-light: #ddd;
+							--hover-bg-light: #f5f5f5;
+							
+							--bg-color-dark: #2a2a2a;
+							--text-color-dark: #e0e0e0;
+							--border-color-dark: #555;
+							--hover-bg-dark: #3a3a3a;
 						}
 
-						/* 默认浅色主题 */
 						.table-container {
 							width: 100%;
-							max-height: 200px; /* 控制容器的最大高度为5行 */
-							overflow-y: auto; /* 启用垂直滚动条 */
-							border: 1px solid #ddd;
+							max-height: 200px;
+							overflow-y: auto;
+							border: 1px solid var(--border-color-light);
 							border-radius: 5px;
 							display: block;
+							background-color: var(--bg-color-light);
+							color: var(--text-color-light);
 						}
 
 						table {
 							width: 100%;
-							border-collapse: collapse; /* 合并表格边框 */
+							border-collapse: separate;
+							border-spacing: 0;
 						}
 
 						th, td {
-							border: 1px solid #ddd;
-							padding: 8px; /* 控制内边距 */
-							text-align: left; /* 左对齐文本 */
-						}
-
-						tr:hover {
-							background-color: #f5f5f5; /* 鼠标悬停时的背景色 */
+							border: 1px solid var(--border-color-light);
+							border-top: none;
+							border-left: none;
+							padding: 8px;
+							text-align: left;
 						}
 
 						th {
-							background-color: var(--bg-color-light); /* 使用变量 */
-							color: var(--text-color-light); /* 使用变量 */
-							position: sticky; /* 固定表头 */
-							top: 0; /* 表头固定在顶部 */
-							z-index: 1; /* 确保表头在其他内容上方 */
+							background-color: var(--bg-color-light);
+							color: var(--text-color-light);
+							position: sticky;
+							top: 0;
+							z-index: 1;
+						}
+
+						th::after {
+							content: '';
+							position: absolute;
+							left: 0;
+							right: 0;
+							bottom: 0;
+							height: 1px;
+							background-color: var(--border-color-light);
+						}
+
+						tr:last-child td {
+							border-bottom: none;
+						}
+
+						td:last-child, th:last-child {
+							border-right: none;
+						}
+
+						tr:hover {
+							background-color: var(--hover-bg-light);
 						}
 
 						/* 深色主题 */
 						@media (prefers-color-scheme: dark) {
+							.table-container {
+								border-color: var(--border-color-dark);
+								background-color: var(--bg-color-dark);
+								color: var(--text-color-dark);
+							}
+
+							th, td {
+								border-color: var(--border-color-dark);
+							}
+
 							th {
-								background-color: var(--bg-color-dark); /* 使用变量 */
-								color: var(--text-color-dark); /* 使用变量 */
+								background-color: var(--bg-color-dark);
+								color: var(--text-color-dark);
+							}
+
+							th::after {
+								background-color: var(--border-color-dark);
+							}
+
+							tr:hover {
+								background-color: var(--hover-bg-dark);
 							}
 						}
 					</style>
