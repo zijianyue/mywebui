@@ -108,7 +108,7 @@
 	async function handleModuleUIClickWrapper(event: MouseEvent, url: string) {
 		let ret = await handleModuleUIClick(event, url);
 		if (ret === 400 || ret === 500) {
-			toast.success('尊敬的用户，此功能当前仅面向付费用户开放，请谅解');
+			toast.success('尊敬的用户，您的余额不足，请充值后使用');
 		} else if (ret === 200) {
 			
 		} else {
