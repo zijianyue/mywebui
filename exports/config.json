@@ -44,7 +44,7 @@
                 "id": "3e12fe93-abdd-4614-95fc-5a799174a2b0",
                 "type": "info",
                 "title": "",
-                "content": "\u5e73\u53f0\u63a8\u5e7f\u671f\uff0c\u65b0\u6ce8\u518c\u7528\u6237\u8d60\u90015\u5143\u989d\u5ea6",
+                "content": "\u5e73\u53f0\u63a8\u5e7f\u671f\uff0c\u65b0\u6ce8\u518c\u7528\u6237\u8d60\u90015\u5143\u989d\u5ea6\uff0c\u533f\u540d\u7528\u6237\u4ec5\u9650\u4f7f\u7528\u514d\u8d39\u6a21\u578b",
                 "dismissible": true,
                 "timestamp": 1721713707
             },
@@ -52,7 +52,7 @@
                 "id": "0be8ddb8-f17b-4c57-af68-c52998082818",
                 "type": "info",
                 "title": "",
-                "content": "\u65b0\u4e0aLlama3.1 405B\uff0c Claude3.5\uff0cFLUX\u751f\u56fe",
+                "content": "\u652f\u6301\u4e16\u754c\u9876\u7ea7\u6a21\u578bLlama3.1 405B\uff0c ChatGPT-4o, Gemini 1.5 pro, Claude3.5 sonnet\uff0cFLUX.1-Dev\u751f\u56fe, CogVideox-5B\u751f\u89c6\u9891",
                 "dismissible": true,
                 "timestamp": 1725081164
             }
@@ -74,7 +74,8 @@
             "https://api.siliconflow.cn/v1",
             "https://api.groq.com/openai/v1",
             "https://integrate.api.nvidia.com/v1",
-            "http://localhost:9099"
+            "http://localhost:9099",
+            "https://api.bianxie.ai/v1"
         ],
         "api_keys": [
             "sk-PwwJqJHaKI0lIOCEpCnoYBiuhwmcmVqe22E0NM7w5oeqQgWU",
@@ -82,7 +83,8 @@
             "sk-nppkkylbvhgelviukyiwqbfmfdfiykobhpfiosoeytbuhogp",
             "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",
             "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",
-            "0p3n-w3bu!"
+            "0p3n-w3bu!",
+            "sk-kAIsXziRtELDmBvS981317B5338840E28a9f98DaC7E154C2"
         ],
         "enable": true
     },
@@ -159,7 +161,8 @@
             "prompt_length_threshold": 100
         },
         "tools": {
-            "prompt_template": "Tools: {{TOOLS}}\nIf a function tool doesn't match the query, return an empty string. Else, pick a function tool, fill in the parameters from the function tool's schema, and return it in the format { \"name\": \"functionName\", \"parameters\": { \"key\": \"value\" } }. Only pick a function if the user asks.  Only return the object. Do not return any other text."
+            "prompt_template": "Tools: {{TOOLS}}\nIf a function tool doesn't match the query, return an empty string. Else, pick a function tool, fill in the parameters from the function tool's schema, and return it in the format { \"name\": \"functionName\", \"parameters\": { \"key\": \"value\" } }. Only pick a function if the user asks.  Only return the object. Do not return any other text.",
+            "exchangerate": 7.5
         }
     },
     "image_generation": {
@@ -250,7 +253,9 @@
             "Qwen/Qwen2-72B-Instruct",
             "gpt-4o-2024-08-06",
             "claude-3-5-sonnet-20240620",
-            "gpt-4o-mini"
+            "gpt-4o-mini",
+            "gemini-1.5-pro-latest",
+            "chatgpt-4o-latest"
         ]
     }
 }
