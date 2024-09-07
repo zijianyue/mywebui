@@ -75,7 +75,7 @@
 
 			<p>点击账号余额，会弹开费用中心页面，可以查看收费标准、充值方式、费用明细。</p>
 			<p>&nbsp;</p>
-			<img class="img-row" src="/static/help/expense_bil.jpg" alt="费用中心" />
+			<img class="img-row" src="/static/help/expense_bill.jpg" alt="费用中心" />
 			<p>&nbsp;</p>
 		</div>
 

@@ -62,9 +62,9 @@
             }
 
             for (const bill of acount_bill_info) {
+                billMonth[bill.month - 1].has = true;
                 if ((bill.model_id).includes('充值')) {
-                    // 不统计
-                    billMonth[bill.month - 1].has = true;
+                    // 不统计                    
                     continue;
                 }
                 if (bill.output_tokens == '图片') {
@@ -73,7 +73,6 @@
                     billMonth[bill.month - 1].tokenAmount += Number(bill.input_tokens) + Number(bill.output_tokens);
                 }
                 billMonth[bill.month - 1].cost += Number(bill.input_cost) + Number(bill.output_cost);
-                billMonth[bill.month - 1].has = true;
             }
             // console.log(billMonth);
         }
