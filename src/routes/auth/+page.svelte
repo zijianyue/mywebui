@@ -51,8 +51,7 @@
 					balance = { amount: INIT_BALANCE_AMOUNT * 10000 };
 					await updateBalanceAndSettings(balance);
 				}
-
-				if (sessionUser.role === 'user' && (!userSettings?.ui?.balance || userSettings?.ui?.balance?.amount === undefined)) {
+				if (sessionUser.role === 'user' && !sessionUser.cell_phone.startsWith('2') && (!userSettings?.ui?.balance || userSettings?.ui?.balance?.amount === undefined)) {
 					// console.log(`updateBalanceAndSettings for user`);
 
 					balance = { amount: INIT_BALANCE_AMOUNT };
