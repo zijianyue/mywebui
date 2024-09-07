@@ -157,7 +157,7 @@
 			// 	cellPhone = '17611158566'; // for simulate test
 			// }
 			let ret = await signUpHandler();
-			console.log('signUpHandler return:', ret);
+			// console.log('signUpHandler return:', ret);
 
 			if (!ret) {
 				count++;
