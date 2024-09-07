@@ -190,7 +190,7 @@
                         {#each costDetails.reverse() as perBill, i}
                             {#if i % 2 == 0 }
                                 <tr>
-                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('MMMM DD, YYYY'))}</th>
+                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('DD hh:mm:ss'))}</th>
                                     <th>{perBill.model_id}</th>
                                     <th>{perBill.input_tokens}</th>
                                     <th>{perBill.input_cost}</th>
@@ -200,7 +200,7 @@
                                 </tr>
                             {:else}
                                 <tr class="table-row">
-                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('MMMM DD, YYYY'))}</th>
+                                    <th>{dayjs(perBill.expense_time * 1000).format($i18n.t('DD hh:mm:ss'))}</th>
                                     <th>{perBill.model_id}</th>
                                     <th>{perBill.input_tokens}</th>
                                     <th>{perBill.input_cost}</th>

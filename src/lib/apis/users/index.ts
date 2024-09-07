@@ -101,8 +101,8 @@ export const addAcountBill = async (user_id: string,
 	month: number) => {
 	let error = null;
 
-	let fix_input_cost = toFixedTruncated(Number(input_cost), 6).toString();
-	let fix_output_cost = toFixedTruncated(Number(output_cost), 6).toString();
+	let fix_input_cost = (input_cost != 'N/A') ? toFixedTruncated(Number(input_cost), 6).toString() : input_cost;
+	let fix_output_cost = (output_cost != 'N/A') ? toFixedTruncated(Number(output_cost), 6).toString() : output_cost;
 	let fix_amount = toFixedTruncated(Number(amount), 6).toString();
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/users/add/account_bill`, {

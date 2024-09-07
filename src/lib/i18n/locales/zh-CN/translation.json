@@ -408,6 +408,8 @@
 	"Mirostat Tau": "Mirostat Tau",
 	"MMMM DD, YYYY": "YYYY年 MM月 DD日",
 	"MMMM DD, YYYY HH:mm": "YYYY年 MM月 DD日 HH:mm",
+	"DD hh:mm:ss": "DD日 hh:mm:ss",
+	"MMMM DD, YYYY hh:mm:ss": "YYYY年 MM月 DD日 hh:mm:ss",
 	"MMMM DD, YYYY hh:mm:ss A": "YYYY年 MM月 DD日 hh:mm:ss A",
 	"Model '{{modelName}}' has been successfully downloaded.": "模型'{{modelName}}'已成功下载。",
 	"Model '{{modelTag}}' is already in queue for downloading.": "模型'{{modelTag}}'已在下载队列中。",
