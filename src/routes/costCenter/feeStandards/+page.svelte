@@ -1,22 +1,36 @@
 
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { modelPrices, PRICE_COE, type ModelPrice } from '$lib/constants';
-	import { getModels, toFixedTruncated } from '$lib/apis';
+    import { modelPrices, PRICE_COE } from '$lib/constants';
+	import { getModels, toFixedTruncated, getTaskConfig } from '$lib/apis';
 
     let modelPriceMap = Object.entries(modelPrices);
 
-    let existModelList: [string, ModelPrice][] = [['?', { input: 0, output: 0}]];
+    let existModelList: {name: string, input: string, output: string, disc1: string, disc2: string, disc3: string}[] = [];
     let loaded = false;
     onMount(async () => {
         let models = await getModels(localStorage.token);
+        let taskConfig = await getTaskConfig(localStorage.token);
 
-        existModelList.pop();
+        // existModelList.pop();
         for ( let [m_id, priceEle] of modelPriceMap) {
             let model = models.find((m) => m.id === m_id);
             if (model != undefined) {
                 console.log('name ', model.name, ' : ', priceEle);
-                existModelList.push([model.name, priceEle]);
+
+                let coe = Number(priceEle.coe?? PRICE_COE);
+                if (priceEle.useExchangeRate ?? false) {
+                    coe = coe * Number(taskConfig.EXCHANGERATE);
+                }
+
+                existModelList.push({
+                        name: model.name,
+                        input: toFixedTruncated(priceEle.input * coe, 6), 
+                        output: toFixedTruncated(priceEle.output * coe, 6), 
+                        disc1: priceEle.disc1?? '', 
+                        disc2: priceEle.disc2?? '', 
+                        disc3: priceEle.disc3?? ''
+                    });
             }
         }
         loaded = true;
@@ -50,7 +64,7 @@
 
             <p>下表所列模型价格以“百万tokens”为单位。Token是模型用来表示自然语言文本的最小单位，可以是一个词、一个数字或一个标点符号等。我们将根据模型输入和输出的总token数进行计量计费。</p>
             <p class="bold-text">下表未列出，而平台在使用的模型，属于免费模型，使用不产生任何费用。</p>
-            <p>部分免费模型，如meta/llama-3.1-405b-instruct，有时候比较卡，且每天流量有限，不是太好用，所以平台提供给大家免费使用。</p>
+            <!-- <p>部分免费模型，如meta/llama-3.1-405b-instruct，有时候比较卡，且每天流量有限，不是太好用，所以平台提供给大家免费使用。</p> -->
             <p>&nbsp;</p>
 
             <table>
@@ -61,13 +75,13 @@
                     <th>输出价格（元）/千token</th>
                     <th>操作</th>
                 </tr>
-                {#each existModelList as [name, item]}
+                {#each existModelList as item}
                     {#if loaded}
                         <tr>
-                            <th class="table-first-col">{name}</th>
-                            <th class="table-other-col">{toFixedTruncated(item.input * PRICE_COE, 6)}</th>
-                            <th class="table-other-col">{toFixedTruncated(item.output * PRICE_COE, 6)}</th>
-                            <th class="table-other-col"><button class="underline" on:click={(e) => handleModelDetails(e, name, item.disc1, item.disc2, item.disc3)}>显示模型详细描述</button></th>
+                            <th class="table-first-col">{item.name}</th>
+                            <th class="table-other-col">{item.input}</th>
+                            <th class="table-other-col">{item.output}</th>
+                            <th class="table-other-col"><button class="underline" on:click={(e) => handleModelDetails(e, item.name, item.disc1, item.disc2, item.disc3)}>显示模型详细描述</button></th>
                         </tr>
                     {/if}
                 {/each}
