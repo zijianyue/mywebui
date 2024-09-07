@@ -944,6 +944,16 @@ SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD = PersistentConfig(
         )
     ),
 )
+EXCHANGERATE = PersistentConfig(
+    "EXCHANGERATE",
+    "task.tools.exchangerate",
+    float(
+        os.environ.get(
+            "EXCHANGERATE",
+            7.09,
+        )
+    ),
+)
 
 TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = PersistentConfig(
     "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE",

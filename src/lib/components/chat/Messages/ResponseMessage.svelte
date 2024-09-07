@@ -38,6 +38,7 @@
 	import Citations from './Citations.svelte';
 	import {translatePrompt, chatCompletionSimple } from '$lib/apis/openai';
 	import { updateUserSettings, getUserSettings, addAcountBill } from '$lib/apis/users';
+	import { getTaskConfig } from '$lib/apis';
 
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
@@ -167,8 +168,15 @@
 		let remaining = $settings.balance.amount;
 		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${remaining}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
 
-		let inputCost = (input_tokens / 1000) * (pricePair.input * PRICE_COE);
-		let outputCost = (output_tokens / 1000) * (pricePair.output * PRICE_COE);
+		let coe = pricePair.coe?? PRICE_COE;
+		let exchangeRate = pricePair.useExchangeRate ?? false;
+		let taskConfig = await getTaskConfig(localStorage.token);
+		console.debug('taskConfig:', taskConfig);
+		coe = exchangeRate ? coe * taskConfig.EXCHANGERATE : coe;
+		console.log('coe used:', coe);
+
+		let inputCost = (input_tokens / 1000) * (pricePair.input * coe);
+		let outputCost = (output_tokens / 1000) * (pricePair.output * coe);
 		let totalCost = inputCost + outputCost;
 		if (remaining < totalCost) {
 			toast.error(`Insufficient balance. Current balance: ${remaining}, Required: ${totalCost}`);

@@ -116,6 +116,7 @@ from config import (
     TITLE_GENERATION_PROMPT_TEMPLATE,
     SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE,
     SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD,
+    EXCHANGERATE,
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
     SAFE_MODE,
     OAUTH_PROVIDERS,
@@ -194,6 +195,9 @@ app.state.config.SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE = (
 )
 app.state.config.SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD = (
     SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD
+)
+app.state.config.EXCHANGERATE = (
+    EXCHANGERATE
 )
 app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = (
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
@@ -1306,6 +1310,7 @@ async def get_task_config(user=Depends(get_verified_user)):
         "SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE": app.state.config.SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE,
         "SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD": app.state.config.SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD,
         "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE": app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
+        "EXCHANGERATE": app.state.config.EXCHANGERATE,
     }
 
 
@@ -1316,6 +1321,7 @@ class TaskConfigForm(BaseModel):
     SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE: str
     SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD: int
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE: str
+    EXCHANGERATE: Optional[float]
 
 
 @app.post("/api/task/config/update")
@@ -1334,7 +1340,9 @@ async def update_task_config(form_data: TaskConfigForm, user=Depends(get_admin_u
     app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = (
         form_data.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
     )
-
+    app.state.config.EXCHANGERATE = (
+        form_data.EXCHANGERATE
+    )
     return {
         "TASK_MODEL": app.state.config.TASK_MODEL,
         "TASK_MODEL_EXTERNAL": app.state.config.TASK_MODEL_EXTERNAL,
@@ -1342,6 +1350,7 @@ async def update_task_config(form_data: TaskConfigForm, user=Depends(get_admin_u
         "SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE": app.state.config.SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE,
         "SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD": app.state.config.SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD,
         "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE": app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
+        "EXCHANGERATE": app.state.config.EXCHANGERATE,
     }
 
 

@@ -24,7 +24,8 @@
 		TASK_MODEL_EXTERNAL: '',
 		TITLE_GENERATION_PROMPT_TEMPLATE: '',
 		SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE: '',
-		SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD: 0
+		SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD: 0,
+		EXCHANGERATE:7.09
 	};
 
 	let promptSuggestions = [];
@@ -117,7 +118,6 @@
 					</select>
 				</div>
 			</div>
-
 			<div class="mt-3">
 				<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Title Generation Prompt')}</div>
 				<textarea
@@ -145,6 +145,15 @@
 					class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none resize-none"
 					type="number"
 				/>
+			</div>
+			<div class="mt-3">
+				<div class=" mb-2.5 text-sm font-medium">{$i18n.t('美元兑人民币汇率')}</div>
+				<input
+					bind:value={taskConfig.EXCHANGERATE}
+					class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-none resize-none"
+					type="number"
+					step="0.01"
+					/>
 			</div>
 		</div>
 

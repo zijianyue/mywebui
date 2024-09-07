@@ -1005,7 +1005,9 @@
 
 				<div class="mt-1.5 text-xs text-gray-500 text-center line-clamp-1">
 					{$i18n.t('LLMs can make mistakes. Verify important information.')}
-					{"|"}					
+					{"|"}
+					Copyright © 2024
+					{"|"}
 					<a href="/agreement" target="_blank"><span class=" underline">{$i18n.t('User Agreement')}</span></a>
 				</div>
 			</div>
