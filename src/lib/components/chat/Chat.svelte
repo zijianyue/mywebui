@@ -292,58 +292,7 @@
 		}
 	};
 
-	function newConversation() {
-		initNewChat();
-	}
-
-	let buttonContainer: HTMLElement;
-	let currentIndex = 0;
-	const buttons = [
-		{ icon: 'summary', text: '一键总结' },
-		{ icon: 'correct', text: '校正文字' },
-		{ icon: 'translate', text: '中英互译' },
-	];
-
-	function scrollLeft() {
-		if (currentIndex > 0) {
-			currentIndex--;
-			updateScroll();
-		}
-	}
-
-	function scrollRight() {
-		if (currentIndex < buttons.length - 3) {
-			currentIndex++;
-			updateScroll();
-		}
-	}
-
-	function updateScroll() {
-		if (!buttonContainer) return; // 如果 buttonContainer 未定义，直接返回
-		
-		const buttonWidth = 36; // 按钮宽度
-		const gap = 4; // 按钮之间的间距
-		buttonContainer.style.transform = `translateX(-${currentIndex * (buttonWidth + gap)}px)`;
-	}
-
-	function handleButtonClick(action: string) {
-		switch (action) {
-		case 'summary':
-			submitPrompt(prompt, { _summarize: true });
-			break;
-		case 'correct':
-			submitPrompt(prompt, { _correctText: true });
-			break;
-		case 'translate':
-			submitPrompt(prompt, { _translate: true });
-			break;
-		default:
-			console.log('未知操作');
-		}
-	}
-
 	onMount(async () => {
-		updateScroll();
 		const script = document.createElement('script');
 		script.src = 'https://assets.salesmartly.com/js/project_110907_115361_1724377087.js';
 		script.async = true;
@@ -2754,6 +2703,7 @@
 								bind:autoScroll
 								bind:selectedToolIds
 								bind:webSearchEnabled
+								bind:generateImageEnabled
 								bind:atSelectedModel
 								{selectedModels}
 								availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
