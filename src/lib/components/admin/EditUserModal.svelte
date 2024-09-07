@@ -4,9 +4,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, getContext } from 'svelte';
 
-	import { updateUserById } from '$lib/apis/users';
+	import { updateUserById, getUserSettingsByUserId, addAcountBill } from '$lib/apis/users';
 	import Modal from '../common/Modal.svelte';
-	import { getUserSettingsByUserId, addAcountBill } from '$lib/apis/users';
+	import { toFixedTruncated } from '$lib/apis';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -33,7 +33,7 @@
 
 			if (oldAmout != _user.amount) {
 				let data = new Date();
-				let diff = _user.amount - oldAmout;
+				let diff = toFixedTruncated(_user.amount - oldAmout, 6);
 				console.log('recharge ', diff, ' settings ', _user.amount, ' selectedUser.id ', selectedUser.id);
 				addAcountBill(selectedUser.id, '充值' + diff.toString(), 'N/A', 'N/A', 'N/A', 'N/A', _user.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 
