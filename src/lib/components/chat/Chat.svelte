@@ -129,6 +129,7 @@
 	let translate = false;
 	let correctText = false;
 	let summarize = false;
+	let polish = false;
 
 	let responseIdToTrans = '';
 
@@ -551,7 +552,7 @@
 	// Chat functions
 	//////////////////////////
 
-	const submitPrompt = async (userPrompt, { _raw = false, _translate = false, _correctText = false, _summarize = false } = {}) => {
+	const submitPrompt = async (userPrompt, { _raw = false, _translate = false, _correctText = false, _summarize = false, _polish = false } = {}) => {
 		let _responses = [];
 		console.log('submitPrompt', $chatId);
 
@@ -645,10 +646,14 @@
 			if (_correctText) {
 				correctText = true;
 			}
+			if (_polish) {
+				polish = true;
+			}
 			_responses = await sendPrompt(userPrompt, userMessageId, { newChat: true });
 			translate = false;
 			correctText = false;
 			summarize = false;
+			polish = false;
 		}
 
 		return _responses;
@@ -1684,15 +1689,18 @@
 			console.log('translate:', translate);
 			console.log('correctText:', correctText);
 			console.log('summarize:', summarize);
+			console.log('polish:', polish);
 
 			console.log('responseIdToTrans:', responseIdToTrans);
 
 			let clonedMessages;
 			let useMockMsg = false, useCustomModel = false;
-			if (translate || correctText || summarize || responseIdToTrans !== '') {
+			if (translate || correctText || summarize || polish || responseIdToTrans !== '') {
 				useMockMsg = true;
-				if (!correctText) {
-					useCustomModel = true;
+				useCustomModel = true;
+
+				if (correctText || polish) {
+					useCustomModel = false;
 				}
 				clonedMessages = JSON.parse(JSON.stringify(messages));
 				console.log('clonedMessages:', clonedMessages);
@@ -1738,6 +1746,20 @@ ${userPrompt}
 [修改列表及解释，没有修改的不用列出]`;
 				} else if (summarize) {
 					userPrompt = `Summarize the content after the colon in Chinese as concisely as possible: "${userPrompt}"`;
+				} else if (polish) {
+					userPrompt = `请帮我润色以下文章,使其更加流畅、生动和专业。请注意:
+
+1.保持原文的主要内容和观点不变
+2.改善句子结构,使表达更加清晰简洁
+3.用更丰富、准确的词汇替换重复或不当的用词
+4.调整段落结构,使文章层次更加分明
+5.增加适当的过渡语,使文章更加连贯
+6.纠正任何语法、拼写或标点错误
+7.调整语气和风格,使其更符合[目标读者/发表场合]，[目标读者/发表场合]需要你来推测判断
+8.如有必要,可以适当增加细节或例子来支持论点
+9.确保文章整体逻辑性和说服力
+10.润色后的文章应当比原文更具可读性和吸引力。
+请保留原文的核心信息,同时提高整体表达质量。后面是原文: "${userPrompt}"`;
 				}
 				console.log('prompt for useCustomModel:', userPrompt);
 				mockUserMsg.content = userPrompt;

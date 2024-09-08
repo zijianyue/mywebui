@@ -142,12 +142,14 @@ export const modelPrices: PriceTable = {
 	// "google/gemma-2-27b-it": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
 
 };
+// export const modelsNeedTranslate = [
+// 	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "mistralai/mixtral-8x22b-instruct-v0.1", "google/gemma-2-27b-it", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
+// ];
 export const modelsNeedTranslate = [
-	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "mistralai/mixtral-8x22b-instruct-v0.1", "google/gemma-2-27b-it", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
+	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
 ];
-
 export const modelsCanOutputChinese = [
-	"llama-3.1-70b-versatile", "google/gemma-2-27b-it", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
+	"google/gemma-2-27b-it",
 ];
 
 // Source: https://kit.svelte.dev/docs/modules#$env-static-public
