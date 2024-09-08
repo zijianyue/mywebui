@@ -39,7 +39,7 @@
 
             <p>&nbsp;</p>
             <img src="/static/recommend/001/p1.jpg" alt="沈某某训练效果1" />
-            <img src="/static/recommend/001/p2.jpg" alt="沈某某训练效果2" />
+            <img src="/static/recommend/001/p2_2.jpg" alt="沈某某训练效果2" />
         </div>
 
         <p>&nbsp;</p>
