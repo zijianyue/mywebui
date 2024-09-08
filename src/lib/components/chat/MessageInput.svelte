@@ -338,7 +338,7 @@
 						<div></div>
 					{/if}
 					{#if prompt.trim() !== ''}
-						<div transition:fade="{{ duration: 300 }}" class="absolute right-0 flex items-center justify-end space-x-2">
+						<div transition:fade="{{ duration: 2000 }}" class="absolute right-0 flex items-center justify-end space-x-2">
 							<button
 								on:click={scrollLeft}
 								class="p-1 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none transition-colors duration-200"
