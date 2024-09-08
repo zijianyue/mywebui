@@ -117,6 +117,9 @@
 		case 'translate':
 			submitPrompt(prompt, { _translate: true });
 			break;
+		case 'polish':
+			submitPrompt(prompt, { _polish: true });
+			break;
 		default:
 			console.log('未知操作');
 		}
