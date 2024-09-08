@@ -193,16 +193,6 @@
 		text-align: center;
 	}
 
-	.btn-primary {
-		background-color: var(--accent-color);
-		color: var(--btn-text-color);
-		border: none;
-	}
-
-	.btn-primary:hover {
-		background-color: var(--btn-hover-bg);
-	}
-
 	.btn-outline {
 		border: 2px solid var(--accent-color);
 		color: var(--accent-color);
@@ -224,14 +214,6 @@
 
 	.btn-back:hover {
 		background-color: rgba(74, 20, 140, 0.1);
-	}
-
-	.btn-toggle {
-		background: none;
-		border: none;
-		font-size: 1.5rem;
-		cursor: pointer;
-		padding: 0.5rem;
 	}
 
 	@media (max-width: 600px) {
