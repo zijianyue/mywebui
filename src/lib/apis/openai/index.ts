@@ -360,14 +360,31 @@ export const judgeGenerateImageIntention = async (userPrompt: string, modelId: s
 };
 
 export function isPureEnglish(str) {
-	return /^[\x00-\x7F]*$/.test(str);
+	// 使用正则表达式匹配汉字
+	const chineseRegex = /[\u4e00-\u9fa5]/;
+	return !chineseRegex.test(str);
+	// return /^[\x00-\x7F]*$/.test(str);
 }
 
 export const translatePrompt = async (userPrompt: string, modelId: string) => {
 	let retries = 3;
 	let promptUsed = userPrompt;
 	let pure = isPureEnglish(userPrompt);
-	const transPrompt = `将后面引号中的文字翻译成英语，不要包含翻译注解，结果必须是纯英文，不能有unicode字符："${userPrompt}"`;
+	let transPrompt;
+	if (userPrompt.includes("```")) {
+		transPrompt = `请将以下###标记之间的文本翻译成英语。注意，不要翻译\`\`\`...\`\`\`中的代码内容，而是将其原样保留在翻译结果中。只翻译代码外的说明文字。翻译时保持专业、准确，并使用技术写作的语气。请确保说明文字的翻译是纯英文，不包含任何Unicode字符或翻译注释。将原始代码和翻译后的说明文字组合在一起，形成完整的翻译结果。以下是需要翻译的文本：
+
+###
+${userPrompt}
+###`;
+	} else {
+		transPrompt = `请将以下文本翻译成英语。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯英文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
+
+###
+${userPrompt}
+###`;
+	}
+
 	if (pure) {
 		retries = 0;
 	}
