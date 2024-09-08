@@ -51,7 +51,7 @@
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
-	import { getAndUpdateUserLocation, getUserSettings, updateUserSettings, adjustUserBalance } from '$lib/apis/users';
+	import { getAndUpdateUserLocation, getUserSettings, adjustUserBalance } from '$lib/apis/users';
 	import {
 		chatCompleted,
 		generateTitle,
@@ -1708,9 +1708,20 @@
 
 				if (translate || responseIdToTrans !== '') {
 					if (isPureEnglish(userPrompt)) {
-						userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
+						console.log('mostly english');
+						userPrompt = `请将以下###标记之间的文本翻译成简体中文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯中文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
+
+###
+${userPrompt}
+###`;
+						// userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
 					} else {
-						userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
+						userPrompt = `请将以下###标记之间的文本翻译成英文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯英文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
+
+###
+${userPrompt}
+###`;
+						// userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
 					}
 				} else if (correctText) {
 					userPrompt = `请仔细校对冒号后的文本，严格遵守以下规则：
