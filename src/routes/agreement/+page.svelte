@@ -1,15 +1,22 @@
-<script lang="ts">
-</script>
-
 <div class="wrap">
-    <div class="scrollable line-border">
-        <p style="font-size: 1.5em; font-weight: bold; text-align: center;">CPoe用户协议</p>
-        <p style="font-size: 1em; font-weight: bold; text-align: center;">最新版本生效日期：2024年8月7日</p>
+    <header>
+        <div class="header-item">
+            <a href="/" class="btn-back" aria-label="返回首页">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+        </div>
+        <h1>CPoe用户协议</h1>
+        <div class="header-item"></div>
+    </header>
+    <div class="scrollable">
+        <p class="subtitle">最新版本生效日期：2024年8月7日</p>
         
         <p>&nbsp;</p>
         <p>&nbsp;</p>
 
-        <div style="font-size: 0.95em;">
+        <div class="content">
             
             <p>欢迎您与CPoe签署本《用户协议》（下称&quot;本协议&quot;）并使用CPoe（定义见下文）服务。</p>
             
@@ -423,11 +430,6 @@
             <p>&nbsp;</p>
         </div>
     </div>
-    <div class="flex" style="text-align: center; align-items: center; justify-content: right;">
-        <p style="font-size: 1.5em; color:blue; font-weight: bold;">
-            <a class="flex flex-1 rounded-xl px-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition" href="/">返回</a>
-        </p>
-    </div>
 </div>
 
 <style>
@@ -452,43 +454,90 @@
         text-decoration: underline;
     }
 
-    .wrap {
+	.wrap {
         max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    header {
+        display: flex;
+        align-items: center;
+		justify-content: space-between;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+	.header-item {
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+    }
+    h1 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 0;
+        flex-grow: 1;
+        text-align: center;
+    }
+    .title {
+        font-size: 1.5em;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 0.5em;
+    }
+    .subtitle {
+        font-size: 1em;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2em;
+    }
+    .content {
+        font-size: 0.95em;
+    }
+    .btn-back {
+        display: flex;
+        align-items: center;
+		justify-content: center;
+        background-color: transparent;
+        color: var(--heading-color, #333);
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background-color 0.3s ease;
+    }
+    .btn-back:hover {
+        background-color: rgba(74, 20, 140, 0.1);
     }
     .scrollable {
-        height: calc(100vh - 3.5em);
-        overflow-y: scroll; /* 启用垂直滚动条 */
-        border: 1px solid #ccc; /* 可视边界 */
+        flex: 1;
+        overflow-y: auto;
+        padding: 3% 22%;
+        line-height: 1.6;
+        color: #333;
     }
-    .line-border {
-        position: relative;
-        line-height: 1.6; /* 根据需要设置行高 */
-        color: #333; /* 根据需要设置文本颜色 */
-        padding-left: 22%;
-        padding-right: 22%;
-        padding-top: 3%;
+    .content {
+        font-size: 0.95em;
     }
     @media (max-width: 1200px) {
-        .line-border {
-            padding-left: 11%;
-            padding-right: 11%;
-            padding-top: 2%;
+        .scrollable {
+            padding: 2% 11%;
         }
     }
     @media (max-width: 800px) {
-        .line-border {
-            padding-left: 5%;
-            padding-right: 5%;
-            padding-top: 1%;
+        .scrollable {
+            padding: 1% 5%;
         }
     }
-    /* 屏幕宽度小于600px时（适用于大多数手机） */
     @media (max-width: 600px) {
-        .line-border {
-            padding-left: 2%;
-            padding-right: 2%;
-            padding-top: 1%;
+        .scrollable {
+            padding: 1% 2%;
+        }
+        .btn-back {
+            width: 36px;
+            height: 36px;
+        }
+        .btn-back svg {
+            width: 20px;
+            height: 20px;
         }
     }
-
 </style>
