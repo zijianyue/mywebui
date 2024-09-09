@@ -88,6 +88,20 @@
             </table>
 
             <p>&nbsp;</p>
+            <table>
+                <tr class="table-cap">
+                    <th>图片模型</th>
+                    <th>价格（元）/张</th>
+                    <th>备注</th>
+                </tr>
+                <tr>
+                    <th class="table-first-col">FLUX.1-Dev</th>
+                    <th class="table-other-col">0.1</th>
+                    <th class="table-other-col">使用ComfyUI</th>
+                </tr>
+            </table>
+
+            <p>&nbsp;</p>
             {#if showModelDetails}
                 <p class="bold-text">模型“{selectModel}”点评：</p>
                 {#each modelDetails as disc}
