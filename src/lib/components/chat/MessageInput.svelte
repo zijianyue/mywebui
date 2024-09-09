@@ -80,7 +80,16 @@
 		{ icon: 'translate', text: '中英互译' },
 		{ icon: 'polish', text: '润色文章' },
 	];
+	let wasFocused = false;
 
+	function handleButtonInteraction(event, action) {
+		event.preventDefault();
+		wasFocused = document.activeElement === chatTextAreaElement;
+		action();
+		if (wasFocused) {
+			setTimeout(() => chatTextAreaElement?.focus(), 0);
+		}
+	}
 	function scrollLeft() {
 		if (currentIndex > 0) {
 			currentIndex--;
@@ -344,12 +353,13 @@
 					{#if prompt.trim() !== ''}
 						<div transition:fade="{{ duration: 1000 }}" class="absolute right-0 flex items-center justify-end space-x-2">
 							<button
-								on:click={scrollLeft}
-								class="p-1 focus:outline-none transition-colors duration-200 rounded-full {currentIndex > 0 ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}"
+								on:touchstart={(e) => handleButtonInteraction(e, scrollLeft)}
+								on:click={(e) => handleButtonInteraction(e, scrollLeft)}
+								class="p-2 focus:outline-none transition-colors duration-200 rounded-full {currentIndex > 0 ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}"
 								aria-label="向左滚动"
 								disabled={currentIndex === 0}
 								>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
 								</svg>
 							</button>
@@ -387,12 +397,13 @@
 							</div>
 							
 							<button
-								on:click={scrollRight}
-								class="p-1 focus:outline-none transition-colors duration-200 rounded-full {currentIndex < buttons.length - 3 ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}"
+								on:touchstart={(e) => handleButtonInteraction(e, scrollRight)}
+								on:click={(e) => handleButtonInteraction(e, scrollRight)}
+								class="p-2 focus:outline-none transition-colors duration-200 rounded-full {currentIndex < buttons.length - 3 ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}"
 								aria-label="向右滚动"
 								disabled={currentIndex === buttons.length - 3}
 								>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
 								</svg>
 							</button>
