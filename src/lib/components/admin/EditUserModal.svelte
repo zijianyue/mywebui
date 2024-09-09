@@ -35,7 +35,9 @@
 				let data = new Date();
 				let diff = toFixedTruncated(_user.amount - oldAmout, 6);
 				console.log('recharge ', diff, ' settings ', _user.amount, ' selectedUser.id ', selectedUser.id);
-				addAcountBill(selectedUser.id, '充值' + diff.toString(), 'N/A', 'N/A', 'N/A', 'N/A', _user.amount.toString(), data.getFullYear(), data.getMonth() + 1);
+
+				let opType = Number(diff) > 0 ? '充值' : '扣费';
+				addAcountBill(selectedUser.id, opType + diff.toString(), 'N/A', 'N/A', 'N/A', 'N/A', _user.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 
 				oldAmout = _user.amount;
 			}
