@@ -130,14 +130,16 @@ export const modelPrices: PriceTable = {
 	"gpt-4o-mini": { input: 0.00105, output: 0.0042, disc1: "GPT-4o mini是OpenAI于当地时间2024年7月18日推出迷你AI模型，该模型是GPT-4o的一个分支。", disc2: "作为小模型一度登顶，与GPT-4o满血版并列第一。不仅性能更强，价格也来到了「白菜价」。", disc3: "" },
 	"gpt-4o-2024-08-06": { input: 0.0175, output: 0.07, disc1: "gpt-4o-2024-08-06 模型是OpenAI在深度学习和自然语言处理领域的最新成果。", disc2: "支持结构化输出，例如JSON，且取得了满分100%的卓越成绩。", disc3: "" },
 	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06, disc1: "claude-3-5-sonnet-20240620是由Anthropic发布的新AI模型，属于Claude系列。", disc2: "Claude-3.5-Sonnet对于那些寻求平衡、性价比高且具有强大文本和图像任务能力的用户来说，是一个强有力的竞争者。而GPT-4o则因其卓越的语言处理能力和高级多模态功能，尽管成本更高，仍然是顶级选择。选择哪一个取决于具体的应用需求和预算考虑。", disc3: "" },
-	"Qwen/Qwen2-72B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
-	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
+	"Qwen/Qwen2-72B-Instruct": { input: 0.00413, output: 0.00413},
+	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413},
 	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
 	// "meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
-	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
-	"chatgpt-4o-latest": { input: 0.035, output: 0.105, disc1: "", disc2: "", disc3: "" },
+	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021},
+	"chatgpt-4o-latest": { input: 0.035, output: 0.105},
 	// "gemini-1.5-flash": { input: 0.002, output: 0.006, coe: 1.1, useExchangeRate: true ,disc1: "", disc2: "", disc3: "" }, // 2/6$ 服务不可用
-	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true, disc1: "", disc2: "", disc3: "" }, // 4/12$
+	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true}, // 4/12$
+	"deepseek-ai/DeepSeek-V2.5": { input: 0.001, output: 0.002},
+	"mattshumer/Reflection-Llama-3.1-70B": { input: 0.00413, output: 0.00413},
 
 	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
 	// "microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
