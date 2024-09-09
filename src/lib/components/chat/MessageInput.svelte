@@ -106,10 +106,27 @@
 
 	function updateScroll() {
 		if (!buttonContainer) return; // 如果 buttonContainer 未定义，直接返回
-		
+		console.log('updateScroll call,index:', currentIndex);
 		const buttonWidth = 36; // 按钮宽度
 		const gap = 4; // 按钮之间的间距
 		buttonContainer.style.transform = `translateX(-${currentIndex * (buttonWidth + gap)}px)`;
+	}
+
+	let previousPromptEmpty = true;
+
+	$: {
+		const currentPromptEmpty = !prompt || prompt.trim() === '';
+		if (previousPromptEmpty && !currentPromptEmpty) {
+			resetIndexAndScroll();
+		}
+		previousPromptEmpty = currentPromptEmpty;
+	}
+
+	function resetIndexAndScroll() {
+		console.log('resetIndexAndScroll called index:', currentIndex);
+
+		currentIndex = 0;
+		updateScroll();
 	}
 
 	function handleButtonClick(action: string) {
