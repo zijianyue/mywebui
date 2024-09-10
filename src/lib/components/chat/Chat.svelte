@@ -1268,7 +1268,8 @@
 					modelIdx: modelIdx ? modelIdx : _modelIdx,
 					userContext: null,
 					timestamp: Math.floor(Date.now() / 1000), // Unix epoch
-					useCustomModel: false
+					useCustomModel: false,
+					useSpecifiedModel: ''
 				};
 
 				// Add message to history and Set currentId to messageId
@@ -1835,12 +1836,14 @@
 
 			let clonedMessages;
 			let useMockMsg = false, useCustomModel = false;
+			let useSpecifiedModel = '';
 			if (translate || correctText || summarize || polish || responseIdToTrans !== '') {
 				useMockMsg = true;
 				useCustomModel = true;
 
 				if (correctText || polish) {
 					useCustomModel = false;
+					useSpecifiedModel = 'deepseek-ai/DeepSeek-V2.5';
 				}
 				clonedMessages = JSON.parse(JSON.stringify(messages));
 				console.log('clonedMessages:', clonedMessages);
@@ -1926,6 +1929,10 @@ ${userPrompt}
 			if (useCustomModel) {
 				responseMessage.useCustomModel = true;
 			}
+			if (useSpecifiedModel !== '') {
+				responseMessage.useSpecifiedModel = useSpecifiedModel;
+				console.log('responseMessage.useSpecifiedModel:', responseMessage.useSpecifiedModel);
+			}
 
 			
 			const [res, controller] = await generateOpenAIChatCompletion(
@@ -1941,6 +1948,7 @@ ${userPrompt}
 							}
 						: {}),
 					...(useCustomModel ? { useCustomModel: true } : {}),
+					...(useSpecifiedModel !== '' ? { useSpecifiedModel: useSpecifiedModel} : {}),
 					messages: [
 						params?.system || $settings.system || (responseMessage?.userContext ?? null)
 							? {
