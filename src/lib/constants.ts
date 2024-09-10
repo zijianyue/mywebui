@@ -148,7 +148,7 @@ export const modelPrices: PriceTable = {
 // 	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "mistralai/mixtral-8x22b-instruct-v0.1", "google/gemma-2-27b-it", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
 // ];
 export const modelsNeedTranslate = [
-	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct"
+	"llama-3.1-70b-versatile", "meta/llama-3.1-405b-instruct", "meta-llama/Meta-Llama-3.1-405B-Instruct", "microsoft/phi-3.5-moe-instruct", "microsoft/phi-3.5-vision-instruct", "mattshumer/Reflection-Llama-3.1-70B",
 ];
 export const modelsCanOutputChinese = [
 	"google/gemma-2-27b-it",
