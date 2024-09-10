@@ -137,14 +137,17 @@
 		alert(`电话: ${phone}, 距离: ${distance}, 线路: ${lineNames}`);
 	}
 
-	async function settleTheBill(input_tokens, output_tokens) {
+	async function settleTheBill(input_tokens, output_tokens, specifiedModel = '') {
 		if (!input_tokens && !output_tokens) {
 			console.log('no token consumed');
 			return;
 		}
-		let pricePair = modelPrices[model?.id];
+
+		let billModel = specifiedModel !== '' ? $models.find((m) => m.id === specifiedModel): model;
+
+		let pricePair = modelPrices[billModel?.id];
 		if (!pricePair) {
-			console.log(`Model ${model?.id}, ${model?.name} not found in price table`);
+			console.log(`Model ${billModel?.id}, ${billModel?.name} not found in price table`);
 			return;
 		}
 		try {
@@ -166,7 +169,7 @@
 			return;
 		}
 		let remaining = $settings.balance.amount;
-		console.log(`pricePair: ${JSON.stringify(pricePair)}, model.id: ${model.id}, Remaining balance: ${remaining}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
+		console.log(`pricePair: ${JSON.stringify(pricePair)}, billModel.id: ${billModel.id}, Remaining balance: ${remaining}, input_tokens: ${input_tokens}, output_tokens: ${output_tokens}`);
 
 		let coe = pricePair.coe?? PRICE_COE;
 		let exchangeRate = pricePair.useExchangeRate ?? false;
@@ -194,8 +197,8 @@
 		}
 
 		let data = new Date();
-		console.log('settleTheBill call addAcountBill user: ', $user.id, 'model: ', model.name);
-		addAcountBill($user.id, model.name, input_tokens.toString(), output_tokens.toString(), inputCost.toString(), outputCost.toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
+		console.log('settleTheBill call addAcountBill user: ', $user.id, 'billModel: ', billModel.name);
+		addAcountBill($user.id, billModel.name, input_tokens.toString(), output_tokens.toString(), inputCost.toString(), outputCost.toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	}
 	async function fetchOriginRagAnswer() {
 		loading = true;
@@ -489,7 +492,7 @@ A：回答2`;
 			// toast.success(` lastMessageId: ${lastMessageId} `);
 			localStorage.setItem('lastMessageId', message.id);
 			if (!message.useCustomModel) {
-				await settleTheBill(message.info?.prompt_tokens, message.info?.completion_tokens);
+				await settleTheBill(message.info?.prompt_tokens, message.info?.completion_tokens, message.useSpecifiedModel);
 			}
 		}
 	})();
