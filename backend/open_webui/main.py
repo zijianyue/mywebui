@@ -1007,6 +1007,8 @@ async def generate_chat_completions(form_data: dict, user=Depends(get_verified_u
     # log.debug(f"\n/api/chat/completions form_data: {form_data}")
     model_id = form_data["model"]
     use_custom_model = form_data.get("useCustomModel", False)
+    use_specified_model = form_data.get("useSpecifiedModel", "")
+
     if model_id not in app.state.MODELS:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -1024,6 +1026,12 @@ async def generate_chat_completions(form_data: dict, user=Depends(get_verified_u
         model_id = get_task_model_id(model_id)
         print(f"use_custom_model: {model_id}")
         form_data["model"] = model_id
+
+    if use_specified_model != "":
+        model_id = use_specified_model
+        print(f"use_specified_model: {model_id}")
+        form_data["model"] = model_id
+
     model = app.state.MODELS[model_id]
     if model.get("pipe"):
         print("generate_function_chat_completion")
