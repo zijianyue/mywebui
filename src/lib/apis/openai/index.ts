@@ -366,6 +366,20 @@ export function isPureEnglish(str) {
 	// return /^[\x00-\x7F]*$/.test(str);
 }
 
+export function isMainlyEnglish(str: string, threshold: number = 0.9): boolean {
+	// 移除所有空白字符
+	const trimmedStr = str.replace(/\s/g, '');
+
+	// 计算英文字符的数量
+	const englishCharCount = (trimmedStr.match(/[a-zA-Z]/g) || []).length;
+
+	// 计算英文字符占总字符的比例
+	const englishRatio = englishCharCount / trimmedStr.length;
+
+	// 判断是否达到阈值
+	return englishRatio >= threshold;
+}
+
 export const translatePrompt = async (userPrompt: string, modelId: string) => {
 	let retries = 3;
 	let promptUsed = userPrompt;

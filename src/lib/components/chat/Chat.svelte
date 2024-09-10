@@ -55,7 +55,7 @@
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
-	import { judgeGenerateImageIntention, isPureEnglish, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { judgeGenerateImageIntention, isPureEnglish, isMainlyEnglish, translatePrompt, generateOpenAIChatCompletion } from '$lib/apis/openai';
 	import { runWebSearch, processDocToQAQuestions, GetQAAnswer } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -1855,7 +1855,7 @@
 				}
 
 				if (translate || responseIdToTrans !== '') {
-					if (isPureEnglish(userPrompt)) {
+					if (isMainlyEnglish(userPrompt)) {
 						console.log('mostly english');
 						userPrompt = `请将以下###标记之间的文本翻译成简体中文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯中文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
 
