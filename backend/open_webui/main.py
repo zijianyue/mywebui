@@ -69,6 +69,7 @@ from open_webui.config import (
     OAUTH_PROVIDERS,
     ENABLE_SEARCH_QUERY,
     SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE,
+    EXCHANGERATE,
     STATIC_DIR,
     TASK_MODEL,
     TASK_MODEL_EXTERNAL,
@@ -118,8 +119,8 @@ from starlette.responses import RedirectResponse, Response, StreamingResponse
 from open_webui.utils.security_headers import SecurityHeadersMiddleware
 from utils.suggested_questions_after_answer \
     import SuggestedQuestionsAfterAnswerOutputParser
-from utils.prompt_template_parser import PromptTemplateParser
-from utils.message_entities import (ImagePromptMessageContent,
+from open_webui.utils.prompt_template_parser import PromptTemplateParser
+from open_webui.utils.message_entities import (ImagePromptMessageContent,
                                     TextPromptMessageContent)
 
 from open_webui.utils.misc import (

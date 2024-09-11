@@ -38,8 +38,8 @@
             <p>家长满意度非常高，直言不讳的说超预期。</p>
 
             <p>&nbsp;</p>
-            <img src="/static/recommend/001/p1.jpg" alt="沈某某训练效果1" />
-            <img src="/static/recommend/001/p2_2.jpg" alt="沈某某训练效果2" />
+            <img src="/recommend/001/p1.jpg" alt="沈某某训练效果1" />
+            <img src="/recommend/001/p2_2.jpg" alt="沈某某训练效果2" />
         </div>
 
         <p>&nbsp;</p>
@@ -67,8 +67,8 @@
             <p style="text-indent: 2em;">行为规则和能力水平都达到甚至超过了生理年龄。由于孩子是高功能自闭，在数学和空间感方面有着惊人的天赋。在苏老师团队的努力下，孩子的天赋展现，行为规范又得以提升，双向的进步促进了孩子的良性训练。经常传来小学考试和竞赛得奖的消息。</p>
 
             <p>&nbsp;</p>
-            <img src="/static/recommend/001/p3.jpeg" alt="陈某某训练效果1" />
-            <img src="/static/recommend/001/p4.jpg" alt="陈某某训练效果2" />
+            <img src="/recommend/001/p3.jpeg" alt="陈某某训练效果1" />
+            <img src="/recommend/001/p4.jpg" alt="陈某某训练效果2" />
         </div>
 
         <p>&nbsp;</p>
@@ -95,8 +95,8 @@
             <p style="text-indent: 2em;">妈妈在苏老师团队的倾力相助下，今年孩子已经有能力顺利幼升小。</p>
 
             <p>&nbsp;</p>
-            <img src="/static/recommend/001/p5.jpg" alt="黄某某干预前" />
-            <img src="/static/recommend/001/p6.jpeg" alt="黄某某干预后" />
+            <img src="/recommend/001/p5.jpg" alt="黄某某干预前" />
+            <img src="/recommend/001/p6.jpeg" alt="黄某某干预后" />
         </div>
 
         <p>&nbsp;</p>

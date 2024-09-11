@@ -644,16 +644,6 @@
 		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
 		audioAbortController.abort();
 		await tick();
-		// 停止所有媒体流
-		if (mediaRecorder) {
-			await stopAllAudio();
-			await stopRecordingCallback(false);
-			if (mediaRecorder.stream) {
-				mediaRecorder.stream.getTracks().forEach(track => track.stop());
-			}
-			mediaRecorder = null;
-		}
-		await stopCamera();
 
 	};
 	onDestroy(async () => {	
