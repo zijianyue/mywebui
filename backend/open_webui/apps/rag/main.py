@@ -8,7 +8,7 @@ import urllib.parse
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Iterator, Optional, Sequence, Union
+from typing import Iterator, Optional, Sequence, Union, Any
 
 import requests
 import validators
@@ -85,7 +85,7 @@ from open_webui.config import (
 )
 from open_webui.constants import ERROR_MESSAGES
 from open_webui.env import SRC_LOG_LEVELS
-from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
