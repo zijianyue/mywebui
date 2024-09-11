@@ -138,7 +138,7 @@ export const modelPrices: PriceTable = {
 	"chatgpt-4o-latest": { input: 0.035, output: 0.105},
 	// "gemini-1.5-flash": { input: 0.002, output: 0.006, coe: 1.1, useExchangeRate: true ,disc1: "", disc2: "", disc3: "" }, // 2/6$ 服务不可用
 	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true}, // 4/12$
-	"deepseek-ai/DeepSeek-V2.5": { input: 0.001, output: 0.002},
+	// "deepseek-ai/DeepSeek-V2.5": { input: 0.001, output: 0.002}, // 限时免费
 	"mattshumer/Reflection-Llama-3.1-70B": { input: 0.00413, output: 0.00413},
 
 	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
