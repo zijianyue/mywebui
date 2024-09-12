@@ -96,7 +96,7 @@
                 </tr>
                 <tr>
                     <th class="table-first-col">FLUX.1-Dev</th>
-                    <th class="table-other-col">0.1</th>
+                    <th class="table-other-col">限时免费</th>
                     <th class="table-other-col">使用ComfyUI</th>
                 </tr>
             </table>
