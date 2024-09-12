@@ -121,10 +121,10 @@ export const LOWEST_AMOUNT = 0.01;
 // 附图
 // 仿照 https://chatanywhere.apifox.cn/doc-2694962
 export const modelPrices: PriceTable = {
-	"weikangai": { input: 0.001, output: 0.002, disc1: "唯康感统智能助手是我司（武汉猿核信息科技有限公司）推出的一款面向小儿感统方面的知识与疑难解答的AI助理对话机器人。", disc2: "", disc3: "" },
+	// "weikangai": { input: 0.001, output: 0.002, disc1: "唯康感统智能助手是我司（武汉猿核信息科技有限公司）推出的一款面向小儿感统方面的知识与疑难解答的AI助理对话机器人。", disc2: "", disc3: "" },
 	// "weikangai-bak": { input: 0.001, output: 0.002, disc1: "唯康感统智能助手的备份。", disc2: "", disc3: "" },
-	"deepseek-chat": { input: 0.001, output: 0.002, disc1: "深度求索V2通用是国产开源的MoE大模型，一个强大、经济、高效的混合专家语言模型，具有以下显著特点和优势‌：", disc2: "高性能与经济性结合 ：尽管性能达到GPT-4级别，但其价格仅为GPT-4-Turbo的百分之一，使得开发者能够低成本获得GPT-4级别的辅助功能。参数与计算效率 ：该模型总共包含2360亿个参数，激活每个token只需要210亿个参数，相比前辈，节省了42.5%训练成本、减少了93.3%的KV缓存，并显著提升了生成吞吐量至5.76倍。多语言支持 ：支持涵盖338种编程语言的128K上下文长度，便于处理多语言编码工作，促进跨国界的互操作性。", disc3: "创新架构 ：采用了MLA（多头部潜在注意力）和MoE架构，分别优化了计算量与推理内存需求，使得模型在效率与经济性之间取得平衡。广泛应用场景 ：在代码生成、改进、问题解答与跨语言开发支持上显示了强大能力，适合各种规模的团队和企业用来提高开发效率与准确性。成本效益 ：对资源有限的开发者，提供了易于负担的API调用方案，使更多用户得以使用这一高性能AI。" },
-	"deepseek-coder": { input: 0.001, output: 0.002, disc1: "深度求索V2代码助手是深度求索V2针对代码生成优化的模型。", disc2: "", disc3: "" },
+	// "deepseek-chat": { input: 0.001, output: 0.002, disc1: "深度求索V2通用是国产开源的MoE大模型，一个强大、经济、高效的混合专家语言模型，具有以下显著特点和优势‌：", disc2: "高性能与经济性结合 ：尽管性能达到GPT-4级别，但其价格仅为GPT-4-Turbo的百分之一，使得开发者能够低成本获得GPT-4级别的辅助功能。参数与计算效率 ：该模型总共包含2360亿个参数，激活每个token只需要210亿个参数，相比前辈，节省了42.5%训练成本、减少了93.3%的KV缓存，并显著提升了生成吞吐量至5.76倍。多语言支持 ：支持涵盖338种编程语言的128K上下文长度，便于处理多语言编码工作，促进跨国界的互操作性。", disc3: "创新架构 ：采用了MLA（多头部潜在注意力）和MoE架构，分别优化了计算量与推理内存需求，使得模型在效率与经济性之间取得平衡。广泛应用场景 ：在代码生成、改进、问题解答与跨语言开发支持上显示了强大能力，适合各种规模的团队和企业用来提高开发效率与准确性。成本效益 ：对资源有限的开发者，提供了易于负担的API调用方案，使更多用户得以使用这一高性能AI。" },
+	// "deepseek-coder": { input: 0.001, output: 0.002, disc1: "深度求索V2代码助手是深度求索V2针对代码生成优化的模型。", disc2: "", disc3: "" },
 	"gpt-4o-mini": { input: 0.00105, output: 0.0042, disc1: "GPT-4o mini是OpenAI于当地时间2024年7月18日推出迷你AI模型，该模型是GPT-4o的一个分支。", disc2: "作为小模型一度登顶，与GPT-4o满血版并列第一。不仅性能更强，价格也来到了「白菜价」。", disc3: "" },
 	"gpt-4o-2024-08-06": { input: 0.0175, output: 0.07, disc1: "gpt-4o-2024-08-06 模型是OpenAI在深度学习和自然语言处理领域的最新成果。", disc2: "支持结构化输出，例如JSON，且取得了满分100%的卓越成绩。", disc3: "" },
 	"claude-3-5-sonnet-20240620": { input: 0.012, output: 0.06, disc1: "claude-3-5-sonnet-20240620是由Anthropic发布的新AI模型，属于Claude系列。", disc2: "Claude-3.5-Sonnet对于那些寻求平衡、性价比高且具有强大文本和图像任务能力的用户来说，是一个强有力的竞争者。而GPT-4o则因其卓越的语言处理能力和高级多模态功能，尽管成本更高，仍然是顶级选择。选择哪一个取决于具体的应用需求和预算考虑。", disc3: "" },
@@ -132,12 +132,12 @@ export const modelPrices: PriceTable = {
 	"Qwen/Qwen2-Math-72B-Instruct": { input: 0.00413, output: 0.00413},
 	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
 	// "meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
-	"meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021},
+	// "meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021},
 	"chatgpt-4o-latest": { input: 0.035, output: 0.105},
 	// "gemini-1.5-flash": { input: 0.002, output: 0.006, coe: 1.1, useExchangeRate: true ,disc1: "", disc2: "", disc3: "" }, // 2/6$ 服务不可用
 	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true}, // 4/12$
 	// "deepseek-ai/DeepSeek-V2.5": { input: 0.001, output: 0.002}, // 限时免费
-	"mattshumer/Reflection-Llama-3.1-70B": { input: 0.00413, output: 0.00413},
+	// "mattshumer/Reflection-Llama-3.1-70B": { input: 0.00413, output: 0.00413},
 
 	// "microsoft/phi-3.5-moe-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
 	// "microsoft/phi-3.5-vision-instruct": { input: 0.00126, output: 0.00126, disc1: "", disc2: "", disc3: "" },
