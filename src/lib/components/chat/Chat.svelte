@@ -669,7 +669,7 @@
 		const res = await imageGenerations(localStorage.token, promptUsed).catch((error) => {
 			toast.error(error);
 		});
-		console.log(res);
+		// console.log(res);
 
 		if (res) {
 			responseMessage.files = res.map((image) => ({
@@ -1062,7 +1062,12 @@
 	async function isAmountSufficient(model, require) {
 		let sufficient = true;
 		let pricePair = modelPrices[model.id];
-		if (!pricePair) { // 没价格的就当是免费
+
+		if (require == PIC_PRICE) {
+			if (Number(PIC_PRICE) === 0.0) {
+				return sufficient;
+			}
+		} else if (!pricePair) { // 没价格的就是免费
 			return sufficient;
 		}
 		try {
@@ -1099,7 +1104,7 @@
 			}
 		} else {
 			sufficient = false;
-			toast.error($i18n.t('Get balance fail, contact the admin'));
+			toast.error($i18n.t('余额不足，请充值或使用免费模型'));
 		}
 		console.log('sufficient:', sufficient);
 		return sufficient;
@@ -1261,9 +1266,11 @@
 						let sufficient = await isAmountSufficient(model, PIC_PRICE);
 						if (sufficient) {
 							_response = await generateImage(responseMessage, prompt);
-							let ret = await adjustUserBalance(-PIC_PRICE, $user.id, 1);
-							if (ret) {
-								toast.error($i18n.t('Get balance fail, contact the admin'));
+							if (Number(PIC_PRICE) > 0) {
+								let ret = await adjustUserBalance(-PIC_PRICE, $user.id, 1);
+								if (ret) {
+									toast.error($i18n.t('Get balance fail, contact the admin'));
+								}
 							}
 						} else {
 							shutResponse(responseMessageId);

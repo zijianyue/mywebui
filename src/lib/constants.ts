@@ -109,7 +109,7 @@ type PriceTable = {
 
 export const INIT_BALANCE_AMOUNT = 5;
 export const PRICE_COE = 2;
-export const PIC_PRICE = 0.1;
+export const PIC_PRICE = 0;
 export const LOWEST_AMOUNT = 0.01;
 
 

@@ -86,7 +86,7 @@
 		});
 
 		_socket.on('usage', (data) => {
-			console.log('usage', data);
+			// console.log('usage', data);
 			USAGE_POOL.set(data['models']);
 		});
 	};
