@@ -2178,6 +2178,15 @@ async def update_pipeline_valves(
 # Config Endpoints
 #
 ##################################
+@app.head("/api/auth/useronly")
+@app.get("/api/auth/useronly")
+async def authUserOnly(request: Request, user=Depends(get_verified_user)):
+    original_method = request.headers.get("X-Original-Method")
+    if original_method == "HEAD":
+        # 对于 HEAD 请求，我们只需要返回状态码
+        return Response(status_code=200)
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
 
 @app.head("/api/auth")
 @app.get("/api/auth")
