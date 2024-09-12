@@ -157,7 +157,10 @@ INIT_BALANCE_AMOUNT = 5
 
 def get_paid_user(user=Depends(get_verified_user)):
     # print(f"user: {user}")
-    balance_amount = float(user.settings.ui.get('balance', {}).get('amount', 0))
+    if user.settings is not None and hasattr(user.settings, 'ui'):
+        balance_amount = float(user.settings.ui.get('balance', {}).get('amount', 0))
+    else:
+        balance_amount = 0.0
     print(f"amount: {balance_amount}")
 
     if balance_amount <= INIT_BALANCE_AMOUNT:
