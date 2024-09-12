@@ -90,7 +90,10 @@
 								</a>
 							</div>
 							<div class="px-1 mb-2">
-								<a href="https://comfyui.nas.cpolar.cn" target="_blank" class="comfy-ui-button">
+								<a href="https://comfyui.nas.cpolar.cn" target="_blank"
+								   on:click={(event) => handleModuleUIClickWrapper(event, 'https://comfyui.nas.cpolar.cn')}
+									class="comfy-ui-button"
+									>
 									<span>{$i18n.t('ComfyUI生成图片或视频')}</span>
 								</a>
 							</div>
