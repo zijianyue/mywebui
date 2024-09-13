@@ -94,7 +94,7 @@
 								   on:click={(event) => handleModuleUIClickWrapper(event, 'https://comfyui.nas.cpolar.cn')}
 									class="comfy-ui-button"
 									>
-									<span>{$i18n.t('ComfyUI生成图片或视频')}</span>
+									<span>{$i18n.t('ComfyUI生成图片视频声音克隆')}</span>
 								</a>
 							</div>
 						</div>

@@ -623,7 +623,7 @@
 						<line x1="17" y1="17" x2="22" y2="17"/>
 						<line x1="17" y1="7" x2="22" y2="7"/>
 					</svg>&nbsp;
-					<span>{$i18n.t('ComfyUI生成图片或视频')}</span>
+					<span>{$i18n.t('ComfyUI生成图片视频声音克隆')}</span>
 				</a>
 			</div>
 		</div>
