@@ -527,6 +527,7 @@
 		}
 		console.log(`Audio monitoring and playing stopped for message ID ${id}`);
 	};
+
 	const chatStartHandler = async (e) => {
 		const { id } = e.detail;
 
@@ -580,6 +581,7 @@
 
 		chatStreaming = false;
 	};
+
 	onMount(async () => {
 		const setWakeLock = async () => {
 			try {
@@ -610,7 +612,7 @@
 		}
 
 		model = $models.find((m) => m.id === modelId);
-		audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
 		startRecording();
 
 		eventTarget.addEventListener('chat:start', chatStartHandler);
@@ -635,18 +637,8 @@
 			await stopCamera();
 		};
 	});
-	const cleanupResources = async () => {
-		if (!$mobile) {
-			show = false;
-		}
-		eventTarget.removeEventListener('chat:start', chatStartHandler);
-		eventTarget.removeEventListener('chat', chatEventHandler);
-		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
-		audioAbortController.abort();
-		await tick();
 
-	};
-	onDestroy(async () => {	
+	onDestroy(async () => {
 		await stopAllAudio();
 		stopAudioStream();
 

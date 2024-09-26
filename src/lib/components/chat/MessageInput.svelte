@@ -360,7 +360,7 @@
 							<button
 								class="frosted-gold bg-white/20 border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full flex items-center"
 								on:click={() => {
-								initNewChat();
+									initNewChat();
 								}}
 								>
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -751,7 +751,7 @@
 												...document.getElementsByClassName('edit-user-message-button')
 											]?.at(-1);
 
-											console.log(userMessageElement);
+											console.log('userMessageElement:', userMessageElement);
 
 											userMessageElement.scrollIntoView({ block: 'center' });
 											editButton?.click();
@@ -1047,8 +1047,6 @@
 
 				<div class="mt-1.5 text-xs text-gray-500 text-center line-clamp-1">
 					{$i18n.t('LLMs can make mistakes. Verify important information.')}
-					{"|"}
-					Copyright © 2024
 					{"|"}
 					<a href="/agreement" target="_blank"><span class=" underline">{$i18n.t('User Agreement')}</span></a>
 				</div>

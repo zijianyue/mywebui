@@ -397,6 +397,10 @@
 									}, 100);
 								}
 							}}
+							{submitPrompt}
+							{suggestQuestionsList}
+							{getAnswerFromQA}
+							{translateResponse}
 						/>
 					{/each}
 				</div>

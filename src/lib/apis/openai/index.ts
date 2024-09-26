@@ -370,14 +370,15 @@ export function isMainlyEnglish(str: string, threshold: number = 0.9): boolean {
 	// 移除所有空白字符
 	const trimmedStr = str.replace(/\s/g, '');
 
-	// 计算英文字符的数量
-	const englishCharCount = (trimmedStr.match(/[a-zA-Z]/g) || []).length;
+	// 计算ASCII字符的数量
+	const asciiCharCount = (trimmedStr.match(/[\x00-\x7F]/g) || []).length;
 
-	// 计算英文字符占总字符的比例
-	const englishRatio = englishCharCount / trimmedStr.length;
+	// 计算ASCII字符占总字符的比例
+	const asciiRatio = asciiCharCount / trimmedStr.length;
+	console.log('asciiRatio:', asciiRatio);
 
 	// 判断是否达到阈值
-	return englishRatio >= threshold;
+	return asciiRatio >= threshold;
 }
 
 export const translatePrompt = async (userPrompt: string, modelId: string) => {

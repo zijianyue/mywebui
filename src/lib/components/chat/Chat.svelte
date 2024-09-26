@@ -806,12 +806,12 @@
 
 			history.messages[responseMessage.id] = responseMessage;
 			await updateChatById(localStorage.token, _chatId, {
-				messages: messages,
 				history: history
 			});
 		}
 
 		scrollToBottom();
+		const messages = createMessagesList(responseMessage.id);
 		if (messages.length == 2) {
 			window.history.replaceState(history.state, '', `/c/${_chatId}`);
 
@@ -978,18 +978,12 @@
 						}
 						if (done || stopResponseFlag || _chatId !== $chatId) {
 							responseMessage.done = true;
-							messages = messages;
+							history.messages[responseMessageId] = responseMessage;
 
 							if (stopResponseFlag) {
 								controller.abort('User: Stop Response');
-							} else {
-								const messages = createMessagesList(responseMessageId);
-
-								await chatCompletedHandler(_chatId, model.id, responseMessageId, messages);
 							}
-
 							_response = responseMessage.content;
-
 							break;
 						}
 
@@ -999,6 +993,12 @@
 
 						if (citations) {
 							responseMessage.citations = citations;
+							// Only remove status if it was initially set
+							if (model?.info?.meta?.knowledge ?? false) {
+								responseMessage.statusHistory = responseMessage.statusHistory.filter(
+									(status) => status.action !== 'knowledge_search'
+								);
+							}
 							continue;
 						}
 
@@ -1011,23 +1011,29 @@
 								navigator.vibrate(5);
 							}
 
-							const sentences = extractSentencesForAudio(responseMessage.content);
-							sentences.pop();
+							const messageContentParts = getMessageContentParts(
+								responseMessage.content,
+								$config?.audio?.tts?.split_on ?? 'punctuation'
+							);
+							messageContentParts.pop();
 
 							// dispatch only last sentence and make sure it hasn't been dispatched before
 							if (
-								sentences.length > 0 &&
-									sentences[sentences.length - 1] !== responseMessage.lastSentence
+								messageContentParts.length > 0 &&
+									messageContentParts[messageContentParts.length - 1] !== responseMessage.lastSentence
 							) {
-								responseMessage.lastSentence = sentences[sentences.length - 1];
+								responseMessage.lastSentence = messageContentParts[messageContentParts.length - 1];
 								eventTarget.dispatchEvent(
 									new CustomEvent('chat', {
-										detail: { id: responseMessageId, content: sentences[sentences.length - 1] }
+										detail: {
+											id: responseMessageId,
+											content: messageContentParts[messageContentParts.length - 1]
+										}
 									})
 								);
 							}
 
-							messages = messages;
+							history.messages[responseMessageId] = responseMessage;
 						}
 
 						if (autoScroll) {
@@ -1051,35 +1057,33 @@
 
 						document.getElementById(`speak-button-${responseMessage.id}`)?.click();
 					}
-
-					if ($chatId == _chatId) {
-						if (!$temporaryChatEnabled) {
-							chat = await updateChatById(localStorage.token, _chatId, {
-								models: selectedModels,
-								messages: messages,
-								history: history,
-								params: params,
-								files: chatFiles
-							});
-
-							currentChatPage.set(1);
-							await chats.set(await getChatList(localStorage.token, $currentChatPage));
-						}
-					}
 				} else {
 					await handleOpenAIError(null, res, model, responseMessage);
 				}
 
-				messages = messages;
+				await saveChatHandler(_chatId);
+
+				history.messages[responseMessageId] = responseMessage;
+
+				await chatCompletedHandler(
+					_chatId,
+					model.id,
+					responseMessageId,
+					createMessagesList(responseMessageId)
+				);
 
 				stopResponseFlag = false;
 				await tick();
 
-				let lastSentence = extractSentencesForAudio(responseMessage.content)?.at(-1) ?? '';
-				if (lastSentence) {
+				let lastMessageContentPart =
+					getMessageContentParts(
+						responseMessage.content,
+						$config?.audio?.tts?.split_on ?? 'punctuation'
+					)?.at(-1) ?? '';
+				if (lastMessageContentPart) {
 					eventTarget.dispatchEvent(
 						new CustomEvent('chat', {
-							detail: { id: responseMessageId, content: lastSentence }
+							detail: { id: responseMessageId, content: lastMessageContentPart }
 						})
 					);
 				}
@@ -1097,11 +1101,11 @@
 					scrollToBottom();
 				}
 
+				const messages = createMessagesList(responseMessageId);
 				if (messages.length == 2 && selectedModels[0] === model.id) {
 					window.history.replaceState(history.state, '', `/c/${_chatId}`);
-
-					const _title = await generateChatTitle(prompt);
-					await setChatTitle(_chatId, _title);
+					const title = await generateChatTitle(prompt);
+					await setChatTitle(_chatId, title);
 				}
 
 				if (!$showCallOverlay && messages.length >= 2 && messages.at(-1).done == true) {
@@ -1114,8 +1118,6 @@
 						toast.success('所有常见问题都已经回答过了');
 					}
 				}
-
-				scrollToBottom();
 			}
 		}
 		return _response;
@@ -1839,6 +1841,7 @@
 
 			console.log('responseIdToTrans:', responseIdToTrans);
 
+			const orgMessages = createMessagesList(responseMessageId);
 			let clonedMessages;
 			let useMockMsg = false, useCustomModel = false;
 			let useSpecifiedModel = '';
@@ -1850,8 +1853,7 @@
 					useCustomModel = false;
 					useSpecifiedModel = 'deepseek-ai/DeepSeek-V2.5';
 				}
-				clonedMessages = JSON.parse(JSON.stringify(messages));
-				console.log('clonedMessages:', clonedMessages);
+				clonedMessages = JSON.parse(JSON.stringify(orgMessages));
 
 				let mockUserMsg = clonedMessages.find(message => message.id === responseMessage.parentId);
 				console.log('mockUserMsg:', mockUserMsg);
@@ -1862,21 +1864,15 @@
 					userPrompt = mockUserMsg.content;
 				}
 
+				console.log('userPrompt before translate:', userPrompt);
+
 				if (translate || responseIdToTrans !== '') {
 					if (isMainlyEnglish(userPrompt)) {
 						console.log('mostly english');
-						userPrompt = `请将以下###标记之间的文本翻译成简体中文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯中文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
-
-###
-${userPrompt}
-###`;
+						userPrompt = `请将以下文本翻译成简体中文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯中文，不包含任何Unicode字符或翻译注释。原文：${userPrompt}`;
 						// userPrompt = `Translate the text in the quotes below into Simplified Chinese, without including translation notes. The result must be in Chinese and cannot contain Unicode characters："${userPrompt}"`;	
 					} else {
-						userPrompt = `请将以下###标记之间的文本翻译成英文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯英文，不包含任何Unicode字符或翻译注释。以下是需要翻译的文本：
-
-###
-${userPrompt}
-###`;
+						userPrompt = `请将以下文本翻译成英文。翻译时保持专业、准确，并使用技术写作的语气。请确保翻译是纯英文，不包含任何Unicode字符或翻译注释。原文：${userPrompt}`;
 						// userPrompt = `Translate the text in quotes into English without including translation notes. The result must be pure English, with no unicode characters："${userPrompt}"`;
 					}
 				} else if (correctText) {
@@ -1917,7 +1913,7 @@ ${userPrompt}
 					// 译成英文提示词
 					if (!isPureEnglish(userPrompt)) {
 						useMockMsg = true;
-						clonedMessages = JSON.parse(JSON.stringify(messages));
+						clonedMessages = JSON.parse(JSON.stringify(orgMessages));
 						let mockUserMsg = clonedMessages.find(message => message.id === responseMessage.parentId);
 						let userPrompt = mockUserMsg.content;
 
@@ -2264,7 +2260,7 @@ ${userPrompt}
 	const translateResponse = async (message) => {
 		console.log('translateResponse');
 
-		if (messages.length != 0) {
+		if (history.messages.length != 0) {
 			let userMessage = history.messages[message.parentId];
 			responseIdToTrans = message.id;
 			await sendPrompt(userMessage.content, userMessage.id);
@@ -2579,147 +2575,41 @@ ${userPrompt}
 				/>
 			{/if}
 
-		<Navbar
-			{chat}
-			title={$chatTitle}
-			bind:selectedModels
-			shareEnabled={!!history.currentId}
-			{initNewChat}
-		/>
+			<Navbar
+				{chat}
+				title={$chatTitle}
+				bind:selectedModels
+				shareEnabled={!!history.currentId}
+				{initNewChat}
+			/>
 
-		<PaneGroup direction="horizontal" class="w-full h-full">
-			<Pane defaultSize={50} class="h-full flex w-full relative">
-				{#if $banners.length > 0 && !history.currentId && !$chatId && selectedModels.length <= 1}
-					<div class="absolute top-3 left-0 right-0 w-full z-20">
-						<div class=" flex flex-col gap-1 w-full">
-							{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
-								<Banner
-									{banner}
-									on:dismiss={(e) => {
-										const bannerId = e.detail;
+			<PaneGroup direction="horizontal" class="w-full h-full">
+				<Pane defaultSize={50} class="h-full flex w-full relative">
+					{#if $banners.length > 0 && !history.currentId && !$chatId && selectedModels.length <= 1}
+						<div class="absolute top-3 left-0 right-0 w-full z-20">
+							<div class=" flex flex-col gap-1 w-full">
+								{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
+									<Banner
+										{banner}
+										on:dismiss={(e) => {
+											const bannerId = e.detail;
 
-										localStorage.setItem(
-											'dismissedBannerIds',
-											JSON.stringify(
-												[
-													bannerId,
-													...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
-												].filter((id) => $banners.find((b) => b.id === id))
-											)
-										);
-									}}
-								/>
-							{/each}
-						</div>
-					</div>
-				{/if}
-
-				<div class="flex flex-col flex-auto z-10 w-full">
-					<div
-						class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
-						id="messages-container"
-						bind:this={messagesContainerElement}
-						on:scroll={(e) => {
-							autoScroll =
-								messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-								messagesContainerElement.clientHeight + 5;
-						}}
-					>
-						<div class=" h-full w-full flex flex-col {chatIdProp ? 'py-4' : 'pt-2 pb-4'}">
-							<Messages
-								chatId={$chatId}
-								bind:history
-								bind:autoScroll
-								bind:prompt
-								{selectedModels}
-								{sendPrompt}
-								{showMessage}
-								{continueResponse}
-								{regenerateResponse}
-								{mergeResponses}
-								{chatActionHandler}
-								bottomPadding={files.length > 0}
-							/>
-						</div>
-					</div>
-
-					<div class="">
-						<div class="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
-							<div class="relative flex justify-between items-center mb-2 px-4 md:px-6 lg:px-8">
-								<button
-									on:click={newConversation}
-									class="frosted-gold flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 text-gray-800 dark:text-gray-200 hover:brightness-110 hover:scale-105"
-									aria-label="新建对话"
-									>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-									</svg>
-									<span>新对话</span>
-								</button>
-								{#if prompt.trim() !== ''}
-									<div transition:fade="{{ duration: 300 }}" class="absolute right-4 md:right-6 lg:right-8 flex items-center justify-center space-x-2">
-										<button
-											on:click={scrollLeft}
-											class="p-1 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none transition-colors duration-200"
-											aria-label="向左滚动"
-											disabled={currentIndex === 0}
-											>
-											<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-												<path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-											</svg>
-										</button>
-
-										<div class="overflow-hidden w-[116px]">
-											<div bind:this={buttonContainer} class="flex transition-transform duration-300 ease-in-out space-x-1">
-												{#each buttons as button}
-													<Tooltip content={$i18n.t(button.text)}>
-														<button
-															on:click={() => handleButtonClick(button.icon)}
-															class="flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-md shadow-sm text-xs font-medium text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-colors duration-200"
-															>
-															{#if button.icon === 'summary'}
-																<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-																	<path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-																	<path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
-																</svg>
-															{:else if button.icon === 'correct'}
-																<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-																	<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-																</svg>
-															{:else if button.icon === 'translate'}
-																<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-																	<path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clip-rule="evenodd" />
-																</svg>
-															{:else if button.icon === 'analyze'}
-																<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-																	<path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-																</svg>
-															{:else if button.icon === 'extract'}
-																<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-																	<path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-																</svg>
-															{/if}
-														</button>
-													</Tooltip>
-												{/each}
-											</div>
-										</div>
-
-										<button
-											on:click={scrollRight}
-											class="p-1 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none transition-colors duration-200"
-											aria-label="向右滚动"
-											disabled={currentIndex === buttons.length - 3}
-											>
-											<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-												<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-											</svg>
-										</button>
-									</div>
-								{/if}
+											localStorage.setItem(
+												'dismissedBannerIds',
+												JSON.stringify(
+													[
+														bannerId,
+														...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
+													].filter((id) => $banners.find((b) => b.id === id))
+												)
+											);
+										}}
+									/>
+								{/each}
 							</div>
 						</div>
-					
+					{/if}
+
 					<div class="flex flex-col flex-auto z-10 w-full">
 						<div
 							class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
@@ -2745,42 +2635,44 @@ ${userPrompt}
 									{mergeResponses}
 									{chatActionHandler}
 									bottomPadding={files.length > 0}
+									{submitPrompt}
+									{suggestQuestionsList}
+									{getAnswerFromQA}
+									{translateResponse}
 								/>
 							</div>
 						</div>
-						
+
 						<div class="">
-							<MessageInput
-								{history}
-								bind:files
-								bind:prompt
-								bind:autoScroll
-								bind:selectedToolIds
-								bind:webSearchEnabled
-								bind:generateImageEnabled
-								bind:atSelectedModel
-								{selectedModels}
-								availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
-									const model = $models.find((m) => m.id === e);
-									if (model?.info?.meta?.toolIds ?? false) {
-										return [...new Set([...a, ...model.info.meta.toolIds])];
-									}
-									return a;
-								}, [])}
-								transparentBackground={$settings?.backgroundImageUrl ?? false}
-								{submitPrompt}
-								{stopResponse}
-								{createMessagePair}
-								on:call={async () => {
-									await showControls.set(true);
-								}}
-								on:mrStatusChanged = {(e) => {
-									mrToMemory = (e.detail == 'wait model response');
-								}}
-								{suggestQuestionsList}
-								{getAnswerFromQA}
-								{translateResponse}
-							/>
+								<MessageInput
+									{history}
+									bind:files
+									bind:prompt
+									bind:autoScroll
+									bind:selectedToolIds
+									bind:webSearchEnabled
+									bind:generateImageEnabled
+									bind:atSelectedModel
+									{selectedModels}
+									availableToolIds={selectedModelIds.reduce((a, e, i, arr) => {
+										const model = $models.find((m) => m.id === e);
+										if (model?.info?.meta?.toolIds ?? false) {
+											return [...new Set([...a, ...model.info.meta.toolIds])];
+										}
+										return a;
+									}, [])}
+									transparentBackground={$settings?.backgroundImageUrl ?? false}
+									{submitPrompt}
+									{stopResponse}
+									{createMessagePair}
+									on:call={async () => {
+										await showControls.set(true);
+									}}
+									on:mrStatusChanged = {(e) => {
+										mrToMemory = (e.detail == 'wait model response');
+									}}
+									{initNewChat}
+								/>
 						</div>
 					</div>
 				</Pane>

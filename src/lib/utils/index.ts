@@ -118,8 +118,11 @@ export const convertMessagesToHistory = (messages) => {
 export const getLastUserMessage = (
 	messages
 ) => {
+	console.log('getLastUserMessage start length:', messages.length);
+
 	for (let i = messages.length - 1; i >= 0; i--) {
 		const message = messages[i];
+		console.log('getLastUserMessage message', message);
 		if (message.role === 'user') {
 			return message;
 		}

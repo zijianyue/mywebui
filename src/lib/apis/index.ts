@@ -32,9 +32,10 @@ export const getModels = async (token: string = '') => {
 			// console.log(`Model: id=${model.id}, urlIdx=${model.urlIdx}`);
 			// 临时处理
 			const cond4Gemma27b = !(model.id === 'google/gemma-2-27b-it' && model.urlIdx === 4);
-			const cond4Gemini = model.urlIdx !== 6 || (model.urlIdx === 6 && model.id.toLowerCase().includes('gemini-1.5'));
+			const cond4GeminiAndO1 = model.urlIdx !== 6 || (model.urlIdx === 6 && model.id.toLowerCase().includes('gemini-1.5'))
+				|| (model.urlIdx === 6 && model.id.toLowerCase().includes('o1'));
 
-			return cond4Gemma27b && cond4Gemini;
+			return cond4Gemma27b && cond4GeminiAndO1;
 		})
 		// Sort the models
 		.sort((a, b) => {

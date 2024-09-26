@@ -32,6 +32,9 @@
 	export let continueResponse: Function;
 	export let regenerateResponse: Function;
 	export let mergeResponses: Function;
+	export let submitPrompt: Function;
+	export let suggestQuestionsList = [];
+	export let getAnswerFromQA: Function;
 	export let translateResponse: Function;
 
 	const dispatch = createEventDispatcher();
@@ -209,7 +212,6 @@
 									{rateMessage}
 									{editMessage}
 									{continueResponse}
-									{translateResponse}
 									regenerateResponse={async (message) => {
 										regenerateResponse(message);
 										await tick();
@@ -226,6 +228,10 @@
 										dispatch('save', e.detail);
 									}}
 									{readOnly}
+									{submitPrompt}
+									{suggestQuestionsList}
+									{getAnswerFromQA}
+									{translateResponse}
 								/>
 							{/if}
 						{/key}

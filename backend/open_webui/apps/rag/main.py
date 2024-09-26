@@ -1360,8 +1360,8 @@ def get_qa_questions(
                     continue
                 collection_file_ids[collection_name] = set()
                 collection = VECTOR_DB_CLIENT.get(collection_name=collection_name)
-                documents = collection.get()
-                metadatas = documents.get("metadatas")
+                # print(f"collection is: {collection}")
+                metadatas = collection.metadatas[0]
 
                 # 提取所有 file_id
                 for metadata in metadatas:

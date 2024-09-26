@@ -152,7 +152,7 @@ def get_verified_user(user=Depends(get_current_user)):
     return user
 
 
-INIT_BALANCE_AMOUNT = 5
+INIT_BALANCE_AMOUNT = 10         # 单独设置的付费功能最低余额
 
 
 def get_paid_user(user=Depends(get_verified_user)):

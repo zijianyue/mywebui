@@ -40,6 +40,11 @@
 	export let autoScroll = false;
 	export let readOnly = false;
 
+	export let suggestQuestionsList = [];
+	export let submitPrompt: Function;
+	export let getAnswerFromQA: Function;
+	export let translateResponse: Function;
+
 	onMount(() => {
 		// console.log('message', idx);
 	});
@@ -110,6 +115,10 @@
 					}
 				}}
 				{readOnly}
+				{submitPrompt}
+				{suggestQuestionsList}
+				{getAnswerFromQA}
+				{translateResponse}
 			/>
 		{:else}
 			<MultiResponseMessages
@@ -160,6 +169,10 @@
 					dispatch('scroll');
 				}}
 				{readOnly}
+				{submitPrompt}
+				{suggestQuestionsList}
+				{getAnswerFromQA}
+				{translateResponse}
 			/>
 		{/if}
 	{/if}

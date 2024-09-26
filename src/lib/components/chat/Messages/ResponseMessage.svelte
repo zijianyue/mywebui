@@ -213,9 +213,23 @@
 		console.log('settleTheBill call addAcountBill user: ', $user.id, 'billModel: ', billModel.name);
 		addAcountBill($user.id, billModel.name, input_tokens.toString(), output_tokens.toString(), inputCost.toString(), outputCost.toString(), $settings.balance.amount.toString(), data.getFullYear(), data.getMonth() + 1);
 	}
+
+	const createMessagesList = (responseMessageId) => {
+		if (responseMessageId === null) {
+			return [];
+		}
+
+		const message = history.messages[responseMessageId];
+		if (message?.parentId) {
+			return [...createMessagesList(message.parentId), message];
+		} else {
+			return [message];
+		}
+	};
 	async function fetchOriginRagAnswer() {
 		loading = true;
-		let lastUserMsg = getLastUserMessage(history.messages);
+		let messages = createMessagesList(history.currentId);
+		let lastUserMsg = getLastUserMessage(messages);
 
 		if (getAnswerFromQA) {
 			detailedResponse = await getAnswerFromQA(lastUserMsg.content, model, '', false, true);
@@ -501,7 +515,9 @@ A：回答2`;
 	$: (async () => {
 		recentMessages = '';
 		if (isLastMessage && message.done) {
-			recentMessages = getHistoryPromptText(history.messages);
+			let messages = createMessagesList(history.currentId);
+
+			recentMessages = getHistoryPromptText(messages);
 		}
 	})();
 
@@ -1162,9 +1178,9 @@ A：回答2`;
 													   ? 'visible'
 													   : 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition translate-message-button"
 												on:click={() => {
-												translateResponse(message);
+													translateResponse(message);
 												}}
-												>
+											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
 													viewBox="0 0 20 20"
