@@ -100,6 +100,7 @@
 						<option value={prompt.content} class="bg-gray-100 dark:bg-gray-700">{prompt.title}</option>
 					{/each}
 				</select>
+				<div class="my-2"></div>
 				<textarea
 					bind:value={params.system}
 					class="w-full rounded-lg px-3.5 py-2.5 text-sm dark:text-gray-300 dark:bg-gray-850 border border-gray-100 dark:border-gray-800 outline-none resize-none"
