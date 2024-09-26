@@ -117,7 +117,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse, Response, StreamingResponse
 
 from open_webui.utils.security_headers import SecurityHeadersMiddleware
-from utils.suggested_questions_after_answer \
+from open_webui.utils.suggested_questions_after_answer \
     import SuggestedQuestionsAfterAnswerOutputParser
 from open_webui.utils.prompt_template_parser import PromptTemplateParser
 from open_webui.utils.message_entities import (ImagePromptMessageContent,

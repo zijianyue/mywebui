@@ -72,7 +72,6 @@
 	export let webSearchEnabled = false;
 	export let generateImageEnabled = false;
 
-	export let prompt = '';
 	export let messages = [];
 
 	let buttonContainer: HTMLElement;

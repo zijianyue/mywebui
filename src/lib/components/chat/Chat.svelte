@@ -81,8 +81,6 @@
 	import { chatCompletionSimple } from '$lib/apis/openai';
 	import { modelPrices } from '$lib/constants';
 
-	const i18n: Writable<i18nType> = getContext('i18n');
-
 	export let chatIdProp = '';
 
 	let loaded = false;
@@ -1158,7 +1156,7 @@
 		const responseMessage = history.messages[responseMessageId];
 
 		showCallOverlay.set(false);
-		showControls = false;
+		await showControls.set(false);
 		eventTarget.dispatchEvent(
 			new CustomEvent('chat:start', {
 				detail: {
@@ -1973,8 +1971,7 @@ ${userPrompt}
 									}`
 								}
 							: undefined,
-						...createMessagesList(responseMessageId)
-						...(useMockMsg ? clonedMessages : messages)
+						...(useMockMsg ? clonedMessages : createMessagesList(responseMessageId))
 					]
 						.filter((message) => message?.content?.trim())
 						.map((message, idx, arr) => ({
@@ -2582,29 +2579,6 @@ ${userPrompt}
 				/>
 			{/if}
 
-			<Navbar
-				{title}
-				bind:selectedModels
-				bind:showModelSelector
-				bind:showControls
-				shareEnabled={messages.length > 0}
-				{chat}
-				{initNewChat}
-			/>
-
-			{#if $banners.length > 0 && messages.length === 0 && !$chatId && selectedModels.length <= 1}
-				<div
-					class="absolute top-[4.25rem] w-full {$showSidebar
-						? 'md:max-w-[calc(100%-260px)]'
-						: ''} {showControls ? 'lg:pr-[24rem]' : ''} z-20"
-				>
-					<div class=" flex flex-col gap-1 w-full">
-						{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
-							<Banner
-								{banner}
-								on:dismiss={(e) => {
-									const bannerId = e.detail;
-
 		<Navbar
 			{chat}
 			title={$chatTitle}
@@ -2744,6 +2718,38 @@ ${userPrompt}
 									</div>
 								{/if}
 							</div>
+						</div>
+					
+					<div class="flex flex-col flex-auto z-10 w-full">
+						<div
+							class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
+							id="messages-container"
+							bind:this={messagesContainerElement}
+							on:scroll={(e) => {
+								autoScroll =
+									messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+									messagesContainerElement.clientHeight + 5;
+							}}
+						>
+							<div class=" h-full w-full flex flex-col {chatIdProp ? 'py-4' : 'pt-2 pb-4'}">
+								<Messages
+									chatId={$chatId}
+									bind:history
+									bind:autoScroll
+									bind:prompt
+									{selectedModels}
+									{sendPrompt}
+									{showMessage}
+									{continueResponse}
+									{regenerateResponse}
+									{mergeResponses}
+									{chatActionHandler}
+									bottomPadding={files.length > 0}
+								/>
+							</div>
+						</div>
+						
+						<div class="">
 							<MessageInput
 								{history}
 								bind:files
@@ -2777,32 +2783,31 @@ ${userPrompt}
 							/>
 						</div>
 					</div>
-				</div>
-			</Pane>
+				</Pane>
 
-			<ChatControls
-				bind:history
-				bind:chatFiles
-				bind:params
-				bind:files
-				bind:pane={controlPane}
-				chatId={$chatId}
-				modelId={selectedModelIds?.at(0) ?? null}
-				models={selectedModelIds.reduce((a, e, i, arr) => {
-					const model = $models.find((m) => m.id === e);
-					if (model) {
-						return [...a, model];
-					}
-					return a;
-				}, [])}
-				{submitPrompt}
-				{stopResponse}
-				{showMessage}
-				{eventTarget}
-			/>
-		</PaneGroup>
-	</div>
-</PullToRefresh>
+				<ChatControls
+					bind:history
+					bind:chatFiles
+					bind:params
+					bind:files
+					bind:pane={controlPane}
+					chatId={$chatId}
+					modelId={selectedModelIds?.at(0) ?? null}
+					models={selectedModelIds.reduce((a, e, i, arr) => {
+						const model = $models.find((m) => m.id === e);
+						if (model) {
+							return [...a, model];
+						}
+						return a;
+					}, [])}
+					{submitPrompt}
+					{stopResponse}
+					{showMessage}
+					{eventTarget}
+				/>
+			</PaneGroup>
+		</div>
+	</PullToRefresh>
 {/if}
 
 <style>

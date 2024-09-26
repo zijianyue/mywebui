@@ -93,8 +93,6 @@
 		}
 	}
 
-	export let message: MessageType;
-	export let messages;
 	export let siblings;
 
 	export let showPreviousMessage: Function;
@@ -217,7 +215,7 @@
 	}
 	async function fetchOriginRagAnswer() {
 		loading = true;
-		let lastUserMsg = getLastUserMessage(messages);
+		let lastUserMsg = getLastUserMessage(history.messages);
 
 		if (getAnswerFromQA) {
 			detailedResponse = await getAnswerFromQA(lastUserMsg.content, model, '', false, true);
@@ -503,7 +501,7 @@ A：回答2`;
 	$: (async () => {
 		recentMessages = '';
 		if (isLastMessage && message.done) {
-			recentMessages = getHistoryPromptText(messages);
+			recentMessages = getHistoryPromptText(history.messages);
 		}
 	})();
 

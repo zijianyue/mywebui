@@ -91,6 +91,7 @@ from open_webui.config import (
 )
 from open_webui.constants import ERROR_MESSAGES
 from open_webui.env import SRC_LOG_LEVELS, DEVICE_TYPE, DOCKER
+from fastapi import Query
 from open_webui.utils.misc import (
     calculate_sha256,
     calculate_sha256_string,
@@ -1358,7 +1359,7 @@ def get_qa_questions(
                 if collection_name in GLOBAL_QA_MAP_CACHE or collection_name in collection_file_ids:
                     continue
                 collection_file_ids[collection_name] = set()
-                collection = CHROMA_CLIENT.get_collection(name=collection_name)
+                collection = VECTOR_DB_CLIENT.get(collection_name=collection_name)
                 documents = collection.get()
                 metadatas = documents.get("metadatas")
 
