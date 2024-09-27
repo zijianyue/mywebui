@@ -53,7 +53,7 @@
 				console.log('selectedUser:', selectedUser);
 
 				const userSettings = await getUserSettingsByUserId(localStorage.token, selectedUser.id);
-				if (userSettings?.ui?.balance?.amount) {
+				if (userSettings?.ui?.balance) {
 					_user.amount = userSettings.ui.balance.amount;
 					oldAmout = _user.amount;
 				}
