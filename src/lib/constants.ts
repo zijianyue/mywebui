@@ -135,9 +135,13 @@ export const modelPrices: PriceTable = {
 	// "meta/llama-3.1-405b-instruct": { input: 0.021, output: 0.021, disc1: "", disc2: "", disc3: "" },
 	// "meta-llama/Meta-Llama-3.1-70B-Instruct": { input: 0.00413, output: 0.00413, disc1: "", disc2: "", disc3: "" },
 	// "meta-llama/Meta-Llama-3.1-405B-Instruct": { input: 0.021, output: 0.021},
+	// "Qwen/Qwen2.5-72B-Instruct": { input: 0.00413, output: 0.00413},
+	// "Qwen/Qwen2.5-Math-72B-Instruct": { input: 0.00413, output: 0.00413},
 	"chatgpt-4o-latest": { input: 0.035, output: 0.105},
 	"o1-mini-ca": { input: 0.012, output: 0.048 },
 	"o1-preview-ca": { input: 0.06, output: 0.24 },
+	"o1-mini": { input: 0.003, output: 0.012, coe: 1.1, useExchangeRate: true },
+	"o1-preview": { input: 0.015, output: 0.060, coe: 1.1, useExchangeRate: true },
 	// "gemini-1.5-flash": { input: 0.002, output: 0.006, coe: 1.1, useExchangeRate: true ,disc1: "", disc2: "", disc3: "" }, // 2/6$ 服务不可用
 	"gemini-1.5-pro-latest": { input: 0.004, output: 0.012, coe: 1.1, useExchangeRate: true}, // 4/12$
 	// "deepseek-ai/DeepSeek-V2.5": { input: 0.001, output: 0.002}, // 限时免费
