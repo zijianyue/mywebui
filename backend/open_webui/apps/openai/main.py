@@ -233,8 +233,13 @@ def merge_models_lists(model_lists):
                     )
                 ]
             )
-
-    return merged_list
+    # 过滤模型跟临时处理中的一致
+    filtered_list = [
+        model for model in merged_list
+        if not (model["id"] == "google/gemma-2-27b-it" and model["urlIdx"] == 4)
+        and (model["urlIdx"] != 6 or "gemini-1.5" in model["id"].lower() or "o1" in model["id"].lower())
+    ]
+    return filtered_list
 
 
 def is_openai_api_disabled():
@@ -396,6 +401,7 @@ async def generate_chat_completion(
 
     model = app.state.MODELS[payload.get("model")]
     idx = model["urlIdx"]
+    print(f"generate_chat_completion model idx: {idx}")
 
     if "pipeline" in model and model.get("pipeline"):
         payload["user"] = {
@@ -407,6 +413,7 @@ async def generate_chat_completion(
 
     url = app.state.config.OPENAI_API_BASE_URLS[idx]
     key = app.state.config.OPENAI_API_KEYS[idx]
+    print(f"generate_chat_completion use url: {url}")
 
     # Change max_completion_tokens to max_tokens (Backward compatible)
     if "api.openai.com" not in url and not payload["model"].lower().startswith("o1-"):
